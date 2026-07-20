@@ -2,6 +2,7 @@ import { registerGenerator } from "./registry";
 import { waveform } from "./waveform";
 import { geometric } from "./geometric";
 import { typography } from "./typography";
+import { fluidGradient } from "./fluid-gradient";
 
 let initialized = false;
 
@@ -10,6 +11,7 @@ export function ensureRegistered(): void {
   registerGenerator(waveform);
   registerGenerator(geometric);
   registerGenerator(typography);
+  registerGenerator(fluidGradient);
   initialized = true;
 }
 
