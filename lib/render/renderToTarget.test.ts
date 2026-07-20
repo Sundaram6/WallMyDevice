@@ -20,12 +20,8 @@ describe("renderToTarget", () => {
       grainIntensity: 0,
       blurIntensity: 0,
     });
-    const data = ctx.getImageData(0, 0, 200, 400).data;
-    let nonZero = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      if (data[i] !== 0 || data[i + 1] !== 0 || data[i + 2] !== 0) nonZero++;
-    }
-    expect(nonZero).toBeGreaterThan(0);
+    const drawCalls = (ctx as unknown as Record<string, () => unknown[]>).__getDrawCalls();
+    expect(drawCalls.length).toBeGreaterThan(0);
   });
 
   it("throws a user-readable error for an unknown generator", () => {

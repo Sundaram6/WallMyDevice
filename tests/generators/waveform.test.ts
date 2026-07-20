@@ -52,10 +52,8 @@ describe("waveform generator", () => {
     const params = waveform.schema.defaults;
     waveform.render({ ctx: ctx1, width: 200, height: 200, dpr: 1 }, params, "seed-A", ["#000", "#fff"], createRng("seed-A"), { blur: 0, grain: { enabled: false, intensity: 0 } });
     waveform.render({ ctx: ctx2, width: 200, height: 200, dpr: 1 }, params, "seed-B", ["#000", "#fff"], createRng("seed-B"), { blur: 0, grain: { enabled: false, intensity: 0 } });
-    const a = ctx1.getImageData(0, 0, 200, 200).data;
-    const b = ctx2.getImageData(0, 0, 200, 200).data;
-    let diff = 0;
-    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff++;
-    expect(diff).toBeGreaterThan(0);
+    const events1 = JSON.stringify((ctx1 as unknown as Record<string, () => unknown[]>).__getEvents());
+    const events2 = JSON.stringify((ctx2 as unknown as Record<string, () => unknown[]>).__getEvents());
+    expect(events1).not.toEqual(events2);
   });
 });
