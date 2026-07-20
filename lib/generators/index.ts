@@ -1,12 +1,9 @@
-import { registerGenerator } from "./registry";
+import { registerGenerator, getGenerator } from "./registry";
 import { waveform } from "./waveform";
 
-let initialized = false;
-
 export function ensureRegistered(): void {
-  if (initialized) return;
+  if (getGenerator("waveform")) return;
   registerGenerator(waveform);
-  initialized = true;
 }
 
 export { getGenerator, listGenerators } from "./registry";
