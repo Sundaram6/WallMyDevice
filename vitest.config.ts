@@ -1,0 +1,17 @@
+import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
+    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    exclude: ['tests/e2e/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['lib/**/*.ts'],
+      thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 },
+    },
+  },
+  resolve: { alias: { '@': path.resolve(__dirname, '.') } },
+});
