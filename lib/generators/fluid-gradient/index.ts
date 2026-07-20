@@ -25,7 +25,7 @@ function hexToVec3(hex: string): Vec3 {
 let renderer: Renderer | null = null;
 let program: Program | null = null;
 let mesh: Mesh | null = null;
-let lastGl: WebGLRenderingContext | null = null;
+let lastGl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
 
 function ensureSetup(target: RenderTarget) {
   if (program && lastGl === target.ctx) return;
@@ -34,13 +34,13 @@ function ensureSetup(target: RenderTarget) {
   }
   const gl = target.ctx;
   if (renderer) {
-    renderer.gl = gl;
+    renderer.gl = gl as any;
   } else {
-    renderer = new Renderer({ gl, dpr: 1 });
+    renderer = new Renderer({ gl: gl as any, dpr: 1 } as any);
   }
-  program = new Program(gl, { vertex: VERT, fragment: FRAG, transparent: false });
-  const geometry = new Triangle(gl);
-  mesh = new Mesh(gl, { geometry, program });
+  program = new Program(gl as any, { vertex: VERT, fragment: FRAG, transparent: false });
+  const geometry = new Triangle(gl as any);
+  mesh = new Mesh(gl as any, { geometry, program });
   lastGl = gl;
 }
 

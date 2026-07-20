@@ -16,5 +16,5 @@ export function ensureRegistered(): void {
 }
 
 export { getGenerator, listGenerators } from "./registry";
-export type { Generator, GeneratorId } from "./registry";
+export type { GeneratorId } from "./registry";
 export type * from "./types";

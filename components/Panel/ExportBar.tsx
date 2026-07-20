@@ -109,7 +109,7 @@ export function ExportBar() {
     if (!built) return;
     const sizes = batchSelection
       .map(id => DEVICE_PRESETS.find(p => p.id === id))
-      .filter((p): p is NonNullable<typeof p> => Boolean(p) && p.id !== "custom")
+      .filter((p): p is NonNullable<typeof p> => p != null && p.id !== "custom")
       .map(p => ({ width: p.w, height: p.h }));
     if (sizes.length === 0) return;
     setProgress({ done: 0, total: sizes.length });
