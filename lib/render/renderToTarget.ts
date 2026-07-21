@@ -45,6 +45,7 @@ export function buildRenderInput(
     overlayFont: string;
     overlaySize: number;
     overlayTimestamp?: number;
+    systemColorScheme?: "light" | "dark";
   },
   dimensions: Dimensions
 ): RenderInput {
@@ -53,6 +54,7 @@ export function buildRenderInput(
     params: (state.params[state.generatorId] ?? {}) as unknown,
     palette: state.palette,
     mode: state.mode,
+    autoMode: state.systemColorScheme ?? "dark",
     seed: state.seed,
     grainEnabled: state.grainEnabled,
     grainIntensity: state.grainIntensity,
