@@ -31,6 +31,9 @@ export type EditorState = {
 
   exportFormat: ExportFormat;
 
+  sheetCollapsed: boolean;
+  setSheetCollapsed: (collapsed: boolean) => void;
+
   setGenerator: (id: string) => void;
   updateParam: (id: string, key: string, value: unknown) => void;
   setPalette: (palette: string[]) => void;
@@ -77,6 +80,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   overlaySize: 1,
 
   exportFormat: "png",
+
+  sheetCollapsed: true,
+  setSheetCollapsed: (collapsed) => set({ sheetCollapsed: collapsed }),
 
   setGenerator: (id) => {
     const params = get().params;

@@ -73,7 +73,8 @@ export default function Page() {
   const customHeight = useEditorStore(s => s.customHeight);
 
   const [isMobile, setIsMobile] = useState(false);
-  const [sheetCollapsed, setSheetCollapsed] = useState(true);
+  const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
+  const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
 
   useEffect(() => { ensureRegistered(); }, []);
 

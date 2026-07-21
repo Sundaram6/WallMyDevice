@@ -16,7 +16,9 @@ export function KeyboardShortcuts() {
         return;
       }
       if (e.key === "Escape") {
-        s.hydrate({});
+        if (!s.sheetCollapsed) {
+          useEditorStore.getState().setSheetCollapsed(true);
+        }
         return;
       }
       if (e.key >= "1" && e.key <= "4") {
