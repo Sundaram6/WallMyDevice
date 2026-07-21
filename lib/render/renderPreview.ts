@@ -1,5 +1,5 @@
 import { renderToTarget, type RenderInput } from "./renderToTarget";
-import type { RenderTarget } from "../generators/types";
+import type { Canvas2DTarget } from "../generators/types";
 
 export function renderPreview(
   canvas: HTMLCanvasElement,
@@ -10,6 +10,6 @@ export function renderPreview(
   canvas.width = size.width * size.dpr;
   canvas.height = size.height * size.dpr;
   ctx.setTransform(size.dpr, 0, 0, size.dpr, 0, 0);
-  const target: RenderTarget = { ctx, width: size.width, height: size.height, dpr: size.dpr };
+  const target: Canvas2DTarget = { kind: "canvas2d", canvas, ctx, width: size.width, height: size.height, dpr: size.dpr };
   renderToTarget(target, input);
 }

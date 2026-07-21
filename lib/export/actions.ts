@@ -5,6 +5,8 @@ import { batchExport } from "@/lib/export/batchExport";
 import { buildFilename } from "@/lib/export/filename";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
 
+import { buildRenderInput } from "@/lib/render/renderToTarget";
+
 export function downloadBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -16,30 +18,14 @@ export function downloadBlob(blob: Blob, name: string) {
   URL.revokeObjectURL(url);
 }
 
-export function buildInput() {
+export function buildInput(size?: { width: number; height: number }) {
   ensureRegistered();
   const s = useEditorStore.getState();
   const generatorId = s.generatorId;
   const g = getGenerator(generatorId);
   if (!g) return null;
-  const input = {
-    generatorId,
-    params: s.params[generatorId] ?? {},
-    palette: s.palette,
-    mode: s.mode,
-    seed: s.seed,
-    grainEnabled: s.grainEnabled,
-    grainIntensity: s.grainIntensity,
-    blurIntensity: s.blurIntensity,
-    overlays: {
-      clock: s.overlayClock,
-      date: s.overlayDate,
-      text: s.overlayText,
-      textValue: s.overlayTextValue,
-      font: s.overlayFont,
-      size: s.overlaySize,
-    },
-  };
+  const dimensions = size ?? { width: s.customWidth, height: s.customHeight };
+  const input = buildRenderInput(s, dimensions);
   return { input, seed: s.seed, generatorId };
 }
 

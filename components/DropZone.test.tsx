@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { DropZone } from "./DropZone";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests } from "@/lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 const VALID_RECIPE = JSON.stringify({
@@ -29,7 +28,6 @@ describe("DropZone", () => {
   afterEach(() => cleanup());
 
   beforeEach(() => {
-    _resetRegistryForTests();
     useEditorStore.setState({
       generatorId: "waveform",
       params: { waveform: waveform.schema.defaults },

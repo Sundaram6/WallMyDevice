@@ -7,10 +7,9 @@ import { DeviceFrame } from "@/components/Preview/DeviceFrame";
 import { BottomSheet } from "@/components/Preview/BottomSheet";
 import { useEditorStore } from "@/store/useEditorStore";
 import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
-import { ensureRegistered, getGenerator } from "@/lib/generators";
+import { getGenerator } from "@/lib/generators";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { decodeHash } from "@/lib/recipe/encode";
-import { getDefaultParams } from "@/lib/generators/registry-helpers";
 import { DropZone } from "@/components/DropZone";
 
 function loadHashRecipe() {
@@ -77,8 +76,6 @@ export default function Page() {
   const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
   const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
 
-  useEffect(() => { ensureRegistered(); }, []);
-
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const onChange = () => setIsMobile(mq.matches);
@@ -87,7 +84,11 @@ export default function Page() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  useEffect(() => { loadHashRecipe(); }, []);
+  useEffect(() => {
+    loadHashRecipe();
+    window.addEventListener("hashchange", loadHashRecipe);
+    return () => window.removeEventListener("hashchange", loadHashRecipe);
+  }, []);
 
   useEffect(() => { persistToLocalStorage(); });
 

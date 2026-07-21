@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { CURATED_PALETTES, palettesForMode, type Palette } from "@/lib/palettes/data";
+import { palettesForMode, type Palette } from "@/lib/palettes/data";
 import { extractPalette } from "@/lib/palettes/extract";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ColorInput } from "@/components/ui/ColorInput";

@@ -1,8 +1,8 @@
 import type { RenderTarget } from "../generators/types";
 
 export function applyGrain(target: RenderTarget, intensity: number, seed: string): void {
-  if (!(target.ctx instanceof CanvasRenderingContext2D)) return;
-  const ctx = target.ctx;
+  if (target.kind !== "canvas2d" && typeof (target.ctx as any).getImageData !== "function") return;
+  const ctx = target.ctx as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   const imageData = ctx.getImageData(0, 0, target.width, target.height);
   const d = imageData.data;
   let h = 0;

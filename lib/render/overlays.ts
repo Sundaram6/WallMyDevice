@@ -7,12 +7,13 @@ export type OverlayState = {
   textValue: string;
   font: string;
   size: number;
+  timestamp?: number;
 };
 
 export function drawOverlays(target: RenderTarget, state: OverlayState, palette: string[]): void {
-  if (!(target.ctx instanceof CanvasRenderingContext2D)) return;
+  if (target.kind !== "canvas2d" && typeof (target.ctx as any).fillText !== "function") return;
   if (!state.clock && !state.date && !state.text) return;
-  const ctx = target.ctx;
+  const ctx = target.ctx as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   const fg = palette[palette.length - 1] ?? "#ffffff";
   const fontSize = Math.round(target.width * 0.04 * state.size);
   ctx.fillStyle = fg;
@@ -21,7 +22,7 @@ export function drawOverlays(target: RenderTarget, state: OverlayState, palette:
   ctx.font = `500 ${fontSize}px ${state.font}, system-ui, sans-serif`;
   const cx = target.width / 2;
   const cy = target.height / 2;
-  const now = new Date();
+  const now = state.timestamp ? new Date(state.timestamp) : new Date();
   const lines: string[] = [];
   if (state.clock) lines.push(formatClock(now));
   if (state.date) lines.push(formatDate(now));

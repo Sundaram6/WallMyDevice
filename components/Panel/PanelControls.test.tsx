@@ -4,11 +4,9 @@ import { ModeToggle } from "./ModeToggle";
 import { SeedBar } from "./SeedBar";
 import { ResolutionPicker } from "./ResolutionPicker";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests } from "@/lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 function reset() {
-  _resetRegistryForTests();
   useEditorStore.setState({
     generatorId: "waveform",
     params: { waveform: waveform.schema.defaults },
