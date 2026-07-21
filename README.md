@@ -98,7 +98,7 @@ npm run preview
 
 ## Deployment
 
-Deployment status: Release candidate pending production deployment
+Deployment status: v0.1.0 Released at https://wallmydevice.vercel.app
 
 WallMyDevice is configured for Vercel deployment:
 
