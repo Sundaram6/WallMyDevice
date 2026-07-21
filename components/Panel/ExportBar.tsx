@@ -10,6 +10,7 @@ import { DEVICE_PRESETS } from "@/lib/devices/presets";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { buildInput, downloadBlob } from "@/lib/export/actions";
+import { validateExportSize } from "@/lib/export/limits";
 
 export function ExportBar() {
   useEditorStore(s => s.exportFormat);
@@ -51,6 +52,11 @@ export function ExportBar() {
       if (!built) return;
       const w = useEditorStore.getState().customWidth;
       const h = useEditorStore.getState().customHeight;
+      const sizeCheck = validateExportSize(w, h);
+      if (!sizeCheck.ok) {
+        setError(sizeCheck.error);
+        return;
+      }
       if (exportFormat === "svg") {
         const g = getGenerator(built.generatorId);
         if (!g || !g.toSvg) throw new Error("This generator cannot export as SVG");
