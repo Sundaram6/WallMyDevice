@@ -11,6 +11,7 @@ import { ensureRegistered, getGenerator } from "@/lib/generators";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { decodeHash } from "@/lib/recipe/encode";
 import { getDefaultParams } from "@/lib/generators/registry-helpers";
+import { DropZone } from "@/components/DropZone";
 
 function loadHashRecipe() {
   const hash = window.location.hash;
@@ -100,40 +101,44 @@ export default function Page() {
 
   if (isMobile) {
     return (
-      <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
-        <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
-          <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
-        </header>
-        <KeyboardShortcuts />
-        <main className="relative flex-1 overflow-hidden">
-          <div className="flex h-full items-center justify-center p-4">
-            <DeviceFrame frame={activeFrame} aspect={aspect}>
-              <PreviewCanvas frame={activeFrame} aspect={aspect} maxWidth={360} maxHeight={640} />
-            </DeviceFrame>
-          </div>
-          <BottomSheet title={sheetTitle} collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
-            <ControlPanel />
-          </BottomSheet>
-        </main>
-      </div>
+      <DropZone>
+        <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
+          <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
+            <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
+          </header>
+          <KeyboardShortcuts />
+          <main className="relative flex-1 overflow-hidden">
+            <div className="flex h-full items-center justify-center p-4">
+              <DeviceFrame frame={activeFrame} aspect={aspect}>
+                <PreviewCanvas frame={activeFrame} aspect={aspect} maxWidth={360} maxHeight={640} />
+              </DeviceFrame>
+            </div>
+            <BottomSheet title={sheetTitle} collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
+              <ControlPanel />
+            </BottomSheet>
+          </main>
+        </div>
+      </DropZone>
     );
   }
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
-        <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
-        <span className="text-xs text-zinc-500">{generatorId} - {customWidth}x{customHeight}</span>
-      </header>
-      <KeyboardShortcuts />
-      <div className="flex flex-1 overflow-hidden">
-        <main className="flex flex-1 items-center justify-center p-6">
-          <DeviceFrame frame={preset.frame} aspect={aspect}>
-            <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={800} maxHeight={600} />
-          </DeviceFrame>
-        </main>
-        <ControlPanel />
+    <DropZone>
+      <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
+        <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
+          <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
+          <span className="text-xs text-zinc-500">{generatorId} - {customWidth}x{customHeight}</span>
+        </header>
+        <KeyboardShortcuts />
+        <div className="flex flex-1 overflow-hidden">
+          <main className="flex flex-1 items-center justify-center p-6">
+            <DeviceFrame frame={preset.frame} aspect={aspect}>
+              <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={800} maxHeight={600} />
+            </DeviceFrame>
+          </main>
+          <ControlPanel />
+        </div>
       </div>
-    </div>
+    </DropZone>
   );
 }
