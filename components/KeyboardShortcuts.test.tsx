@@ -53,6 +53,74 @@ describe("KeyboardShortcuts", () => {
     expect(useEditorStore.getState().generatorId).toBe("waveform");
   });
 
+  it("Ctrl+S triggers single export", () => {
+    const spy = vi.spyOn(actions, "triggerSingleExport").mockClear();
+    render(<KeyboardShortcuts />);
+    fireEvent.keyDown(document.body, { key: "s", ctrlKey: true });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("Cmd+S triggers single export", () => {
+    const spy = vi.spyOn(actions, "triggerSingleExport").mockClear();
+    render(<KeyboardShortcuts />);
+    fireEvent.keyDown(document.body, { key: "s", metaKey: true });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("Ctrl+Shift+S triggers batch export", () => {
+    const spy = vi.spyOn(actions, "triggerBatchExport").mockClear();
+    render(<KeyboardShortcuts />);
+    fireEvent.keyDown(document.body, { key: "s", ctrlKey: true, shiftKey: true });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("Cmd+Shift+S triggers batch export", () => {
+    const spy = vi.spyOn(actions, "triggerBatchExport").mockClear();
+    render(<KeyboardShortcuts />);
+    fireEvent.keyDown(document.body, { key: "s", metaKey: true, shiftKey: true });
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("S without modifier does not trigger export", () => {
+    const spy = vi.spyOn(actions, "triggerSingleExport").mockClear();
+    render(<KeyboardShortcuts />);
+    fireEvent.keyDown(document.body, { key: "s" });
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("Ctrl+S does not trigger in input field", () => {
+    const spy = vi.spyOn(actions, "triggerSingleExport").mockClear();
+    const { container } = render(
+      <>
+        <KeyboardShortcuts />
+        <input data-testid="input" />
+      </>
+    );
+    const input = container.querySelector("input")!;
+    fireEvent.keyDown(input, { key: "s", ctrlKey: true });
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("Ctrl+S does not trigger in textarea", () => {
+    const spy = vi.spyOn(actions, "triggerSingleExport").mockClear();
+    const { container } = render(
+      <>
+        <KeyboardShortcuts />
+        <textarea data-testid="textarea" />
+      </>
+    );
+    const textarea = container.querySelector("textarea")!;
+    fireEvent.keyDown(textarea, { key: "s", ctrlKey: true });
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
   it("Escape closes open mobile sheet", () => {
     useEditorStore.setState({ sheetCollapsed: false });
     render(<KeyboardShortcuts />);

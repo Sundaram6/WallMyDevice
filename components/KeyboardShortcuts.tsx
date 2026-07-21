@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ensureRegistered, listGenerators } from "@/lib/generators";
+import { triggerSingleExport, triggerBatchExport } from "@/lib/export/actions";
 
 export function KeyboardShortcuts() {
   useEffect(() => {
@@ -25,6 +26,15 @@ export function KeyboardShortcuts() {
         const gens = listGenerators();
         const idx = Number(e.key) - 1;
         if (idx < gens.length) s.setGenerator(gens[idx].id);
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          triggerBatchExport();
+        } else {
+          triggerSingleExport();
+        }
         return;
       }
     }

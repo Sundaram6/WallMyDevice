@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEditorStore } from "@/store/useEditorStore";
-import { ensureRegistered, getGenerator } from "@/lib/generators";
+import { getGenerator } from "@/lib/generators";
 import { exportImage } from "@/lib/export/exportImage";
 import { batchExport } from "@/lib/export/batchExport";
 import { buildFilename } from "@/lib/export/filename";
@@ -9,17 +9,7 @@ import type { Recipe } from "@/lib/recipe/validate";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
-
-function downloadBlob(blob: Blob, name: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
+import { buildInput, downloadBlob } from "@/lib/export/actions";
 
 export function ExportBar() {
   useEditorStore(s => s.exportFormat);
@@ -29,33 +19,6 @@ export function ExportBar() {
   const [error, setError] = useState<string | null>(null);
   const [batchOpen, setBatchOpen] = useState(false);
   const [batchSelection, setBatchSelection] = useState<string[]>(["desktop-1080p", "iphone-15-pro"]);
-
-  function buildInput(): { input: Parameters<typeof exportImage>[0]; seed: string; generatorId: string } | null {
-    ensureRegistered();
-    const s = useEditorStore.getState();
-    const generatorId = s.generatorId;
-    const g = getGenerator(generatorId);
-    if (!g) return null;
-    const input = {
-      generatorId,
-      params: s.params[generatorId] ?? {},
-      palette: s.palette,
-      mode: s.mode,
-      seed: s.seed,
-      grainEnabled: s.grainEnabled,
-      grainIntensity: s.grainIntensity,
-      blurIntensity: s.blurIntensity,
-      overlays: {
-        clock: s.overlayClock,
-        date: s.overlayDate,
-        text: s.overlayText,
-        textValue: s.overlayTextValue,
-        font: s.overlayFont,
-        size: s.overlaySize,
-      },
-    };
-    return { input, seed: s.seed, generatorId };
-  }
 
   function buildRecipe(): Recipe {
     const s = useEditorStore.getState();
@@ -83,11 +46,11 @@ export function ExportBar() {
 
   async function onDownload() {
     setError(null);
-    const built = buildInput();
-    if (!built) return;
-    const w = useEditorStore.getState().customWidth;
-    const h = useEditorStore.getState().customHeight;
     try {
+      const built = buildInput();
+      if (!built) return;
+      const w = useEditorStore.getState().customWidth;
+      const h = useEditorStore.getState().customHeight;
       if (exportFormat === "svg") {
         const g = getGenerator(built.generatorId);
         if (!g || !g.toSvg) throw new Error("This generator cannot export as SVG");
