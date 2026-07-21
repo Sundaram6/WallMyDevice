@@ -78,7 +78,8 @@ export const typography: Generator<Params> = {
     const fg = palette[palette.length - 1] ?? "#ffffff";
     const xMap = { left: size.width * 0.08, center: size.width / 2, right: size.width * 0.92 };
     const x = xMap[params.alignment];
-    const anchor = params.alignment;
+    const anchorMap = { left: "start", center: "middle", right: "end" } as const;
+    const anchor = anchorMap[params.alignment];
     const letterSpacingAttr = params.letterSpacing !== 0 ? ` letter-spacing="${(params.letterSpacing * fontSize).toFixed(2)}"` : "";
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}"><rect width="${size.width}" height="${size.height}" fill="${bg}"/><text x="${x}" y="${size.height / 2}" text-anchor="${anchor}" dominant-baseline="middle" font-family="${params.font}, system-ui, sans-serif" font-weight="${params.weight}" font-size="${fontSize}" fill="${fg}"${letterSpacingAttr}>${escapeXml(params.text)}</text></svg>`;
   },

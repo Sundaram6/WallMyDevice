@@ -102,12 +102,27 @@ export function renderToTarget(target: RenderTarget, input: RenderInput): void {
   }
 }
 
+function getLuminance(hex: string): number {
+  const c = hex.replace("#", "");
+  if (c.length !== 6) return 0.5;
+  const r = parseInt(c.slice(0, 2), 16) / 255;
+  const g = parseInt(c.slice(2, 4), 16) / 255;
+  const b = parseInt(c.slice(4, 6), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
 export function resolvePalette(
   raw: string[],
   mode: "light" | "dark" | "auto",
   auto: "light" | "dark" = "dark"
 ): string[] {
-  if (mode === "dark") return raw;
-  if (mode === "light") return raw;
-  return auto === "dark" ? raw : raw;
+  if (!raw || raw.length === 0) return raw;
+  const effectiveMode = mode === "auto" ? auto : mode;
+  const palette = [...raw];
+
+  if (effectiveMode === "light") {
+    return palette.sort((a, b) => getLuminance(b) - getLuminance(a));
+  } else {
+    return palette.sort((a, b) => getLuminance(a) - getLuminance(b));
+  }
 }

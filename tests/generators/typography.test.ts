@@ -24,4 +24,18 @@ describe("typography generator", () => {
     expect(svg).toMatch(/^<svg/);
     expect(svg).toMatch(/<\/svg>$/);
   });
+
+  it("maps left, center, right alignments to valid SVG text-anchor attributes", () => {
+    const size = { width: 400, height: 800 };
+    const palette = ["#000000", "#ffffff"];
+
+    const svgLeft = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "left" }, "s", palette);
+    expect(svgLeft).toContain('text-anchor="start"');
+
+    const svgCenter = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "center" }, "s", palette);
+    expect(svgCenter).toContain('text-anchor="middle"');
+
+    const svgRight = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "right" }, "s", palette);
+    expect(svgRight).toContain('text-anchor="end"');
+  });
 });
