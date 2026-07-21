@@ -26,20 +26,47 @@ function hexToVec3(hex: string): Vec3 {
 let renderer: Renderer | null = null;
 let program: Program | null = null;
 let mesh: Mesh | null = null;
-let lastGl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
+let lastGl: WebGLRenderingContext | WebGL2RenderingContext | CanvasRenderingContext2D | null = null;
 
 function ensureSetup(target: RenderTarget) {
   if (program && lastGl === target.ctx) return;
-  if (!(target.ctx instanceof WebGLRenderingContext)) {
+  const isWebGL = 
+    (typeof WebGLRenderingContext !== "undefined" && target.ctx instanceof WebGLRenderingContext) ||
+    (typeof WebGL2RenderingContext !== "undefined" && target.ctx instanceof WebGL2RenderingContext) ||
+    Boolean(target.ctx && typeof (target.ctx as any).drawArrays === "function");
+  if (!isWebGL) {
     throw new Error("fluid-gradient requires a WebGL context");
   }
   const gl = target.ctx;
-  if (renderer) {
-    renderer.gl = gl as any;
-  } else {
-    renderer = new Renderer({ gl: gl as any, dpr: 1 } as any);
+  renderer = new Renderer({ gl: gl as any, dpr: 1 } as any);
+  (gl as any).renderer = renderer;
+  if (!renderer.bindVertexArray) {
+    renderer.bindVertexArray = (() => {}) as any;
   }
-  program = new Program(gl as any, { vertex: VERT, fragment: FRAG, transparent: false });
+  program = new Program(gl as any, {
+    vertex: VERT,
+    fragment: FRAG,
+    transparent: false,
+    depthTest: false,
+    depthWrite: false,
+    uniforms: {
+      uResolution: { value: [0, 0] },
+      uPhase: { value: 0 },
+      uSeed: { value: 0 },
+      uColor0: { value: [0, 0, 0] },
+      uColor1: { value: [0, 0, 0] },
+      uColor2: { value: [0, 0, 0] },
+      uColor3: { value: [0, 0, 0] },
+      uColor4: { value: [0, 0, 0] },
+      uColor5: { value: [0, 0, 0] },
+      uColorCount: { value: 0 },
+      uBlobCount: { value: 0 },
+      uDistortion: { value: 0 },
+      uSwirl: { value: 0 },
+      uContrast: { value: 0 },
+      uSaturation: { value: 0 },
+    }
+  });
   const geometry = new Triangle(gl as any);
   mesh = new Mesh(gl as any, { geometry, program });
   lastGl = gl;
@@ -65,10 +92,9 @@ export const fluidGradient: Generator<Params> = {
     ensureSetup(target);
     const gl = target.ctx as WebGLRenderingContext;
     if (renderer && program && mesh) {
-      const padded = [palette[0] ?? "#000000", ...palette, ...palette].slice(0, 6);
-      const colorVecs = padded.map(hexToVec3);
-      const colorArray: [number, number, number][] = colorVecs.map(v => [v.x, v.y, v.z]);
-      while (colorArray.length < 6) colorArray.push([0, 0, 0]);
+      const fallback = palette[0] ?? "#000000";
+      const padded = [...palette, fallback, fallback, fallback, fallback, fallback, fallback].slice(0, 6);
+      const c = padded.map(hexToVec3);
       
       const phaseRng = createRng(deriveSeed(seed, "fluid-gradient-phase"));
       const phaseVal = phaseRng() * 2 * Math.PI;
@@ -78,17 +104,28 @@ export const fluidGradient: Generator<Params> = {
       
       program.uniforms.uResolution.value = [target.width, target.height];
       program.uniforms.uPhase.value = phaseVal;
-      program.uniforms.uSeed.value = seedVal;
-      program.uniforms.uColors.value = colorArray;
+      program.uniforms.uSeed.value = seedVal * 100.0;
+      program.uniforms.uColor0.value = [c[0].x, c[0].y, c[0].z];
+      program.uniforms.uColor1.value = [c[1].x, c[1].y, c[1].z];
+      program.uniforms.uColor2.value = [c[2].x, c[2].y, c[2].z];
+      program.uniforms.uColor3.value = [c[3].x, c[3].y, c[3].z];
+      program.uniforms.uColor4.value = [c[4].x, c[4].y, c[4].z];
+      program.uniforms.uColor5.value = [c[5].x, c[5].y, c[5].z];
       program.uniforms.uColorCount.value = palette.length;
       program.uniforms.uBlobCount.value = params.blobCount;
       program.uniforms.uDistortion.value = params.distortion;
       program.uniforms.uSwirl.value = params.swirl;
       program.uniforms.uContrast.value = params.contrast;
       program.uniforms.uSaturation.value = params.saturation;
-      renderer.setSize(target.width, target.height);
+      if (gl.canvas && (gl.canvas.width !== target.width || gl.canvas.height !== target.height)) {
+        renderer.setSize(target.width, target.height);
+      }
       gl.viewport(0, 0, target.width, target.height);
       renderer.render({ scene: mesh });
+      // Flush the WebGL pipeline if available to commit pixels to framebuffer
+      if (typeof gl.flush === "function") {
+        gl.flush();
+      }
     }
   },
 };

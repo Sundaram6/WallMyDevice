@@ -2,12 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, fireEvent } from "@testing-library/react";
 import { ExportBar } from "./ExportBar";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests } from "@/lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 describe("ExportBar", () => {
   beforeEach(() => {
-    _resetRegistryForTests();
     useEditorStore.setState({
       generatorId: "waveform",
       params: { waveform: waveform.schema.defaults },

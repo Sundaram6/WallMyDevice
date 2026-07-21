@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { useEditorStore } from "./useEditorStore";
 import { waveform } from "../lib/generators/waveform";
-import { _resetRegistryForTests } from "../lib/generators/registry";
 
 function reset() {
-  _resetRegistryForTests();
   useEditorStore.setState({
     generatorId: "waveform",
     params: { waveform: waveform.schema.defaults },

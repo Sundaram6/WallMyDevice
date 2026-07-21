@@ -3,14 +3,12 @@ import { render, fireEvent, cleanup } from "@testing-library/react";
 import { ControlPanel } from "./ControlPanel";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ensureRegistered } from "../../lib/generators";
-import { _resetRegistryForTests } from "../../lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 describe("ControlPanel", () => {
   afterEach(cleanup);
 
   beforeEach(() => {
-    _resetRegistryForTests();
     ensureRegistered();
     useEditorStore.setState({
       generatorId: "waveform",

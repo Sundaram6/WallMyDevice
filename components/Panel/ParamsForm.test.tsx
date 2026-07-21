@@ -2,12 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 import { ParamsForm } from "./ParamsForm";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests, registerGenerator } from "@/lib/generators/registry";
+import { registerGenerator } from "@/lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 describe("ParamsForm", () => {
   beforeEach(() => {
-    _resetRegistryForTests();
     registerGenerator(waveform);
     useEditorStore.setState({
       generatorId: "waveform",

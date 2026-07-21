@@ -51,8 +51,4 @@ export function listGenerators(): Readonly<Generator<any>>[] {
   return Array.from(registry.values()).map(v => v.cloned);
 }
 
-export function _resetRegistryForTests(): void {
-  registry.clear();
-}
-
 export type GeneratorId = string;

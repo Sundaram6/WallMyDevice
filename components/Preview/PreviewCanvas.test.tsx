@@ -3,12 +3,10 @@ import { render } from "@testing-library/react";
 import { PreviewCanvas } from "./PreviewCanvas";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ensureRegistered } from "../../lib/generators";
-import { _resetRegistryForTests } from "../../lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 describe("PreviewCanvas", () => {
   beforeEach(() => {
-    _resetRegistryForTests();
     ensureRegistered();
     useEditorStore.setState({
       generatorId: "waveform",

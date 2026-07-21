@@ -3,13 +3,11 @@ import { render } from "@testing-library/react";
 import { fireEvent } from "@testing-library/react";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests } from "@/lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 import * as actions from "@/lib/export/actions";
 
 describe("KeyboardShortcuts", () => {
   beforeEach(() => {
-    _resetRegistryForTests();
     useEditorStore.setState({
       generatorId: "waveform",
       params: { waveform: waveform.schema.defaults },

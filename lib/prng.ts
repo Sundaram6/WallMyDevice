@@ -14,7 +14,7 @@ export function hashSeed(seed: string): string {
 }
 
 export function deriveSeed(parentSeed: string, namespace: string): string {
-  return hashSeed(parentSeed + ":" + namespace);
+  return hashSeed(JSON.stringify([parentSeed, namespace]));
 }
 
 export function createRng(seed: string): () => number {
