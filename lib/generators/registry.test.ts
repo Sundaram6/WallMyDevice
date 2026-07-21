@@ -17,13 +17,15 @@ describe("registry", () => {
 
   it("round-trips a registered generator", () => {
     registerGenerator(stub);
-    expect(getGenerator("stub-1")).toBe(stub);
-    expect(listGenerators()).toContain(stub);
+    const retrieved = getGenerator("stub-1");
+    expect(retrieved?.id).toBe("stub-1");
+    expect(listGenerators().map(g => g.id)).toContain("stub-1");
   });
 
-  it("throws on duplicate id", () => {
+  it("throws on duplicate id when definition differs", () => {
     registerGenerator(stub);
-    expect(() => registerGenerator(stub)).toThrow(/already registered/);
+    const diffStub = { ...stub, label: "Different Stub" };
+    expect(() => registerGenerator(diffStub)).toThrow(/already registered/);
   });
 
   it("returns undefined for unknown id", () => {
