@@ -8,7 +8,7 @@ vi.mock("ogl", () => {
   class MockProgram {
     uniforms: Record<string, any> = {
       uResolution: { value: null },
-      uTime: { value: null },
+      uPhase: { value: null },
       uSeed: { value: null },
       uColors: { value: null },
       uColorCount: { value: null },
@@ -69,14 +69,12 @@ describe("fluid-gradient determinism", () => {
         { blur: 0, grain: { enabled: false, intensity: 0 } }
       );
       
-      // Clone uniforms so they aren't overwritten by next render
       return JSON.parse(JSON.stringify(lastProgram?.uniforms || {}));
     };
 
     const first = captureUniforms(0);
     const second = captureUniforms(5000);
 
-    // This will fail initially because uTime depends on performance.now()
     expect(second).toEqual(first);
   });
 
@@ -102,6 +100,28 @@ describe("fluid-gradient determinism", () => {
     const first = captureUniforms("seed-a");
     const second = captureUniforms("seed-b");
 
+    expect(second.uPhase).not.toEqual(first.uPhase);
     expect(second.uSeed).not.toEqual(first.uSeed);
+  });
+
+  it("proves shared RNG non-consumption", () => {
+    const dummyCtx = Object.create((global as any).WebGLRenderingContext.prototype || {});
+    dummyCtx.viewport = vi.fn();
+
+    const suppliedRng = createRng("shared-seed");
+    const controlRng = createRng("shared-seed");
+
+    fluidGradient.render(
+      { ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
+      fluidGradient.schema.defaults, 
+      "test-seed", 
+      ["#ff0000", "#00ff00"], 
+      suppliedRng, 
+      { blur: 0, grain: { enabled: false, intensity: 0 } }
+    );
+
+    // After rendering, the supplied RNG and control RNG should still produce the exact same next value
+    // because fluidGradient should not have consumed any values from suppliedRng.
+    expect(suppliedRng()).toBe(controlRng());
   });
 });

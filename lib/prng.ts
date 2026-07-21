@@ -13,6 +13,10 @@ export function hashSeed(seed: string): string {
   return out;
 }
 
+export function deriveSeed(parentSeed: string, namespace: string): string {
+  return hashSeed(parentSeed + ":" + namespace);
+}
+
 export function createRng(seed: string): () => number {
   let s = 0;
   for (let i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) >>> 0;

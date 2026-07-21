@@ -6,7 +6,7 @@ void main() { gl_Position = vec4(position, 0.0, 1.0); }
 export const FRAG = `
 precision highp float;
 uniform vec2 uResolution;
-uniform float uTime;
+uniform float uPhase;
 uniform float uSeed;
 uniform vec3 uColors[6];
 uniform int uColorCount;
@@ -37,7 +37,7 @@ void main() {
   vec2 uv = gl_FragCoord.xy / uResolution.xy;
   vec2 p = uv;
   p.x *= uResolution.x / uResolution.y;
-  float t = uTime * 0.1 + uSeed;
+  float t = uPhase * 0.1 + uSeed;
   float n = 0.0;
   float amp = 1.0;
   vec2 flow = vec2(0.0);

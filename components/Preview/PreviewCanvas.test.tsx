@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
 import { PreviewCanvas } from "./PreviewCanvas";
 import { useEditorStore } from "@/store/useEditorStore";
-import { _resetRegistryForTests, ensureRegistered } from "@/lib/generators/index";
+import { ensureRegistered } from "../../lib/generators";
+import { _resetRegistryForTests } from "../../lib/generators/registry";
 import { waveform } from "@/lib/generators/waveform";
 
 describe("PreviewCanvas", () => {

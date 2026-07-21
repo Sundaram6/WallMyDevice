@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Renderer, Program, Mesh, Triangle, Vec3 } from "ogl";
-import { createRng } from "../../prng";
+import { createRng, deriveSeed } from "../../prng";
 import type { Generator, RenderTarget, GlobalContext } from "../types";
 import { VERT, FRAG } from "./shader.glsl";
 
@@ -70,12 +70,14 @@ export const fluidGradient: Generator<Params> = {
       const colorArray: [number, number, number][] = colorVecs.map(v => [v.x, v.y, v.z]);
       while (colorArray.length < 6) colorArray.push([0, 0, 0]);
       
-      const localRng = createRng(seed);
-      const timeVal = localRng() * 1000;
-      const seedVal = localRng();
+      const phaseRng = createRng(deriveSeed(seed, "fluid-gradient-phase"));
+      const phaseVal = phaseRng() * 2 * Math.PI;
+
+      const shaderSeedRng = createRng(deriveSeed(seed, "fluid-gradient-shader-seed"));
+      const seedVal = shaderSeedRng();
       
       program.uniforms.uResolution.value = [target.width, target.height];
-      program.uniforms.uTime.value = timeVal;
+      program.uniforms.uPhase.value = phaseVal;
       program.uniforms.uSeed.value = seedVal;
       program.uniforms.uColors.value = colorArray;
       program.uniforms.uColorCount.value = palette.length;

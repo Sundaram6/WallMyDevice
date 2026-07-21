@@ -63,4 +63,24 @@ describe("Generator Registry", () => {
     const retrievedAgain = getGenerator("test-defaults")!;
     expect((retrievedAgain.schema.defaults as any).testKey).toBe("original");
   });
+
+  it("does not allow mutating canonical paramControls", () => {
+    const dummy = { 
+      ...waveform, 
+      id: "test-controls",
+      paramControls: [{ key: "testKey", label: "Original Label", type: "slider", min: 0, max: 10, step: 1 }]
+    } as any;
+    registerGenerator(dummy);
+    
+    const retrieved = getGenerator("test-controls")!;
+    // Attempt mutation
+    try {
+      (retrieved.paramControls[0] as any).label = "Mutated Label";
+    } catch (e) {
+      // It might throw if frozen, which is good
+    }
+    
+    const retrievedAgain = getGenerator("test-controls")!;
+    expect((retrievedAgain.paramControls[0] as any).label).toBe("Original Label");
+  });
 });
