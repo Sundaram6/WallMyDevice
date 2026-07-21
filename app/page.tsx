@@ -85,6 +85,16 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      useEditorStore.getState().setSystemColorScheme(mq.matches ? "dark" : "light");
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  useEffect(() => {
     loadHashRecipe();
     window.addEventListener("hashchange", loadHashRecipe);
     return () => window.removeEventListener("hashchange", loadHashRecipe);

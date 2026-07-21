@@ -3,6 +3,7 @@ import { getGenerator } from "../lib/generators/registry";
 import { hashSeed } from "../lib/prng";
 
 export type Mode = "light" | "dark" | "auto";
+export type SystemColorScheme = "light" | "dark";
 export type ExportFormat = "png" | "jpg" | "webp" | "svg";
 
 export type EditorState = {
@@ -11,6 +12,7 @@ export type EditorState = {
 
   palette: string[];
   mode: Mode;
+  systemColorScheme: SystemColorScheme;
   seed: string;
 
   grainEnabled: boolean;
@@ -40,6 +42,7 @@ export type EditorState = {
   randomizeSeed: () => void;
   setSeed: (seed: string) => void;
   setMode: (mode: Mode) => void;
+  setSystemColorScheme: (scheme: SystemColorScheme) => void;
   setResolution: (id: string, width: number, height: number) => void;
   setCustomSize: (w: number, h: number) => void;
   setAspectLock: (locked: boolean) => void;
@@ -65,6 +68,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   palette: ["#0f172a", "#f59e0b"],
   mode: "dark",
+  systemColorScheme: "dark",
   seed: "k3p9x2a7",
 
   grainEnabled: false,
@@ -109,6 +113,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({ seed });
   },
   setMode: (mode) => set({ mode }),
+  setSystemColorScheme: (scheme) => set({ systemColorScheme: scheme }),
 
   setResolution: (id, width, height) => set({ resolutionId: id, customWidth: width, customHeight: height }),
   setCustomSize: (w, h) => set({ customWidth: w, customHeight: h }),

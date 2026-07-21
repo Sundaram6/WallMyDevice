@@ -5,7 +5,7 @@ import { batchExport } from "@/lib/export/batchExport";
 import { buildFilename } from "@/lib/export/filename";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
 
-import { buildRenderInput } from "@/lib/render/renderToTarget";
+import { buildRenderInput, resolvePalette } from "@/lib/render/renderToTarget";
 
 export function downloadBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
@@ -39,7 +39,8 @@ export async function triggerSingleExport() {
   if (exportFormat === "svg") {
     const g = getGenerator(built.generatorId);
     if (!g || !g.toSvg) throw new Error("This generator cannot export as SVG");
-    const svg = g.toSvg({ width: w, height: h }, built.input.params as never, built.seed, built.input.palette);
+    const palette = resolvePalette(built.input.palette, built.input.mode, built.input.autoMode);
+    const svg = g.toSvg({ width: w, height: h }, built.input.params as never, built.seed, palette);
     const blob = new Blob([svg], { type: "image/svg+xml" });
     downloadBlob(blob, buildFilename(built.generatorId, built.seed, { width: w, height: h }, "svg"));
   } else {

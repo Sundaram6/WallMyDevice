@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderToTarget, resolvePalette } from "./renderToTarget";
+import { renderToTarget, resolvePalette, buildRenderInput } from "./renderToTarget";
 import { waveform } from "../generators/waveform";
 import { registerGenerator } from "../generators/registry";
 import { makeCanvas } from "../../tests/helpers/canvas";
@@ -9,6 +9,23 @@ import { randomUUID } from "node:crypto";
 function uniqueWaveform() {
   return { ...waveform, id: `waveform-rtt-${randomUUID()}` };
 }
+
+const baseState = {
+  generatorId: "waveform",
+  params: { waveform: waveform.schema.defaults },
+  palette: ["#0f172a", "#64748b", "#fafafa"],
+  mode: "dark" as const,
+  seed: "testseed",
+  grainEnabled: false,
+  grainIntensity: 0,
+  blurIntensity: 0,
+  overlayClock: false,
+  overlayDate: false,
+  overlayText: false,
+  overlayTextValue: "",
+  overlayFont: "Inter",
+  overlaySize: 1,
+};
 
 describe("renderToTarget", () => {
   it("renders the registered generator to the target", () => {
@@ -46,14 +63,22 @@ describe("renderToTarget", () => {
   });
 
   describe("resolvePalette mode resolution", () => {
-    const raw = ["#050505", "#ffffff", "#888888"];
+    const raw = ["#0f172a", "#64748b", "#fafafa"];
+
+    it("places the darkest color first in Dark mode", () => {
+      const dark = resolvePalette(raw, "dark");
+      expect(dark[0]).toBe("#0f172a");
+    });
+
+    it("places the lightest color first in Light mode", () => {
+      const light = resolvePalette(raw, "light");
+      expect(light[0]).toBe("#fafafa");
+    });
 
     it("resolves Light and Dark modes differently for mixed palettes", () => {
       const light = resolvePalette(raw, "light");
       const dark = resolvePalette(raw, "dark");
       expect(light[0]).not.toBe(dark[0]);
-      expect(light[0]).toBe("#ffffff");
-      expect(dark[0]).toBe("#050505");
     });
 
     it("resolves Auto-dark to equal Dark mode", () => {
@@ -69,10 +94,35 @@ describe("renderToTarget", () => {
     });
 
     it("does not mutate the input raw palette array", () => {
-      const original = ["#000000", "#ffffff"];
+      const original = ["#0f172a", "#64748b", "#fafafa"];
       const originalCopy = [...original];
       resolvePalette(original, "light");
       expect(original).toEqual(originalCopy);
+    });
+
+    it("returns empty palettes unchanged", () => {
+      expect(resolvePalette([], "light")).toEqual([]);
+    });
+
+    it("returns deterministic results for repeated calls", () => {
+      const first = resolvePalette(raw, "dark");
+      const second = resolvePalette(raw, "dark");
+      expect(first).toEqual(second);
+    });
+  });
+
+  describe("buildRenderInput", () => {
+    it("includes the effective system color scheme as autoMode", () => {
+      const input = buildRenderInput(
+        { ...baseState, mode: "auto", systemColorScheme: "light" },
+        { width: 800, height: 600 }
+      );
+      expect(input.autoMode).toBe("light");
+    });
+
+    it("defaults autoMode to dark when systemColorScheme is omitted", () => {
+      const input = buildRenderInput(baseState, { width: 800, height: 600 });
+      expect(input.autoMode).toBe("dark");
     });
   });
 });
