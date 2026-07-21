@@ -98,6 +98,8 @@ npm run preview
 
 ## Deployment
 
+Deployment status: Release candidate pending production deployment
+
 WallMyDevice is configured for Vercel deployment:
 
 ```bash

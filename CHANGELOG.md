@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0] - 2026-07-21
+## [0.1.0] - Unreleased
 
 ### Added
 - 4 wallpaper generators: waveform, geometric, typography, fluid-gradient
