@@ -64,8 +64,8 @@ Produce smooth, flowing gradients with organic movement (requires WebGL).
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/wallpaper-generator.git
-cd wallpaper-generator
+git clone https://github.com/Sundaram6/WallMyDevice.git
+cd WallMyDevice
 
 # Install dependencies
 npm install
@@ -74,7 +74,7 @@ npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The app will be available at `http://localhost:3000`
 
 ### Testing
 
@@ -92,8 +92,8 @@ npm run test:e2e
 # Build for production
 npm run build
 
-# Preview production build
-npm run preview
+# Start production server
+npm run start
 ```
 
 ## Deployment
@@ -124,7 +124,3 @@ vercel --prod
 - Firefox 88+
 - Safari 14+
 - Edge 90+
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details
