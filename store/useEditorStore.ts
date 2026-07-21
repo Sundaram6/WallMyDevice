@@ -55,6 +55,10 @@ export type EditorState = {
 
 const SEED_RE = /^[0-9a-z]{1,16}$/;
 
+import { initializeBuiltInGenerators } from "../lib/generators/bootstrap";
+
+initializeBuiltInGenerators();
+
 export const useEditorStore = create<EditorState>((set, get) => ({
   generatorId: "waveform",
   params: { waveform: getDefaultParams("waveform") },

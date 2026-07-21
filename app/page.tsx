@@ -7,7 +7,7 @@ import { DeviceFrame } from "@/components/Preview/DeviceFrame";
 import { BottomSheet } from "@/components/Preview/BottomSheet";
 import { useEditorStore } from "@/store/useEditorStore";
 import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
-import { ensureRegistered, getGenerator } from "@/lib/generators";
+import { getGenerator } from "@/lib/generators";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { decodeHash } from "@/lib/recipe/encode";
 import { getDefaultParams } from "@/lib/generators/registry-helpers";
@@ -76,8 +76,6 @@ export default function Page() {
   const [isMobile, setIsMobile] = useState(false);
   const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
   const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
-
-  useEffect(() => { ensureRegistered(); }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
