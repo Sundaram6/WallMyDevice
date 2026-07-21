@@ -58,6 +58,7 @@ describe("fluid-gradient determinism", () => {
   });
 
   it("produces identical output (uniforms) across renders with the same seed", () => {
+    const dummyCanvas = document.createElement("canvas");
     const dummyCtx = Object.create((global as any).WebGLRenderingContext.prototype || {});
     dummyCtx.viewport = vi.fn();
 
@@ -66,7 +67,7 @@ describe("fluid-gradient determinism", () => {
     const captureUniforms = (advanceTime: number) => {
       perfNowSpy.mockReturnValue(advanceTime);
       fluidGradient.render(
-        { ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
+        { kind: "webgl", canvas: dummyCanvas, ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
         params, 
         "deterministic-seed", 
         ["#ff0000", "#00ff00"], 
@@ -84,6 +85,7 @@ describe("fluid-gradient determinism", () => {
   });
 
   it("produces different uniforms for different seeds", () => {
+    const dummyCanvas = document.createElement("canvas");
     const dummyCtx = Object.create((global as any).WebGLRenderingContext.prototype || {});
     dummyCtx.viewport = vi.fn();
 
@@ -91,7 +93,7 @@ describe("fluid-gradient determinism", () => {
 
     const captureUniforms = (seed: string) => {
       fluidGradient.render(
-        { ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
+        { kind: "webgl", canvas: dummyCanvas, ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
         params, 
         seed, 
         ["#ff0000", "#00ff00"], 
@@ -110,6 +112,7 @@ describe("fluid-gradient determinism", () => {
   });
 
   it("proves shared RNG non-consumption", () => {
+    const dummyCanvas = document.createElement("canvas");
     const dummyCtx = Object.create((global as any).WebGLRenderingContext.prototype || {});
     dummyCtx.viewport = vi.fn();
 
@@ -117,7 +120,7 @@ describe("fluid-gradient determinism", () => {
     const controlRng = createRng("shared-seed");
 
     fluidGradient.render(
-      { ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
+      { kind: "webgl", canvas: dummyCanvas, ctx: dummyCtx, width: 200, height: 400, dpr: 1 }, 
       fluidGradient.schema.defaults, 
       "test-seed", 
       ["#ff0000", "#00ff00"], 
@@ -125,8 +128,6 @@ describe("fluid-gradient determinism", () => {
       { blur: 0, grain: { enabled: false, intensity: 0 } }
     );
 
-    // After rendering, the supplied RNG and control RNG should still produce the exact same next value
-    // because fluidGradient should not have consumed any values from suppliedRng.
     expect(suppliedRng()).toBe(controlRng());
   });
 });

@@ -81,10 +81,8 @@ export function renderToTarget(target: RenderTarget, input: RenderInput): void {
     grain: { enabled: input.grainEnabled, intensity: input.grainIntensity },
   };
 
-  const targetKind = target.kind ?? (typeof (target.ctx as any).drawArrays === "function" ? "webgl" : "canvas2d");
-
-  if (targetKind === "canvas2d") {
-    const ctx2d = target.ctx as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  if (target.kind === "canvas2d") {
+    const ctx2d = target.ctx;
     if (typeof ctx2d.save === "function") {
       ctx2d.save();
       ctx2d.fillStyle = palette[0] ?? "#000000";

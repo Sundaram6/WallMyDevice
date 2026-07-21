@@ -1,9 +1,10 @@
 import type { z } from "zod";
 
 export type Rng = () => number;
+
 export type Canvas2DTarget = {
-  kind?: "canvas2d";
-  canvas?: HTMLCanvasElement | OffscreenCanvas;
+  kind: "canvas2d";
+  canvas: HTMLCanvasElement | OffscreenCanvas;
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   width: number;
   height: number;
@@ -11,8 +12,8 @@ export type Canvas2DTarget = {
 };
 
 export type WebGLTarget = {
-  kind?: "webgl";
-  canvas?: HTMLCanvasElement | OffscreenCanvas;
+  kind: "webgl";
+  canvas: HTMLCanvasElement | OffscreenCanvas;
   ctx: WebGLRenderingContext | WebGL2RenderingContext;
   width: number;
   height: number;
@@ -20,14 +21,17 @@ export type WebGLTarget = {
 };
 
 export type RenderTarget = Canvas2DTarget | WebGLTarget;
+
 export type GlobalContext = {
   blur: number;
   grain: { enabled: boolean; intensity: number };
 };
+
 export type ParamSchema<S extends z.ZodTypeAny> = {
   zod: S;
   defaults: z.infer<S>;
 };
+
 export type ParamControl<P> = {
   key: keyof P;
   label: string;
@@ -38,6 +42,7 @@ export type ParamControl<P> = {
   options?: readonly { value: string; label: string }[];
   helperText?: string;
 };
+
 export type Generator<P = unknown> = {
   id: string;
   label: string;

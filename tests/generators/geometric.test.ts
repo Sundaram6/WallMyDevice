@@ -14,7 +14,7 @@ describe("geometric generator", () => {
     for (const [w, h] of [[100, 200], [2000, 1000], [600, 600]] as const) {
       const { canvas, ctx } = makeCanvas(w, h);
       expect(() =>
-        geometric.render({ ctx, width: w, height: h, dpr: 1 }, params, "g", ["#000", "#fff"], createRng("g"), { blur: 0, grain: { enabled: false, intensity: 0 } })
+        geometric.render({ kind: "canvas2d", canvas, ctx, width: w, height: h, dpr: 1 }, params, "g", ["#000", "#fff"], createRng("g"), { blur: 0, grain: { enabled: false, intensity: 0 } })
       ).not.toThrow();
     }
   });

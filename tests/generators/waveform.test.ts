@@ -23,7 +23,7 @@ describe("waveform generator", () => {
     const { canvas, ctx } = makeCanvas(200, 400);
     const params = waveform.schema.defaults;
     expect(() =>
-      waveform.render({ ctx, width: 200, height: 400, dpr: 1 }, params, "seed-a", ["#000", "#fff"], createRng("seed-a"), { blur: 0, grain: { enabled: false, intensity: 0 } })
+      waveform.render({ kind: "canvas2d", canvas, ctx, width: 200, height: 400, dpr: 1 }, params, "seed-a", ["#000", "#fff"], createRng("seed-a"), { blur: 0, grain: { enabled: false, intensity: 0 } })
     ).not.toThrow();
   });
 
@@ -31,27 +31,27 @@ describe("waveform generator", () => {
     const { canvas, ctx } = makeCanvas(2000, 4000);
     const params = waveform.schema.defaults;
     expect(() =>
-      waveform.render({ ctx, width: 2000, height: 4000, dpr: 1 }, params, "seed-a", ["#000", "#fff"], createRng("seed-a"), { blur: 0, grain: { enabled: false, intensity: 0 } })
+      waveform.render({ kind: "canvas2d", canvas, ctx, width: 2000, height: 4000, dpr: 1 }, params, "seed-a", ["#000", "#fff"], createRng("seed-a"), { blur: 0, grain: { enabled: false, intensity: 0 } })
     ).not.toThrow();
   });
 
   it("renders deterministically with the same seed", () => {
-    const { ctx: ctx1 } = makeCanvas(100, 100);
-    const { ctx: ctx2 } = makeCanvas(100, 100);
+    const { canvas: canvas1, ctx: ctx1 } = makeCanvas(100, 100);
+    const { canvas: canvas2, ctx: ctx2 } = makeCanvas(100, 100);
     const params = waveform.schema.defaults;
-    waveform.render({ ctx: ctx1, width: 100, height: 100, dpr: 1 }, params, "same", ["#000", "#fff"], createRng("same"), { blur: 0, grain: { enabled: false, intensity: 0 } });
-    waveform.render({ ctx: ctx2, width: 100, height: 100, dpr: 1 }, params, "same", ["#000", "#fff"], createRng("same"), { blur: 0, grain: { enabled: false, intensity: 0 } });
+    waveform.render({ kind: "canvas2d", canvas: canvas1, ctx: ctx1, width: 100, height: 100, dpr: 1 }, params, "same", ["#000", "#fff"], createRng("same"), { blur: 0, grain: { enabled: false, intensity: 0 } });
+    waveform.render({ kind: "canvas2d", canvas: canvas2, ctx: ctx2, width: 100, height: 100, dpr: 1 }, params, "same", ["#000", "#fff"], createRng("same"), { blur: 0, grain: { enabled: false, intensity: 0 } });
     const a = ctx1.getImageData(0, 0, 100, 100).data;
     const b = ctx2.getImageData(0, 0, 100, 100).data;
     expect(Array.from(a)).toEqual(Array.from(b));
   });
 
   it("produces different output for different seeds", () => {
-    const { ctx: ctx1 } = makeCanvas(200, 200);
-    const { ctx: ctx2 } = makeCanvas(200, 200);
+    const { canvas: canvas1, ctx: ctx1 } = makeCanvas(200, 200);
+    const { canvas: canvas2, ctx: ctx2 } = makeCanvas(200, 200);
     const params = waveform.schema.defaults;
-    waveform.render({ ctx: ctx1, width: 200, height: 200, dpr: 1 }, params, "seed-A", ["#000", "#fff"], createRng("seed-A"), { blur: 0, grain: { enabled: false, intensity: 0 } });
-    waveform.render({ ctx: ctx2, width: 200, height: 200, dpr: 1 }, params, "seed-B", ["#000", "#fff"], createRng("seed-B"), { blur: 0, grain: { enabled: false, intensity: 0 } });
+    waveform.render({ kind: "canvas2d", canvas: canvas1, ctx: ctx1, width: 200, height: 200, dpr: 1 }, params, "seed-A", ["#000", "#fff"], createRng("seed-A"), { blur: 0, grain: { enabled: false, intensity: 0 } });
+    waveform.render({ kind: "canvas2d", canvas: canvas2, ctx: ctx2, width: 200, height: 200, dpr: 1 }, params, "seed-B", ["#000", "#fff"], createRng("seed-B"), { blur: 0, grain: { enabled: false, intensity: 0 } });
     const events1 = JSON.stringify((ctx1 as unknown as Record<string, () => unknown[]>).__getEvents());
     const events2 = JSON.stringify((ctx2 as unknown as Record<string, () => unknown[]>).__getEvents());
     expect(events1).not.toEqual(events2);

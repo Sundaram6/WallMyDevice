@@ -1,5 +1,5 @@
 /**
- * Real E2E Fluid-Gradient Export Verification
+ * Real E2E Fluid-Gradient Export Verification (PNG, JPG, WEBP, Batch ZIP)
  */
 
 import { test, expect } from "@playwright/test";
@@ -12,7 +12,7 @@ function toBase64Url(bytes: Uint8Array): string {
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function makeFluidUrl(seed: string): string {
+function makeFluidUrl(seed: string, options: { blur?: number; grain?: boolean; text?: boolean } = {}): string {
   const recipe = {
     v: 1,
     type: "wallmydevice/recipe",
@@ -21,21 +21,21 @@ function makeFluidUrl(seed: string): string {
     palette: ["#123456", "#654321"],
     mode: "dark",
     seed,
-    grain: { enabled: false, intensity: 0 },
-    blur: 0,
+    grain: { enabled: options.grain ?? false, intensity: options.grain ? 0.3 : 0 },
+    blur: options.blur ?? 0,
     resolution: { preset: "custom", width: 320, height: 320 },
-    overlays: { clock: false, date: false, text: false, value: "", font: "Inter", size: 1 },
+    overlays: { clock: false, date: false, text: options.text ?? false, value: "TEXT OVERLAY", font: "Inter", size: 1 },
   };
   const json = JSON.stringify(recipe);
   const deflated = pako.deflate(json);
   return "/#r=" + toBase64Url(deflated);
 }
 
-test.describe("fluid-gradient real browser export", () => {
-  test("single PNG export produces valid, nonblank 320x320 image", async ({ page }) => {
+test.describe("fluid-gradient real browser export acceptance", () => {
+  test("single PNG export produces valid, nonblank 320x320 image with full composition", async ({ page }) => {
     test.setTimeout(60000);
 
-    const url = makeFluidUrl("exportseeda");
+    const url = makeFluidUrl("exportseeda", { grain: true, text: true });
     await page.goto(url);
 
     // Record WebGL renderer info for trusted-test SwiftShader verification
@@ -107,5 +107,31 @@ test.describe("fluid-gradient real browser export", () => {
     const pngB = PNG.sync.read(Buffer.concat(chunksB));
 
     expect(pngA.data.toString("base64")).not.toBe(pngB.data.toString("base64"));
+  });
+
+  test("preview canvas continues rendering after batch export completion", async ({ page }) => {
+    test.setTimeout(60000);
+
+    await page.goto(makeFluidUrl("batchtestseed"));
+    const canvas = page.locator("canvas").first();
+    await expect(canvas).toBeVisible({ timeout: 15000 });
+
+    // Open batch modal
+    await page.getByRole("button", { name: /batch export/i }).click();
+    await page.waitForTimeout(500);
+
+    // Trigger generate all batch export
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: /generate all/i }).click();
+    const download = await downloadPromise;
+
+    const stream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const zipBuffer = Buffer.concat(chunks);
+    expect(zipBuffer.byteLength).toBeGreaterThan(100);
+
+    // Verify preview canvas is still visible and responsive
+    await expect(canvas).toBeVisible();
   });
 });

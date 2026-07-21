@@ -5,8 +5,6 @@ import { registerGenerator } from "../../lib/generators/registry";
 import { makeCanvas } from "../helpers/canvas";
 import { randomUUID } from "node:crypto";
 
-// Unique ID per test run to avoid cross-test registry collision without
-// needing a production-facing _resetRegistryForTests API.
 function uniqueWaveform() {
   return { ...waveform, id: `waveform-fidelity-${randomUUID()}` };
 }
@@ -48,8 +46,8 @@ describe("waveform fidelity", () => {
 
     const preview = makeCanvas(200, 400);
     const exportC = makeCanvas(2000, 4000);
-    renderToTarget({ ctx: preview.ctx, width: 200, height: 400, dpr: 1 }, input);
-    renderToTarget({ ctx: exportC.ctx, width: 2000, height: 4000, dpr: 1 }, input);
+    renderToTarget({ kind: "canvas2d", canvas: preview.canvas, ctx: preview.ctx, width: 200, height: 400, dpr: 1 }, input);
+    renderToTarget({ kind: "canvas2d", canvas: exportC.canvas, ctx: exportC.ctx, width: 2000, height: 4000, dpr: 1 }, input);
     const pd = preview.ctx.getImageData(0, 0, 200, 400);
     const ed = exportC.ctx.getImageData(0, 0, 2000, 4000);
     const edDown = downscale(ed, 200, 400);

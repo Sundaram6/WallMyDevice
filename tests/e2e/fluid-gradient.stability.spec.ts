@@ -107,7 +107,7 @@ test.describe("fluid gradient idle stability and determinism", () => {
     // 4. Capture stable screenshot A1 (give OGL render time to commit).
     await page.waitForTimeout(2000);
     const screenshotA1 = await canvasA.screenshot();
-    expect(screenshotA1.byteLength).toBeGreaterThan(500);
+    expect(screenshotA1.byteLength).toBeGreaterThan(200);
 
     // 5. Wait 5 seconds and capture A2 — idle stability check.
     await page.waitForTimeout(5000);

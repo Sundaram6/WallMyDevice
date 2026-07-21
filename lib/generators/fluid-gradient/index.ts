@@ -42,17 +42,14 @@ type FluidResources = {
 const resourcesByContext = new WeakMap<object, FluidResources>();
 
 function ensureSetup(target: RenderTarget): FluidResources {
-  const isWebGL =
-    target.kind === "webgl" ||
-    (typeof WebGLRenderingContext !== "undefined" && target.ctx instanceof WebGLRenderingContext) ||
-    (typeof WebGL2RenderingContext !== "undefined" && target.ctx instanceof WebGL2RenderingContext) ||
-    Boolean(target.ctx && typeof (target.ctx as any).drawArrays === "function");
-
-  if (!isWebGL) {
-    throw new Error("fluid-gradient requires a WebGL context");
+  if (target.kind !== "webgl") {
+    throw new Error("fluid-gradient requires a WebGL target");
   }
 
-  const gl = target.ctx as WebGLRenderingContext | WebGL2RenderingContext;
+  const gl = target.ctx;
+  const dpr = target.dpr ?? 1;
+  const pixelWidth = target.width * dpr;
+  const pixelHeight = target.height * dpr;
 
   // Hardware limit check
   if (typeof gl.getParameter === "function") {
@@ -61,14 +58,20 @@ function ensureSetup(target: RenderTarget): FluidResources {
       const maxTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE);
       const maxRenderbuffer = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
 
-      if (maxViewport && (target.width > maxViewport[0] || target.height > maxViewport[1])) {
-        throw new Error(`Requested dimensions (${target.width}x${target.height}) exceed WebGL max viewport limits (${maxViewport[0]}x${maxViewport[1]})`);
+      if (maxViewport && (pixelWidth > maxViewport[0] || pixelHeight > maxViewport[1])) {
+        throw new Error(
+          `Requested dimensions (${target.width}x${target.height}) exceed WebGL max viewport limits (${maxViewport[0]}x${maxViewport[1]}) for generator "fluid-gradient". Suggested smaller size: ${maxViewport[0]}x${maxViewport[1]}`
+        );
       }
-      if (maxTexture && (target.width > maxTexture || target.height > maxTexture)) {
-        throw new Error(`Requested dimensions (${target.width}x${target.height}) exceed WebGL max texture size (${maxTexture})`);
+      if (maxTexture && (pixelWidth > maxTexture || pixelHeight > maxTexture)) {
+        throw new Error(
+          `Requested dimensions (${target.width}x${target.height}) exceed WebGL max texture size (${maxTexture}) for generator "fluid-gradient". Suggested smaller size: ${maxTexture}x${maxTexture}`
+        );
       }
-      if (maxRenderbuffer && (target.width > maxRenderbuffer || target.height > maxRenderbuffer)) {
-        throw new Error(`Requested dimensions (${target.width}x${target.height}) exceed WebGL max renderbuffer size (${maxRenderbuffer})`);
+      if (maxRenderbuffer && (pixelWidth > maxRenderbuffer || pixelHeight > maxRenderbuffer)) {
+        throw new Error(
+          `Requested dimensions (${target.width}x${target.height}) exceed WebGL max renderbuffer size (${maxRenderbuffer}) for generator "fluid-gradient". Suggested smaller size: ${maxRenderbuffer}x${maxRenderbuffer}`
+        );
       }
     } catch (err) {
       if (err instanceof Error && err.message.includes("exceed WebGL")) {

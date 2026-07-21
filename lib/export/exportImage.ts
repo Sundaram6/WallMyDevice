@@ -1,4 +1,4 @@
-import { renderExport, type ExportTargetCanvas } from "../render/renderExport";
+import { renderExport, type ExportTargetCanvas, type ShaderExportSession } from "../render/renderExport";
 import { resolvePalette, type RenderInput } from "../render/renderToTarget";
 import { validateExportSize } from "./limits";
 
@@ -27,13 +27,19 @@ async function canvasToBlob(
 export async function exportImage(
   input: RenderInput,
   size: { width: number; height: number },
-  format: ExportFormat = "png"
+  format: ExportFormat = "png",
+  options?: { shaderSession?: ShaderExportSession }
 ): Promise<Blob> {
   try {
     const validation = validateExportSize(size.width, size.height);
     if (!validation.ok) throw new Error(validation.error);
     
-    let canvas = await renderExport(input, size);
+    let canvas: ExportTargetCanvas;
+    if (options?.shaderSession) {
+      canvas = await options.shaderSession.render(input, size);
+    } else {
+      canvas = await renderExport(input, size);
+    }
 
     // Alpha flattening for JPEG format to ensure deterministic background color
     if (format === "jpg") {

@@ -14,7 +14,7 @@ describe("typography generator", () => {
     for (const [w, h] of [[400, 800], [2000, 1000]] as const) {
       const { canvas, ctx } = makeCanvas(w, h);
       expect(() =>
-        typography.render({ ctx, width: w, height: h, dpr: 1 }, params, "t", ["#000", "#fff"], createRng("t"), { blur: 0, grain: { enabled: false, intensity: 0 } })
+        typography.render({ kind: "canvas2d", canvas, ctx, width: w, height: h, dpr: 1 }, params, "t", ["#000", "#fff"], createRng("t"), { blur: 0, grain: { enabled: false, intensity: 0 } })
       ).not.toThrow();
     }
   });

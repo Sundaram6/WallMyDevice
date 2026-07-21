@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { ensureRegistered } from "@/lib/generators";
 import { getGenerator } from "@/lib/generators/registry";
-import { renderToTarget } from "@/lib/render/renderToTarget";
+import { renderToTarget, buildRenderInput, resolvePalette } from "@/lib/render/renderToTarget";
+import { applyGrain } from "@/lib/render/grain";
+import { drawOverlays } from "@/lib/render/overlays";
+import { createRng } from "@/lib/prng";
 import { useEditorStore } from "@/store/useEditorStore";
 import type { FrameStyle } from "@/lib/devices/presets";
-import type { RenderTarget } from "@/lib/generators/types";
+import type { Canvas2DTarget, WebGLTarget } from "@/lib/generators/types";
 
 type Props = {
   frame: FrameStyle;
@@ -42,50 +45,96 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
       const w = Math.min(maxWidth, Math.floor(maxHeight * aspect));
       const h = Math.min(maxHeight, Math.floor(maxWidth / aspect));
 
+      const input = buildRenderInput(s, { width: w, height: h });
       const generator = getGenerator(s.generatorId);
       const needsWebGL = generator?.kind === "shader";
 
       try {
-        let target: RenderTarget;
-
         if (needsWebGL) {
-          const gl = (canvas.getContext("webgl", { preserveDrawingBuffer: true }) ||
-                      canvas.getContext("webgl2", { preserveDrawingBuffer: true }) ||
-                      canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
-          if (!gl) {
+          // Offscreen WebGL canvas for base shader render
+          let webglCanvas: HTMLCanvasElement | OffscreenCanvas;
+          let gl: WebGLRenderingContext | WebGL2RenderingContext | null = null;
+
+          if (typeof OffscreenCanvas !== "undefined") {
+            try {
+              const offscreen = new OffscreenCanvas(w, h);
+              gl = (offscreen.getContext("webgl", { preserveDrawingBuffer: true }) ||
+                    offscreen.getContext("webgl2", { preserveDrawingBuffer: true }) ||
+                    (offscreen as any).getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
+              if (gl) webglCanvas = offscreen;
+              else {
+                webglCanvas = document.createElement("canvas");
+                webglCanvas.width = w;
+                webglCanvas.height = h;
+                gl = (webglCanvas.getContext("webgl", { preserveDrawingBuffer: true }) ||
+                      webglCanvas.getContext("webgl2", { preserveDrawingBuffer: true }) ||
+                      webglCanvas.getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
+              }
+            } catch {
+              webglCanvas = document.createElement("canvas");
+              webglCanvas.width = w;
+              webglCanvas.height = h;
+              gl = (webglCanvas.getContext("webgl", { preserveDrawingBuffer: true }) ||
+                    webglCanvas.getContext("webgl2", { preserveDrawingBuffer: true }) ||
+                    webglCanvas.getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
+            }
+          } else {
+            webglCanvas = document.createElement("canvas");
+            webglCanvas.width = w;
+            webglCanvas.height = h;
+            gl = (webglCanvas.getContext("webgl", { preserveDrawingBuffer: true }) ||
+                  webglCanvas.getContext("webgl2", { preserveDrawingBuffer: true }) ||
+                  webglCanvas.getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
+          }
+
+          if (!gl || !webglCanvas) {
             setWebglError(true);
             return;
           }
+
+          const webglTarget: WebGLTarget = { kind: "webgl", canvas: webglCanvas, ctx: gl, width: w, height: h, dpr: 1 };
+          const palette = resolvePalette(input.palette, input.mode, input.autoMode);
+          const rng = createRng(input.seed);
+          const context = { blur: input.blurIntensity, grain: { enabled: input.grainEnabled, intensity: input.grainIntensity } };
+
+          // Stage 1: Render base WebGL shader
+          generator?.render(webglTarget, input.params, input.seed, palette, rng, context);
+
+          // Stage 2: Copy to DOM Canvas2D surface and apply blur, grain, overlays (Contract A)
+          const ctx2d = canvas.getContext("2d");
+          if (!ctx2d) return;
           canvas.width = w;
           canvas.height = h;
-          target = { kind: "webgl", canvas, ctx: gl, width: w, height: h, dpr: 1 };
+
+          if (input.blurIntensity > 0 && typeof (ctx2d as any).filter === "string") {
+            (ctx2d as any).filter = `blur(${input.blurIntensity}px)`;
+          }
+
+          ctx2d.drawImage(webglCanvas as any, 0, 0);
+
+          if (input.blurIntensity > 0 && typeof (ctx2d as any).filter === "string") {
+            (ctx2d as any).filter = "none";
+          }
+
+          const domTarget: Canvas2DTarget = { kind: "canvas2d", canvas, ctx: ctx2d, width: w, height: h, dpr: 1 };
+
+          if (input.grainEnabled && input.grainIntensity > 0) {
+            applyGrain(domTarget, input.grainIntensity, input.seed + "|grain");
+          }
+
+          if (input.overlays) {
+            drawOverlays(domTarget, input.overlays, palette);
+          }
         } else {
+          // Canvas2D generators
           const ctx = canvas.getContext("2d");
           if (!ctx) return;
           canvas.width = w;
           canvas.height = h;
           ctx.setTransform(1, 0, 0, 1, 0, 0);
-          target = { kind: "canvas2d", canvas, ctx, width: w, height: h, dpr: 1 };
+          const target: Canvas2DTarget = { kind: "canvas2d", canvas, ctx, width: w, height: h, dpr: 1 };
+          renderToTarget(target, input);
         }
-
-        renderToTarget(target, {
-          generatorId: s.generatorId,
-          params: s.params[s.generatorId] ?? {},
-          palette: s.palette,
-          mode: s.mode,
-          seed: s.seed,
-          grainEnabled: s.grainEnabled,
-          grainIntensity: s.grainIntensity,
-          blurIntensity: s.blurIntensity,
-          overlays: {
-            clock: s.overlayClock,
-            date: s.overlayDate,
-            text: s.overlayText,
-            textValue: s.overlayTextValue,
-            font: s.overlayFont,
-            size: s.overlaySize,
-          },
-        });
         setWebglError(false);
       } catch (e) {
         console.error("PreviewCanvas error:", e);

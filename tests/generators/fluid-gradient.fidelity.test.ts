@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { fluidGradient } from "../../lib/generators/fluid-gradient";
-import { makeCanvas } from "../helpers/canvas";
 import { createRng } from "../../lib/prng";
 
 function makeWebGLCanvas(w: number, h: number) {
@@ -30,7 +29,7 @@ describe("fluid-gradient fidelity", () => {
     if (!preview || !exportC) return;
     const params = fluidGradient.schema.defaults;
     const ctx1 = fluidGradient;
-    expect(() => ctx1.render({ ctx: preview.ctx, width: 200, height: 400, dpr: 1 }, params, "fgfid", input.palette, createRng("fgfid"), { blur: 0, grain: { enabled: false, intensity: 0 } })).not.toThrow();
-    expect(() => ctx1.render({ ctx: exportC.ctx, width: 2000, height: 4000, dpr: 1 }, params, "fgfid", input.palette, createRng("fgfid"), { blur: 0, grain: { enabled: false, intensity: 0 } })).not.toThrow();
+    expect(() => ctx1.render({ kind: "webgl", canvas: preview.canvas, ctx: preview.ctx, width: 200, height: 400, dpr: 1 }, params, "fgfid", input.palette, createRng("fgfid"), { blur: 0, grain: { enabled: false, intensity: 0 } })).not.toThrow();
+    expect(() => ctx1.render({ kind: "webgl", canvas: exportC.canvas, ctx: exportC.ctx, width: 2000, height: 4000, dpr: 1 }, params, "fgfid", input.palette, createRng("fgfid"), { blur: 0, grain: { enabled: false, intensity: 0 } })).not.toThrow();
   });
 });

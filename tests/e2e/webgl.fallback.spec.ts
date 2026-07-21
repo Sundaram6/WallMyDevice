@@ -10,13 +10,22 @@ test.describe("WebGL fallback recovery", () => {
 
     // Deterministically mock WebGL context acquisition failure
     await page.addInitScript(() => {
-      const original = HTMLCanvasElement.prototype.getContext;
+      const originalCanvas = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function (type: string, ...args: any[]) {
         if (type === "webgl" || type === "webgl2" || type === "experimental-webgl") {
           return null;
         }
-        return original.call(this, type, ...args);
+        return originalCanvas.call(this, type, ...args);
       };
+      if (typeof OffscreenCanvas !== "undefined") {
+        const originalOffscreen = OffscreenCanvas.prototype.getContext;
+        OffscreenCanvas.prototype.getContext = function (type: string, ...args: any[]) {
+          if (type === "webgl" || type === "webgl2" || type === "experimental-webgl") {
+            return null;
+          }
+          return originalOffscreen.call(this, type, ...args);
+        };
+      }
     });
 
     // 1. Navigate to home page
