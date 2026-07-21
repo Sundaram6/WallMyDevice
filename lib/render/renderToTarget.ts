@@ -14,6 +14,7 @@ export type RenderInput = {
   grainIntensity: number;
   blurIntensity: number;
   autoMode?: "light" | "dark";
+  dimensions?: { width: number; height: number };
   overlays?: {
     clock: boolean;
     date: boolean;
@@ -21,8 +22,53 @@ export type RenderInput = {
     textValue: string;
     font: string;
     size: number;
+    timestamp?: number;
   };
 };
+
+export type Dimensions = { width: number; height: number };
+
+export function buildRenderInput(
+  state: {
+    generatorId: string;
+    params: Record<string, unknown>;
+    palette: string[];
+    mode: "light" | "dark" | "auto";
+    seed: string;
+    grainEnabled: boolean;
+    grainIntensity: number;
+    blurIntensity: number;
+    overlayClock: boolean;
+    overlayDate: boolean;
+    overlayText: boolean;
+    overlayTextValue: string;
+    overlayFont: string;
+    overlaySize: number;
+    overlayTimestamp?: number;
+  },
+  dimensions: Dimensions
+): RenderInput {
+  return {
+    generatorId: state.generatorId,
+    params: (state.params[state.generatorId] ?? {}) as unknown,
+    palette: state.palette,
+    mode: state.mode,
+    seed: state.seed,
+    grainEnabled: state.grainEnabled,
+    grainIntensity: state.grainIntensity,
+    blurIntensity: state.blurIntensity,
+    dimensions,
+    overlays: {
+      clock: state.overlayClock,
+      date: state.overlayDate,
+      text: state.overlayText,
+      textValue: state.overlayTextValue,
+      font: state.overlayFont,
+      size: state.overlaySize,
+      timestamp: state.overlayTimestamp,
+    },
+  };
+}
 
 export function renderToTarget(target: RenderTarget, input: RenderInput): void {
   const generator = getGenerator(input.generatorId);
@@ -35,11 +81,16 @@ export function renderToTarget(target: RenderTarget, input: RenderInput): void {
     grain: { enabled: input.grainEnabled, intensity: input.grainIntensity },
   };
 
-  if (target.ctx instanceof CanvasRenderingContext2D) {
-    target.ctx.save();
-    target.ctx.fillStyle = palette[0] ?? "#000000";
-    target.ctx.fillRect(0, 0, target.width, target.height);
-    target.ctx.restore();
+  const targetKind = target.kind ?? (typeof (target.ctx as any).drawArrays === "function" ? "webgl" : "canvas2d");
+
+  if (targetKind === "canvas2d") {
+    const ctx2d = target.ctx as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+    if (typeof ctx2d.save === "function") {
+      ctx2d.save();
+      ctx2d.fillStyle = palette[0] ?? "#000000";
+      ctx2d.fillRect(0, 0, target.width, target.height);
+      ctx2d.restore();
+    }
   }
 
   generator.render(target, input.params, input.seed, palette, rng, context);

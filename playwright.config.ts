@@ -21,23 +21,27 @@ export default defineConfig({
       testIgnore: [
         '**/fluid-gradient.stability.spec.ts',
         '**/export.parity.spec.ts',
+        '**/fluid-gradient.export.spec.ts',
+        '**/webgl.fallback.spec.ts',
       ],
     },
     {
       // Dedicated WebGL project: SwiftShader software renderer for determinism tests.
       // --enable-unsafe-swiftshader lowers browser security guarantees intentionally;
       // this project is restricted to trusted local/CI testing only.
-      name: 'chromium-webgl',
       testMatch: [
         '**/fluid-gradient.stability.spec.ts',
         '**/export.parity.spec.ts',
+        '**/fluid-gradient.export.spec.ts',
+        '**/webgl.fallback.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
           args: [
             '--use-gl=angle',
-            '--ignore-gpu-blocklist',
+            '--use-angle=swiftshader-webgl',
+            '--enable-unsafe-swiftshader',
           ],
         },
       },

@@ -21,6 +21,10 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
   useEffect(() => { ensureRegistered(); }, []);
 
   useEffect(() => {
+    setWebglError(false);
+  }, [generatorId]);
+
+  useEffect(() => {
     let raf = 0;
     const unsub = useEditorStore.subscribe(() => {
       if (raf) return;
@@ -38,7 +42,6 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
       const w = Math.min(maxWidth, Math.floor(maxHeight * aspect));
       const h = Math.min(maxHeight, Math.floor(maxWidth / aspect));
 
-      // Determine which context type is needed for the active generator.
       const generator = getGenerator(s.generatorId);
       const needsWebGL = generator?.kind === "shader";
 
@@ -46,11 +49,8 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
         let target: RenderTarget;
 
         if (needsWebGL) {
-          // Shader generators require a WebGLRenderingContext.
-          // Request webgl on the canvas (note: a canvas can only hold one context type;
-          // if it was previously used as 2d, we need a fresh canvas — handled by key prop
-          // on the component or by the browser which reuses the same canvas here).
           const gl = (canvas.getContext("webgl", { preserveDrawingBuffer: true }) ||
+                      canvas.getContext("webgl2", { preserveDrawingBuffer: true }) ||
                       canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true })) as WebGLRenderingContext | null;
           if (!gl) {
             setWebglError(true);
@@ -58,15 +58,14 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
           }
           canvas.width = w;
           canvas.height = h;
-          target = { ctx: gl as WebGLRenderingContext, width: w, height: h, dpr: 1 };
+          target = { kind: "webgl", canvas, ctx: gl, width: w, height: h, dpr: 1 };
         } else {
-          // Canvas2D generators.
           const ctx = canvas.getContext("2d");
           if (!ctx) return;
           canvas.width = w;
           canvas.height = h;
           ctx.setTransform(1, 0, 0, 1, 0, 0);
-          target = { ctx, width: w, height: h, dpr: 1 };
+          target = { kind: "canvas2d", canvas, ctx, width: w, height: h, dpr: 1 };
         }
 
         renderToTarget(target, {
@@ -96,7 +95,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
       }
     }
     return () => { unsub(); if (raf) cancelAnimationFrame(raf); };
-  }, [aspect, maxWidth, maxHeight]);
+  }, [generatorId, aspect, maxWidth, maxHeight]);
 
   if (webglError) {
     return (

@@ -2,6 +2,8 @@ import JSZip from "jszip";
 import { exportImage } from "./exportImage";
 import { buildFilename } from "./filename";
 import type { RenderInput } from "../render/renderToTarget";
+import { createShaderExportSession } from "../render/renderExport";
+import { getGenerator } from "../generators/registry";
 
 export type BatchSize = { width: number; height: number };
 
@@ -13,11 +15,27 @@ export async function batchExport(
 ): Promise<Blob> {
   const zip = new JSZip();
   const generatorId = input.generatorId;
-  for (let i = 0; i < sizes.length; i++) {
-    const size = sizes[i];
-    const blob = await exportImage(input, size);
-    zip.file(buildFilename(generatorId, seed, size, "png"), blob);
-    onProgress?.(i + 1, sizes.length);
+  const generator = getGenerator(generatorId);
+
+  if (generator?.kind === "shader") {
+    const session = createShaderExportSession();
+    try {
+      for (let i = 0; i < sizes.length; i++) {
+        const size = sizes[i];
+        const blob = await exportImage(input, size);
+        zip.file(buildFilename(generatorId, seed, size, "png"), blob);
+        onProgress?.(i + 1, sizes.length);
+      }
+    } finally {
+      session.dispose();
+    }
+  } else {
+    for (let i = 0; i < sizes.length; i++) {
+      const size = sizes[i];
+      const blob = await exportImage(input, size);
+      zip.file(buildFilename(generatorId, seed, size, "png"), blob);
+      onProgress?.(i + 1, sizes.length);
+    }
   }
   return zip.generateAsync({ type: "blob" });
 }

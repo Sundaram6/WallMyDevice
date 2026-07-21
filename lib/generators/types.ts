@@ -1,12 +1,25 @@
 import type { z } from "zod";
 
 export type Rng = () => number;
-export type RenderTarget = {
-  ctx: CanvasRenderingContext2D | WebGLRenderingContext;
+export type Canvas2DTarget = {
+  kind?: "canvas2d";
+  canvas?: HTMLCanvasElement | OffscreenCanvas;
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   width: number;
   height: number;
   dpr: number;
 };
+
+export type WebGLTarget = {
+  kind?: "webgl";
+  canvas?: HTMLCanvasElement | OffscreenCanvas;
+  ctx: WebGLRenderingContext | WebGL2RenderingContext;
+  width: number;
+  height: number;
+  dpr: number;
+};
+
+export type RenderTarget = Canvas2DTarget | WebGLTarget;
 export type GlobalContext = {
   blur: number;
   grain: { enabled: boolean; intensity: number };
