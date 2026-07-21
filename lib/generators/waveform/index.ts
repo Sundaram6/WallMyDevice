@@ -61,15 +61,17 @@ export const waveform: Generator<Params> = {
         const y = yOffset - (wave + noise) * amp;
         points.push([x, y]);
       }
-      const smooth = params.smoothing;
-      if (smooth > 0) {
+      const strength = Math.min(1, Math.max(0, params.smoothing));
+      if (strength > 0) {
         ctx.moveTo(points[0][0], points[0][1]);
         for (let i = 1; i < points.length - 1; i++) {
           const [x0, y0] = points[i];
           const [x1, y1] = points[i + 1];
-          const cx = (x0 + x1) / 2;
-          const cy = (y0 + y1) / 2;
-          ctx.quadraticCurveTo(x0, y0, cx, cy);
+          const midX = (x0 + x1) / 2;
+          const midY = (y0 + y1) / 2;
+          const endX = x0 + (midX - x0) * strength;
+          const endY = y0 + (midY - y0) * strength;
+          ctx.quadraticCurveTo(x0, y0, endX, endY);
         }
         ctx.lineTo(points[points.length - 1][0], points[points.length - 1][1]);
       } else {
