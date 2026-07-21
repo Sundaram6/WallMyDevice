@@ -1,4 +1,4 @@
-import { registerGenerator } from "./registry";
+import { registerGenerator, _resetRegistryForTests as _resetBase } from "./registry";
 import { waveform } from "./waveform";
 import { geometric } from "./geometric";
 import { typography } from "./typography";
@@ -13,6 +13,11 @@ export function ensureRegistered(): void {
   registerGenerator(typography);
   registerGenerator(fluidGradient);
   initialized = true;
+}
+
+export function _resetRegistryForTests(): void {
+  _resetBase();
+  initialized = false;
 }
 
 export { getGenerator, listGenerators } from "./registry";
