@@ -7,9 +7,12 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: (process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'),
     trace: 'on-first-retry',
+    extraHTTPHeaders: {
+      'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET || '',
+    },
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: { command: 'cmd /c npm run dev', url: 'http://localhost:3000', reuseExistingServer: true, timeout: 60_000 },
+  webServer: { command: 'cmd /c npm run dev', url: (process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'), reuseExistingServer: true, timeout: 60_000 },
 });
