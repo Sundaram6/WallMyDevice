@@ -40,6 +40,18 @@ export function ResolutionPicker() {
 
   return (
     <div className="space-y-2">
+      <select
+        value={resolutionId}
+        onChange={(e) => {
+          const p = DEVICE_PRESETS.find(x => x.id === e.target.value);
+          if (p) setResolution(p.id, p.w, p.h);
+        }}
+        className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100"
+        aria-label="Device preset"
+      >
+        {DEVICE_PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+      </select>
+
       <label className="text-xs text-zinc-500">Device type</label>
       <div className="flex gap-2">
         <select
@@ -54,21 +66,6 @@ export function ResolutionPicker() {
           <option value="phone">Phone</option>
           <option value="custom">Custom</option>
         </select>
-
-        <select
-          value={resolutionId}
-          onChange={(e) => {
-            const p = DEVICE_PRESETS.find(x => x.id === e.target.value);
-            if (p) setResolution(p.id, p.w, p.h);
-          }}
-          className="w-48 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100"
-          aria-label="Device preset"
-        >
-          {DEVICE_PRESETS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-        </select>
-      </div>
-
-      {deviceType === "phone" ? (
         <div className="space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <select

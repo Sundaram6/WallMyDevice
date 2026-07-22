@@ -124,21 +124,7 @@ export const PHONE_MODELS: PhoneModel[] = [
     ],
     verifiedAt: "2026-07-22",
   },
-  // Legacy/compatibility models referenced by existing presets
-  {
-    id: "macbook-14",
-    brandId: "apple",
-    name: "MacBook Pro 14-inch (legacy preset)",
-    releaseYear: 2021,
-    status: "previous",
-    frame: "iphone",
-    displays: [
-      { id: "main", name: "Main Display", width: 3024, height: 1964 },
-    ],
-    sources: [
-      { name: "Apple - MacBook Pro 14 specs", url: "https://www.apple.com/macbook-pro-14-and-16/specs/" }],
-    verifiedAt: "2026-07-22",
-  },
+  // Legacy/compatibility phone models are intentionally limited to actual phones.
 ];
 
 export const PHONE_BRANDS = [
