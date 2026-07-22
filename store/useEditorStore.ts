@@ -19,10 +19,20 @@ export type EditorState = {
   grainIntensity: number;
   blurIntensity: number;
 
+  // legacy resolutionId + custom size are kept for backward compatibility
   resolutionId: string;
   customWidth: number;
   customHeight: number;
   aspectLock: boolean;
+
+  // Device/Phone picker state
+  deviceType: "desktop" | "laptop" | "tablet" | "phone" | "custom";
+  phoneBrand?: string;
+  phoneModel?: string;
+  phoneDisplay?: string; // display id within the phone model
+  orientation: "portrait" | "landscape";
+  // holds last phone selection when switching to custom/other types
+  lastPhoneSelection?: { brand?: string; model?: string; display?: string; orientation?: "portrait" | "landscape" };
 
   overlayClock: boolean;
   overlayDate: boolean;
@@ -53,6 +63,12 @@ export type EditorState = {
   setOverlayFont: (font: string) => void;
   setOverlaySize: (size: number) => void;
   setExportFormat: (f: ExportFormat) => void;
+
+  // device picker setters
+  setDeviceType: (t: EditorState["deviceType"]) => void;
+  setPhoneSelection: (brand?: string, model?: string, display?: string) => void;
+  setOrientation: (o: EditorState["orientation"]) => void;
+
   hydrate: (next: Partial<EditorState>) => void;
 };
 
@@ -79,6 +95,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   customWidth: 1920,
   customHeight: 1080,
   aspectLock: true,
+
+  // device/phone defaults
+  deviceType: "desktop",
+  phoneBrand: undefined,
+  phoneModel: undefined,
+  phoneDisplay: undefined,
+  orientation: "portrait",
+  lastPhoneSelection: undefined,
 
   overlayClock: false,
   overlayDate: false,
@@ -128,6 +152,27 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setOverlaySize: (size) => set({ overlaySize: size }),
 
   setExportFormat: (f) => set({ exportFormat: f }),
+
+  // device/phone setters
+  setDeviceType: (t) => {
+    const prev = get();
+    if (t === "phone") {
+      // restore last phone selection if present
+      if (prev.lastPhoneSelection && prev.lastPhoneSelection.model) {
+        set({ deviceType: "phone", phoneBrand: prev.lastPhoneSelection.brand, phoneModel: prev.lastPhoneSelection.model, phoneDisplay: prev.lastPhoneSelection.display ?? undefined, orientation: prev.lastPhoneSelection.orientation ?? "portrait" });
+      } else {
+        set({ deviceType: "phone" });
+      }
+    } else {
+      // save last phone selection then switch
+      const last = { brand: prev.phoneBrand, model: prev.phoneModel, display: prev.phoneDisplay, orientation: prev.orientation };
+      set({ deviceType: t, lastPhoneSelection: last });
+    }
+  },
+  setPhoneSelection: (brand, model, display) => {
+    set({ phoneBrand: brand, phoneModel: model, phoneDisplay: display });
+  },
+  setOrientation: (o) => set({ orientation: o }),
 
   hydrate: (next) => set(next as EditorState),
 }));

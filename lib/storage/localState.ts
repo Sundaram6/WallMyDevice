@@ -17,6 +17,12 @@ export const LocalStateSchema = z.object({
   customWidth: z.number().int().min(1).max(15360),
   customHeight: z.number().int().min(1).max(15360),
   aspectLock: z.boolean(),
+  // optional device/phone fields added for backward-compatible migration
+  deviceType: z.optional(z.enum(["desktop", "laptop", "tablet", "phone", "custom"])),
+  phoneBrand: z.optional(z.string()),
+  phoneModel: z.optional(z.string()),
+  phoneDisplay: z.optional(z.string()),
+  orientation: z.optional(z.enum(["portrait", "landscape"])),
   overlayClock: z.boolean(),
   overlayDate: z.boolean(),
   overlayText: z.boolean(),

@@ -18,6 +18,7 @@ function restoreFromLocalStorage() {
   if (hash.startsWith("#r=")) return;
   const saved = loadLocalState();
   if (!saved) return;
+  // hydrate existing fields; optional device fields will be ignored if absent
   useEditorStore.setState(saved);
 }
 
@@ -64,6 +65,12 @@ function snapshotLocalState(): LocalState {
     customWidth: state.customWidth,
     customHeight: state.customHeight,
     aspectLock: state.aspectLock,
+    // optional device/phone fields
+    deviceType: (state as any).deviceType,
+    phoneBrand: (state as any).phoneBrand,
+    phoneModel: (state as any).phoneModel,
+    phoneDisplay: (state as any).phoneDisplay,
+    orientation: (state as any).orientation,
     overlayClock: state.overlayClock,
     overlayDate: state.overlayDate,
     overlayText: state.overlayText,

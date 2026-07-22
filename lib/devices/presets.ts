@@ -1,3 +1,5 @@
+import { PHONE_MODELS } from "./phones";
+
 export type DevicePreset = {
   id: string;
   label: string;
@@ -8,12 +10,14 @@ export type DevicePreset = {
 
 export type FrameStyle = "desktop-monitor" | "iphone" | "ipad" | "macbook" | "android" | "ultrawide" | "none";
 
+// Preserve the existing top-level preset list for backward compatibility and batch export.
 export const DEVICE_PRESETS: DevicePreset[] = [
   { id: "desktop-1080p",       label: "Desktop 1080p",     w: 1920, h: 1080, frame: "desktop-monitor" },
   { id: "desktop-1440p",       label: "Desktop 1440p",     w: 2560, h: 1440, frame: "desktop-monitor" },
   { id: "desktop-4k",          label: "Desktop 4K",        w: 3840, h: 2160, frame: "desktop-monitor" },
   { id: "ultrawide-3440x1440", label: "Ultrawide 21:9",    w: 3440, h: 1440, frame: "ultrawide" },
   { id: "macbook-14",          label: "MacBook 14\"",       w: 3024, h: 1964, frame: "macbook" },
+  // Keep the historically supported phone presets here for recipe/backwards compatibility
   { id: "iphone-15-pro",       label: "iPhone 15 Pro",     w: 1179, h: 2556, frame: "iphone" },
   { id: "iphone-15",           label: "iPhone 15",         w: 1170, h: 2532, frame: "iphone" },
   { id: "pixel-8-pro",         label: "Pixel 8 Pro",       w: 1344, h: 2992, frame: "android" },
@@ -33,3 +37,7 @@ export const ASPECT_PRESETS: Array<{ id: string; label: string; w: number; h: nu
   { id: "21-9", label: "21:9",  w: 2560, h: 1080 },
   { id: "1-1",  label: "1:1",   w: 1080, h: 1080 },
 ];
+
+// Expose the phone catalogue for UI pickers
+export const PHONE_CATALOGUE = PHONE_MODELS;
+
