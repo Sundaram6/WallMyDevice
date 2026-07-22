@@ -19,6 +19,7 @@ function escapeXml(s: string): string {
 export const typography: Generator<Params> = {
   id: "typography",
   label: "Typography",
+  description: "Minimalist custom text and font layout",
   kind: "canvas2d",
   schema: {
     zod: Schema,

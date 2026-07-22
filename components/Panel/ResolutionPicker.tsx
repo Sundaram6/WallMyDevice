@@ -66,8 +66,9 @@ export function ResolutionPicker() {
           <option value="phone">Phone</option>
           <option value="custom">Custom</option>
         </select>
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2">
+        {deviceType === "phone" ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
             <select
               value={phoneBrand ?? "apple"}
               onChange={(e) => setPhoneSelection(e.target.value, undefined, undefined)}
@@ -133,6 +134,7 @@ export function ResolutionPicker() {
 
         </div>
       ) : null}
+      </div>
 
       {resolutionId === "custom" ? (
         <div className="space-y-2">

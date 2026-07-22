@@ -125,6 +125,7 @@ function ensureSetup(target: RenderTarget): FluidResources {
 export const fluidGradient: Generator<Params> = {
   id: "fluid-gradient",
   label: "Fluid Gradient",
+  description: "Dynamic WebGL liquid gradient mesh",
   kind: "shader",
   schema: {
     zod: Schema,
