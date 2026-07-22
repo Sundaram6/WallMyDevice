@@ -121,12 +121,26 @@ export function ResolutionPicker() {
             <div className="flex gap-1">
               <button
                 type="button"
-                onClick={() => { setOrientation("portrait"); applyPhoneSelection(phoneModel, phoneDisplay); }}
+                onClick={() => {
+                  setOrientation("portrait");
+                  if (phoneModel) {
+                    const model = findModel(phoneModel);
+                    const disp = model?.displays.find(d => d.id === (phoneDisplay ?? model.displays[0].id)) ?? model?.displays[0];
+                    if (disp) setResolution("custom", disp.width, disp.height);
+                  }
+                }}
                 className={`rounded px-2 py-1 text-xs ${orientation === "portrait" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-300"}`}
               >Portrait</button>
               <button
                 type="button"
-                onClick={() => { setOrientation("landscape"); applyPhoneSelection(phoneModel, phoneDisplay); }}
+                onClick={() => {
+                  setOrientation("landscape");
+                  if (phoneModel) {
+                    const model = findModel(phoneModel);
+                    const disp = model?.displays.find(d => d.id === (phoneDisplay ?? model.displays[0].id)) ?? model?.displays[0];
+                    if (disp) setResolution("custom", disp.height, disp.width);
+                  }
+                }}
                 className={`rounded px-2 py-1 text-xs ${orientation === "landscape" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-300"}`}
               >Landscape</button>
             </div>

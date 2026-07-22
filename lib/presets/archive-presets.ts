@@ -1,20 +1,3 @@
-export type ArchiveCategory = {
-  id: string;
-  label: string;
-  count: number;
-};
-
-export const ARCHIVE_CATEGORIES: ArchiveCategory[] = [
-  { id: "all", label: "All prints", count: 128 },
-  { id: "new", label: "New arrivals", count: 12 },
-  { id: "trending", label: "Trending", count: 24 },
-  { id: "monochrome", label: "Monochrome", count: 18 },
-  { id: "earth-sand", label: "Earth & sand", count: 22 },
-  { id: "botanicals", label: "Botanicals", count: 19 },
-  { id: "geometric", label: "Geometric", count: 21 },
-  { id: "abstract", label: "Abstract", count: 12 },
-];
-
 export type SwatchRecipe = {
   id: string;
   name: string;
@@ -26,9 +9,15 @@ export type SwatchRecipe = {
   mode: "light" | "dark" | "auto";
   seed: string;
   params: Record<string, unknown>;
-  tags: string[]; // e.g. ["new", "trending", "botanicals", "earth-sand", etc.]
+  tags: string[];
   isNew?: boolean;
   isTrending?: boolean;
+};
+
+export type ArchiveCategory = {
+  id: string;
+  label: string;
+  count: number;
 };
 
 export const ARCHIVE_PRESETS: SwatchRecipe[] = [
@@ -225,3 +214,29 @@ export const ARCHIVE_PRESETS: SwatchRecipe[] = [
     isNew: true,
   },
 ];
+
+export function getArchiveCategories(): ArchiveCategory[] {
+  const allCount = ARCHIVE_PRESETS.length;
+  const newCount = ARCHIVE_PRESETS.filter(p => p.isNew).length;
+  const trendingCount = ARCHIVE_PRESETS.filter(p => p.isTrending).length;
+  const monochromeCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "monochrome").length;
+  const earthSandCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "earth-sand").length;
+  const botanicalsCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "botanicals").length;
+  const geometricCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "geometric").length;
+  const abstractCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "abstract").length;
+  const boldGraphicCount = ARCHIVE_PRESETS.filter(p => p.categoryTag === "bold-graphic").length;
+
+  return [
+    { id: "all", label: "All prints", count: allCount },
+    { id: "new", label: "New arrivals", count: newCount },
+    { id: "trending", label: "Trending", count: trendingCount },
+    { id: "monochrome", label: "Monochrome", count: monochromeCount },
+    { id: "earth-sand", label: "Earth & sand", count: earthSandCount },
+    { id: "botanicals", label: "Botanicals", count: botanicalsCount },
+    { id: "geometric", label: "Geometric", count: geometricCount },
+    { id: "abstract", label: "Abstract", count: abstractCount },
+    { id: "bold-graphic", label: "Bold & graphic", count: boldGraphicCount },
+  ].filter(c => c.count > 0);
+}
+
+export const ARCHIVE_CATEGORIES: ArchiveCategory[] = getArchiveCategories();

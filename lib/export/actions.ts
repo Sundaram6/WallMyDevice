@@ -29,12 +29,12 @@ export function buildInput(size?: { width: number; height: number }) {
   return { input, seed: s.seed, generatorId };
 }
 
-export async function triggerSingleExport() {
-  const built = buildInput();
+export async function triggerSingleExport(size?: { width: number; height: number }) {
+  const built = buildInput(size);
   if (!built) return;
   const s = useEditorStore.getState();
-  const w = s.customWidth;
-  const h = s.customHeight;
+  const w = size ? size.width : s.customWidth;
+  const h = size ? size.height : s.customHeight;
   const exportFormat = s.exportFormat;
   if (exportFormat === "svg") {
     const g = getGenerator(built.generatorId);

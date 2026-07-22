@@ -5,6 +5,7 @@ import { PHONE_CATALOGUE } from "@/lib/devices/presets";
 import { CURATED_PALETTES } from "@/lib/palettes/data";
 import { listGenerators } from "@/lib/generators";
 import { triggerSingleExport } from "@/lib/export/actions";
+import { ResolutionPicker } from "@/components/Panel/ResolutionPicker";
 
 const MOOD_OPTIONS = [
   { id: "calm", label: "Calm", palette: ["#6E7A5C", "#E4DCC8", "#2F4A5C", "#C79A66", "#C77A5E"], mode: "light" },
@@ -58,7 +59,12 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
   };
 
   const handleSaveRecipe = () => {
-    triggerSingleExport();
+    triggerSingleExport({ width: targetW, height: targetH });
+  };
+
+  const handleCustomScaleClick = () => {
+    setResolutionScale("custom");
+    store.setResolution("custom", store.customWidth, store.customHeight);
   };
 
   return (
@@ -94,24 +100,8 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
             </button>
 
             {showDevicePicker && (
-              <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-60 overflow-y-auto rounded-lg border border-[#D4CDBC] bg-white p-2 shadow-lg">
-                <div className="mb-1 px-2 py-1 font-mono text-[10px] text-[#8A8579]">Presets</div>
-                {DEVICE_PRESETS.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      store.setResolution(p.id, p.w, p.h);
-                      store.setDeviceType(p.frame === "iphone" || p.frame === "android" ? "phone" : "desktop");
-                      setShowDevicePicker(false);
-                    }}
-                    className={`block w-full rounded px-2 py-1.5 text-left text-xs transition ${
-                      store.resolutionId === p.id ? "bg-[#F3EFE6] font-medium text-[#2B2A26]" : "text-[#5B584F] hover:bg-[#FAF8F4]"
-                    }`}
-                  >
-                    {p.label} ({p.w}x{p.h})
-                  </button>
-                ))}
+              <div className="absolute left-0 right-0 top-full z-30 mt-1 rounded-lg border border-[#D4CDBC] bg-white p-3 shadow-lg">
+                <ResolutionPicker />
               </div>
             )}
           </div>
@@ -193,7 +183,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
               <button
                 key={scale}
                 type="button"
-                onClick={() => setResolutionScale(scale)}
+                onClick={() => scale === "custom" ? handleCustomScaleClick() : setResolutionScale(scale)}
                 className={`rounded-lg border p-2 text-center transition ${
                   resolutionScale === scale
                     ? "border-[#2B2A26] bg-[#F3EFE6] text-[#2B2A26]"
@@ -229,13 +219,13 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
           Generate Wallpaper ✦
         </button>
 
-        {/* Secondary Save/Export Action */}
+        {/* Secondary Export Action */}
         <button
           type="button"
           onClick={handleSaveRecipe}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-sm transition hover:bg-[#FAF8F4]"
         >
-          ⛁ Save / Export Wallpaper
+          ⛁ Export Wallpaper
         </button>
 
         {onOpenStudio && (

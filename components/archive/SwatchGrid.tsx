@@ -56,12 +56,16 @@ export function SwatchGrid({
   const handleSelectSwatch = (swatch: SwatchRecipe) => {
     setSelectedSwatchId(swatch.id);
 
-    // Apply recipe to editor store
+    // Apply complete recipe to editor store
     store.setGenerator(swatch.generatorId);
-    store.setPalette(swatch.palette);
+    store.setPalette([...swatch.palette]);
     store.setMode(swatch.mode);
     store.setSeed(swatch.seed);
-    store.updateParam(swatch.generatorId, Object.keys(swatch.params)[0], Object.values(swatch.params)[0]);
+
+    // Apply ALL parameters for the generator recipe
+    Object.entries(swatch.params).forEach(([key, val]) => {
+      store.updateParam(swatch.generatorId, key, val);
+    });
   };
 
   return (
