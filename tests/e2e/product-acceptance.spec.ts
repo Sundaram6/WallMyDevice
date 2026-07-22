@@ -195,14 +195,14 @@ test.describe('Product Acceptance Tests', () => {
 
     // 8. Recipe hash url round-trip
     console.log("Verifying Recipe hash URL round-trip...");
-    await page.click("button:has-text('Geometric')");
+    await page.locator("button[aria-pressed]").filter({ hasText: "Geometric" }).first().click();
     await page.waitForTimeout(500);
     const randBtn = page.locator("button[aria-label='Randomize seed']").first();
     await randBtn.click();
     await page.waitForTimeout(300);
     const customUrl = page.url();
 
-    await page.click("button:has-text('Waveform')");
+    await page.locator("button[aria-pressed]").filter({ hasText: "Waveform" }).first().click();
     await page.waitForTimeout(300);
 
     await page.goto(customUrl);

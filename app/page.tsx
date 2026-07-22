@@ -110,10 +110,20 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#r=")) {
+      setTab("studio");
+    }
     restoreFromLocalStorage();
     loadHashRecipe();
-    window.addEventListener("hashchange", loadHashRecipe);
-    return () => window.removeEventListener("hashchange", loadHashRecipe);
+    const handleHash = () => {
+      if (window.location.hash.startsWith("#r=")) {
+        setTab("studio");
+      }
+      loadHashRecipe();
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   }, []);
 
   useEffect(() => {
