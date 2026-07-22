@@ -1,7 +1,6 @@
 import { GeneratorPicker } from "./GeneratorPicker";
 import { PalettePicker } from "./PalettePicker";
 import { ModeToggle } from "./ModeToggle";
-import { SeedBar } from "./SeedBar";
 import { ResolutionPicker } from "./ResolutionPicker";
 import { ParamsForm } from "./ParamsForm";
 import { FinishControls } from "./FinishControls";
