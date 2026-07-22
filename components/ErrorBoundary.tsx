@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { clearLocalState } from "@/lib/storage/localState";
 
 type State = {
   hasError: boolean;
@@ -25,7 +26,7 @@ export class ErrorBoundary extends React.Component<
   }
 
   handleReset = () => {
-    localStorage.removeItem("wallmydevice:lastState");
+    clearLocalState();
     window.location.reload();
   };
 

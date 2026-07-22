@@ -11,6 +11,13 @@ import { getGenerator } from "@/lib/generators";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { decodeHash } from "@/lib/recipe/encode";
 import { DropZone } from "@/components/DropZone";
+import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
+
+function restoreFromLocalStorage() {
+  const saved = loadLocalState();
+  if (!saved) return;
+  useEditorStore.setState(saved);
+}
 
 function loadHashRecipe() {
   const hash = window.location.hash;
@@ -40,24 +47,9 @@ function loadHashRecipe() {
   });
 }
 
-function loadLastState() {
-  const hash = window.location.hash;
-  if (hash.startsWith("#r=")) return;
-  try {
-    const raw = localStorage.getItem("wallmydevice:lastState");
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (parsed) {
-      useEditorStore.getState().hydrate(parsed);
-    }
-  } catch (e) {
-    console.error("Failed to restore lastState", e);
-  }
-}
-
-function persistToLocalStorage() {
+function snapshotLocalState(): LocalState {
   const state = useEditorStore.getState();
-  const local = {
+  return {
     generatorId: state.generatorId,
     params: state.params,
     palette: state.palette,
@@ -78,7 +70,6 @@ function persistToLocalStorage() {
     overlaySize: state.overlaySize,
     exportFormat: state.exportFormat,
   };
-  try { localStorage.setItem("wallmydevice:lastState", JSON.stringify(local)); } catch {}
 }
 
 export default function Page() {
@@ -86,21 +77,6 @@ export default function Page() {
   const resolutionId = useEditorStore(s => s.resolutionId);
   const customWidth = useEditorStore(s => s.customWidth);
   const customHeight = useEditorStore(s => s.customHeight);
-  const params = useEditorStore(s => s.params);
-  const palette = useEditorStore(s => s.palette);
-  const mode = useEditorStore(s => s.mode);
-  const seed = useEditorStore(s => s.seed);
-  const grainEnabled = useEditorStore(s => s.grainEnabled);
-  const grainIntensity = useEditorStore(s => s.grainIntensity);
-  const blurIntensity = useEditorStore(s => s.blurIntensity);
-  const aspectLock = useEditorStore(s => s.aspectLock);
-  const overlayClock = useEditorStore(s => s.overlayClock);
-  const overlayDate = useEditorStore(s => s.overlayDate);
-  const overlayText = useEditorStore(s => s.overlayText);
-  const overlayTextValue = useEditorStore(s => s.overlayTextValue);
-  const overlayFont = useEditorStore(s => s.overlayFont);
-  const overlaySize = useEditorStore(s => s.overlaySize);
-  const exportFormat = useEditorStore(s => s.exportFormat);
 
   const [isMobile, setIsMobile] = useState(false);
   const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
@@ -125,35 +101,24 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    loadLastState();
+    restoreFromLocalStorage();
     loadHashRecipe();
     window.addEventListener("hashchange", loadHashRecipe);
     return () => window.removeEventListener("hashchange", loadHashRecipe);
   }, []);
 
   useEffect(() => {
-    persistToLocalStorage();
-  }, [
-    generatorId,
-    params,
-    palette,
-    mode,
-    seed,
-    grainEnabled,
-    grainIntensity,
-    blurIntensity,
-    resolutionId,
-    customWidth,
-    customHeight,
-    aspectLock,
-    overlayClock,
-    overlayDate,
-    overlayText,
-    overlayTextValue,
-    overlayFont,
-    overlaySize,
-    exportFormat,
-  ]);
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const flush = () => saveLocalState(snapshotLocalState());
+    const unsub = useEditorStore.subscribe(() => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(flush, 400);
+    });
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      unsub();
+    };
+  }, []);
 
   const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
   const activeFrame = isMobile && (preset.frame === "desktop-monitor" || preset.frame === "ultrawide" || preset.frame === "macbook")
