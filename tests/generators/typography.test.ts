@@ -31,11 +31,14 @@ describe("typography generator", () => {
 
     const svgLeft = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "left" }, "s", palette);
     expect(svgLeft).toContain('text-anchor="start"');
+    expect(svgLeft).not.toContain('text-anchor="left"');
 
     const svgCenter = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "center" }, "s", palette);
     expect(svgCenter).toContain('text-anchor="middle"');
+    expect(svgCenter).not.toContain('text-anchor="center"');
 
     const svgRight = typography.toSvg!(size, { ...typography.schema.defaults, alignment: "right" }, "s", palette);
     expect(svgRight).toContain('text-anchor="end"');
+    expect(svgRight).not.toContain('text-anchor="right"');
   });
 });
