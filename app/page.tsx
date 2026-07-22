@@ -4,13 +4,22 @@ import { useEffect, useState } from "react";
 import { ControlPanel } from "@/components/Panel/ControlPanel";
 import { PreviewCanvas } from "@/components/Preview/PreviewCanvas";
 import { DeviceFrame } from "@/components/Preview/DeviceFrame";
-import { BottomSheet } from "@/components/Preview/BottomSheet";
 import { useEditorStore } from "@/store/useEditorStore";
 import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
-import { getGenerator } from "@/lib/generators";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { decodeHash } from "@/lib/recipe/encode";
 import { DropZone } from "@/components/DropZone";
+import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
+
+import { ArchiveShell } from "@/components/archive/ArchiveShell";
+
+function restoreFromLocalStorage() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#r=")) return;
+  const saved = loadLocalState();
+  if (!saved) return;
+  useEditorStore.setState(saved);
+}
 
 function loadHashRecipe() {
   const hash = window.location.hash;
@@ -40,9 +49,9 @@ function loadHashRecipe() {
   });
 }
 
-function persistToLocalStorage() {
+function snapshotLocalState(): LocalState {
   const state = useEditorStore.getState();
-  const local = {
+  return {
     generatorId: state.generatorId,
     params: state.params,
     palette: state.palette,
@@ -55,6 +64,11 @@ function persistToLocalStorage() {
     customWidth: state.customWidth,
     customHeight: state.customHeight,
     aspectLock: state.aspectLock,
+    deviceType: (state as any).deviceType,
+    phoneBrand: (state as any).phoneBrand,
+    phoneModel: (state as any).phoneModel,
+    phoneDisplay: (state as any).phoneDisplay,
+    orientation: (state as any).orientation,
     overlayClock: state.overlayClock,
     overlayDate: state.overlayDate,
     overlayText: state.overlayText,
@@ -63,10 +77,11 @@ function persistToLocalStorage() {
     overlaySize: state.overlaySize,
     exportFormat: state.exportFormat,
   };
-  try { localStorage.setItem("wallmydevice:lastState", JSON.stringify(local)); } catch {}
 }
 
 export default function Page() {
+  const [tab, setTab] = useState<"archive" | "studio">("archive");
+
   const generatorId = useEditorStore(s => s.generatorId);
   const resolutionId = useEditorStore(s => s.resolutionId);
   const customWidth = useEditorStore(s => s.customWidth);
@@ -95,54 +110,47 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#r=")) {
+      setTab("studio");
+    }
+    restoreFromLocalStorage();
     loadHashRecipe();
-    window.addEventListener("hashchange", loadHashRecipe);
-    return () => window.removeEventListener("hashchange", loadHashRecipe);
+    const handleHash = () => {
+      if (window.location.hash.startsWith("#r=")) {
+        setTab("studio");
+      }
+      loadHashRecipe();
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   }, []);
 
-  useEffect(() => { persistToLocalStorage(); });
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const flush = () => saveLocalState(snapshotLocalState());
+    const unsub = useEditorStore.subscribe(() => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(flush, 400);
+    });
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      unsub();
+    };
+  }, []);
 
   const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
-  const activeFrame = isMobile && (preset.frame === "desktop-monitor" || preset.frame === "ultrawide" || preset.frame === "macbook")
-    ? "none"
-    : preset.frame;
   const aspect = customWidth / customHeight;
-  const generator = getGenerator(generatorId);
-  const sheetTitle = `Generator: ${generator?.label ?? generatorId}`;
 
-  if (isMobile) {
-    return (
-      <DropZone>
-        <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
-          <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
-            <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
-          </header>
-          <KeyboardShortcuts />
-          <main className="relative flex-1 overflow-hidden">
-            <div className="flex h-full items-center justify-center p-4">
-              <DeviceFrame frame={activeFrame} aspect={aspect}>
-                <PreviewCanvas frame={activeFrame} aspect={aspect} maxWidth={360} maxHeight={640} />
-              </DeviceFrame>
-            </div>
-            <BottomSheet title={sheetTitle} collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
-              <ControlPanel />
-            </BottomSheet>
-          </main>
-        </div>
-      </DropZone>
-    );
-  }
-
-  return (
+  const studioView = (
     <DropZone>
-      <div className="flex h-screen flex-col bg-zinc-950 text-zinc-100">
-        <header className="flex h-12 items-center justify-between border-b border-zinc-800 px-4">
-          <h1 className="text-sm font-semibold tracking-wider">WallMyDevice</h1>
-          <span className="text-xs text-zinc-500">{generatorId} - {customWidth}x{customHeight}</span>
-        </header>
+      <div className="flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
         <KeyboardShortcuts />
-        <div className="flex flex-1 overflow-hidden">
-          <main className="flex flex-1 items-center justify-center p-6">
+        <div className="flex h-10 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
+          <span className="font-mono text-[#5B584F]">{generatorId} - {customWidth}x{customHeight}</span>
+        </div>
+        <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
+          <main className="flex flex-1 items-center justify-center p-4 md:p-6 min-h-[300px]">
             <DeviceFrame frame={preset.frame} aspect={aspect}>
               <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={800} maxHeight={600} />
             </DeviceFrame>
@@ -151,5 +159,9 @@ export default function Page() {
         </div>
       </div>
     </DropZone>
+  );
+
+  return (
+    <ArchiveShell currentTab={tab} onTabChange={setTab} childrenStudio={studioView} />
   );
 }

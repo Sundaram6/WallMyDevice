@@ -46,6 +46,7 @@ export type ParamControl<P> = {
 export type Generator<P = unknown> = {
   id: string;
   label: string;
+  description?: string;
   kind: "canvas2d" | "shader";
   schema: ParamSchema<z.ZodType<P>>;
   render: (

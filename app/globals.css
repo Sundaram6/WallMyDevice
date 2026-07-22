@@ -2,4 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { height: 100%; background: #09090b; color: #fafafa; }
+html, body {
+  height: 100%;
+  background: #FAF8F4;
+  color: #2B2A26;
+}
+
+/* Pinked / Scalloped fabric edge pattern overlay */
+.pinked-edge-top {
+  background-image: radial-gradient(circle at 7px 7px, #FAF8F4 6px, transparent 6.5px);
+  background-size: 14px 14px;
+  background-repeat: repeat-x;
+  top: -1px;
+}
+
+.pinked-edge-bottom {
+  background-image: radial-gradient(circle at 7px 7px, #FAF8F4 6px, transparent 6.5px);
+  background-size: 14px 14px;
+  background-repeat: repeat-x;
+  bottom: -1px;
+  transform: rotate(180deg);
+}

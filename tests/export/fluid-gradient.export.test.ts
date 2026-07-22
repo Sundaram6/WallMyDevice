@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderExport, createShaderExportSession, type ShaderExportSession } from "@/lib/render/renderExport";
-import { exportImage } from "@/lib/export/exportImage";
+import { describe, it, expect, beforeEach } from "vitest";
+import { type ShaderExportSession } from "@/lib/render/renderExport";
 import { batchExport } from "@/lib/export/batchExport";
 import { buildRenderInput } from "@/lib/render/renderToTarget";
 import { deriveFluidGradientUniforms } from "@/lib/generators/fluid-gradient";

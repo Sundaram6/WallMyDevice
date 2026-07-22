@@ -41,7 +41,7 @@ export function decodeHash(hash: string):
     const bytes = fromBase64Url(payload);
     const json = pako.inflate(bytes, { to: "string" });
     return parseRecipe(json);
-  } catch (e) {
+  } catch (_e) {
     return { ok: false, error: "Could not decode URL" };
   }
 }

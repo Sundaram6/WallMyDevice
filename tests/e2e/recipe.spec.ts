@@ -26,7 +26,7 @@ test("recipe round-trip via URL hash", async ({ page }) => {
   const encoded = toBase64Url(deflated);
   await page.goto("/#r=" + encoded);
   await expect(page.locator("input[aria-label='Seed']")).toHaveValue("testseed");
-  await expect(page.locator("header span")).toContainText("waveform - 400x600");
+  await expect(page.getByText("waveform - 400x600")).toBeVisible();
 });
 
 test("updates recipe state dynamically on hashchange without page reload", async ({ page }) => {

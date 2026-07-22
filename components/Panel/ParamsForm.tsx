@@ -44,6 +44,25 @@ export function ParamsForm() {
             </label>
           );
         }
+        if (c.type === "select" && c.options && typeof value === "string") {
+          return (
+            <label key={String(c.key)} className="block">
+              <div className="mb-1 text-xs text-zinc-300">{c.label}</div>
+              <select
+                value={value}
+                aria-label={c.label}
+                onChange={(e) => updateParam(generatorId, String(c.key), e.target.value)}
+                className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm text-zinc-100 focus:border-blue-500 focus:outline-none"
+              >
+                {c.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
         return null;
       })}
     </div>

@@ -15,6 +15,7 @@ type Params = z.infer<typeof Schema>;
 export const waveform: Generator<Params> = {
   id: "waveform",
   label: "Waveform",
+  description: "Layered sine waves and terrain contours",
   kind: "canvas2d",
   schema: {
     zod: Schema,

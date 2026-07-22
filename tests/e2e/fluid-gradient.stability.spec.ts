@@ -16,7 +16,6 @@
  */
 
 import { test, expect } from "@playwright/test";
-import fs from "fs";
 import { encodeHash } from "../../lib/recipe/encode";
 import type { Recipe } from "../../lib/recipe/validate";
 
@@ -67,12 +66,6 @@ async function waitForFluidGradientCanvas(page: any) {
   return canvas;
 }
 
-async function getCanvasPng(canvas: any): Promise<Buffer> {
-  const dataUrl = await canvas.evaluate((el: HTMLCanvasElement) => el.toDataURL("image/png"));
-  const base64 = dataUrl.replace(/^data:image\/png;base64,/, "");
-  return Buffer.from(base64, "base64");
-}
-
 test.describe("fluid gradient idle stability and determinism", () => {
   test("runs all assertions — test MUST fail if WebGL or rendering is unavailable", async ({ page }) => {
     test.setTimeout(120000);
@@ -95,7 +88,6 @@ test.describe("fluid gradient idle stability and determinism", () => {
     ).toBe(true);
 
     const urlA = makeUrl("aaa111aaa111aaa1");
-    const urlB = makeUrl("zzz999zzz999zzz9");
 
     // 2. Load seed A, wait for render.
     await page.goto(urlA);

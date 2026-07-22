@@ -46,6 +46,7 @@ test.describe("WebGL fallback and generator preview recovery", () => {
     // 1. Navigate to home page
     await page.goto("/");
     await page.waitForTimeout(1000);
+    await page.getByRole("button", { name: "Open Workspace →" }).click();
     await expectNonBlankCanvas(page);
 
     const fluidBtn = page.getByRole("button", { name: /fluid gradient/i });
