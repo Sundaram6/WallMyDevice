@@ -224,4 +224,21 @@ test.describe('Product Acceptance Tests', () => {
     expect(canvasMobileVisible).toBe(true);
     console.log("=== All core product acceptance flows validated successfully ===");
   });
+
+  test('verify session restoration from localStorage on cold start', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+
+    // 1. Change seed and verify it's persisted
+    const seedInput = page.locator("input[aria-label='Seed']").first();
+    await seedInput.fill("localsessiontest");
+    await seedInput.blur();
+    await page.waitForTimeout(500);
+
+    // 2. Open page again without hash and check if seed is restored
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+    const restoredSeed = await page.locator("input[aria-label='Seed']").first().inputValue();
+    expect(restoredSeed).toBe("localsessiontest");
+  });
 });
