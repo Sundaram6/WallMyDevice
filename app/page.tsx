@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ControlPanel } from "@/components/Panel/ControlPanel";
 import { PreviewCanvas } from "@/components/Preview/PreviewCanvas";
 import { DeviceFrame } from "@/components/Preview/DeviceFrame";
+import { BottomSheet } from "@/components/Preview/BottomSheet";
 import { useEditorStore } from "@/store/useEditorStore";
 import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
 import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
@@ -87,17 +88,8 @@ export default function Page() {
   const customWidth = useEditorStore(s => s.customWidth);
   const customHeight = useEditorStore(s => s.customHeight);
 
-  const [isMobile, setIsMobile] = useState(false);
   const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
   const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const onChange = () => setIsMobile(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -144,7 +136,7 @@ export default function Page() {
 
   const studioView = (
     <DropZone>
-      <div className="flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
+      <div className="relative flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
         <KeyboardShortcuts />
         <div className="flex h-10 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
           <span className="font-mono text-[#5B584F]">{generatorId} - {customWidth}x{customHeight}</span>
@@ -156,6 +148,11 @@ export default function Page() {
             </DeviceFrame>
           </main>
           <ControlPanel />
+        </div>
+        <div className="md:hidden">
+          <BottomSheet title="Editor" collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
+            <ControlPanel variant="sheet" />
+          </BottomSheet>
         </div>
       </div>
     </DropZone>

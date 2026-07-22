@@ -43,4 +43,18 @@ describe("ControlPanel", () => {
     fireEvent.click(getByText("Waveform"));
     expect(useEditorStore.getState().generatorId).toBe("waveform");
   });
+
+  it("default (sidebar) variant is hidden below md, matching the mobile BottomSheet handoff", () => {
+    const { container } = render(<ControlPanel />);
+    const aside = container.querySelector("aside");
+    expect(aside).not.toBeNull();
+    expect(aside?.className).toMatch(/\bhidden\b/);
+    expect(aside?.className).toMatch(/\bmd:flex\b/);
+  });
+
+  it("sheet variant renders the same controls with no sidebar chrome, for use inside BottomSheet", () => {
+    const { container, getByText } = render(<ControlPanel variant="sheet" />);
+    expect(container.querySelector("aside")).toBeNull();
+    expect(getByText("Waveform")).toBeInTheDocument();
+  });
 });

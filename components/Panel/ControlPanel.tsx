@@ -9,14 +9,18 @@ import { OverlayControls } from "./OverlayControls";
 import { ExportBar } from "./ExportBar";
 import { RecipeLoader } from "./RecipeLoader";
 
-export function ControlPanel() {
-  return (
-    <aside className="flex h-full w-96 min-w-[280px] flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
-      <div className="sticky top-0 z-10 bg-zinc-950 pt-4 pb-2">
-        <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
-        <p className="text-xs text-zinc-500">Controls & export</p>
-      </div>
+type ControlPanelProps = {
+  /**
+   * "sidebar" (default) renders the fixed-width desktop panel, hidden below the
+   * `md` breakpoint. "sheet" renders just the control sections with no wrapper
+   * chrome, meant to be placed inside a <BottomSheet> on mobile.
+   */
+  variant?: "sidebar" | "sheet";
+};
 
+export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
+  const sections = (
+    <>
       <Section title="Generator"><GeneratorPicker /></Section>
 
       <div className="grid gap-6">
@@ -28,6 +32,21 @@ export function ControlPanel() {
       <Section title="Generator Controls"><ParamsForm /></Section>
       <Section title="Frame and Overlays"><FinishControls /><OverlayControls /></Section>
       <Section title="Export and Recipe"><ExportBar /><RecipeLoader /></Section>
+    </>
+  );
+
+  if (variant === "sheet") {
+    return <div className="flex flex-col gap-6 text-zinc-100">{sections}</div>;
+  }
+
+  return (
+    <aside className="hidden md:flex h-full w-96 min-w-[280px] flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
+      <div className="sticky top-0 z-10 bg-zinc-950 pt-4 pb-2">
+        <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
+        <p className="text-xs text-zinc-500">Controls & export</p>
+      </div>
+
+      {sections}
     </aside>
   );
 }
