@@ -31,6 +31,7 @@ test.describe('Product Acceptance Tests', () => {
 
     // 1. Initial Load and Waveform Controls
     console.log("Verifying initial load and Waveform Controls...");
+    await page.getByRole("button", { name: "Open Workspace →" }).click();
     const canvasVisible = await page.locator("canvas").first().isVisible();
     expect(canvasVisible).toBe(true);
 

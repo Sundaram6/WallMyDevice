@@ -1,6 +1,7 @@
 import { GeneratorPicker } from "./GeneratorPicker";
 import { PalettePicker } from "./PalettePicker";
 import { ModeToggle } from "./ModeToggle";
+import { SeedBar } from "./SeedBar";
 import { ResolutionPicker } from "./ResolutionPicker";
 import { ParamsForm } from "./ParamsForm";
 import { FinishControls } from "./FinishControls";
@@ -19,6 +20,7 @@ export function ControlPanel() {
       <Section title="Generator"><GeneratorPicker /></Section>
 
       <div className="grid gap-6">
+        <Section title="Seed & Randomize"><SeedBar /></Section>
         <Section title="Device and Resolution"><ResolutionPicker /></Section>
         <Section title="Palette and Appearance"><PalettePicker /><ModeToggle /></Section>
       </div>

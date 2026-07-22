@@ -1,9 +1,28 @@
 import type { Metadata, Viewport } from 'next';
+import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
 const siteUrl = 'https://wallmydevice.vercel.app';
-const title = 'WallMyDevice';
+const title = 'WallMyDevice — Print Swatch Archive';
 const description = 'Generate custom wallpapers for any device — waveform, geometric, typography, and fluid-gradient generators, deterministic seeds, and shareable recipes.';
 
 export const metadata: Metadata = {
@@ -25,13 +44,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#09090b',
+  themeColor: '#FAF8F4',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="font-sans antialiased bg-[#FAF8F4] text-[#2B2A26]">
         <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>

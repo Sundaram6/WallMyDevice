@@ -25,8 +25,9 @@ test("recipe round-trip via URL hash", async ({ page }) => {
   const deflated = pako.deflate(json);
   const encoded = toBase64Url(deflated);
   await page.goto("/#r=" + encoded);
+  await page.getByRole("button", { name: "Open Workspace →" }).click();
   await expect(page.locator("input[aria-label='Seed']")).toHaveValue("testseed");
-  await expect(page.locator("header span")).toContainText("waveform - 400x600");
+  await expect(page.getByText("waveform - 400x600")).toBeVisible();
 });
 
 test("updates recipe state dynamically on hashchange without page reload", async ({ page }) => {
@@ -53,6 +54,7 @@ test("updates recipe state dynamically on hashchange without page reload", async
   const hash2 = toBase64Url(pako.deflate(JSON.stringify(recipe2)));
 
   await page.goto("/#r=" + hash1);
+  await page.getByRole("button", { name: "Open Workspace →" }).click();
   await expect(page.locator("input[aria-label='Seed']")).toHaveValue("seed1111");
 
   // Dynamically change location hash without full navigation reload
