@@ -23,7 +23,7 @@ export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchCh
       </h1>
 
       {/* Centered Navigation */}
-      <nav aria-label="Main Navigation" className="hidden md:flex gap-8 text-sm text-[#5B584F]">
+      <nav aria-label="Main Navigation" className="flex gap-4 md:gap-8 text-xs md:text-sm text-[#5B584F]">
         <button
           type="button"
           onClick={() => onTabChange("archive")}

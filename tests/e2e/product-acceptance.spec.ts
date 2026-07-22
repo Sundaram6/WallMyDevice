@@ -207,21 +207,25 @@ test.describe('Product Acceptance Tests', () => {
 
     await page.goto(customUrl);
     await page.waitForTimeout(1000);
+    await page.getByRole("button", { name: "Open Workspace →" }).click();
     const recoveredSum = await getCanvasPixelSum();
     expect(recoveredSum).toBeGreaterThan(0);
 
     // 9. Seed Randomize
     console.log("Verifying Randomize...");
-    const initialSeed = await page.locator("input[aria-label='Seed']").first().inputValue();
-    await randBtn.click();
+    const seedInput = page.locator("input[aria-label='Seed']").first();
+    const initialSeed = await seedInput.inputValue();
+    await page.locator("button[aria-label='Randomize seed']").first().click();
     await page.waitForTimeout(300);
-    const newSeed = await page.locator("input[aria-label='Seed']").first().inputValue();
+    const newSeed = await seedInput.inputValue();
     expect(initialSeed).not.toBe(newSeed);
 
     // 10. Mobile UI viewport checks
     console.log("Verifying mobile layout viewport at 375x812...");
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
+    await page.click("button:has-text('Studio')");
+    await page.waitForTimeout(500);
     const canvasMobileVisible = await page.locator("canvas").first().isVisible();
     expect(canvasMobileVisible).toBe(true);
     console.log("=== All core product acceptance flows validated successfully ===");

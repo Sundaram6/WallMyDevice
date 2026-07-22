@@ -149,8 +149,8 @@ export default function Page() {
         <div className="flex h-10 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
           <span className="font-mono text-[#5B584F]">{generatorId} - {customWidth}x{customHeight}</span>
         </div>
-        <div className="flex flex-1 overflow-hidden">
-          <main className="flex flex-1 items-center justify-center p-6">
+        <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
+          <main className="flex flex-1 items-center justify-center p-4 md:p-6 min-h-[300px]">
             <DeviceFrame frame={preset.frame} aspect={aspect}>
               <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={800} maxHeight={600} />
             </DeviceFrame>
