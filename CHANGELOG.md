@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.2] - 2026-07-22
+
+- Continuous Waveform smoothing.
+- Functional Light, Dark, and Auto palette modes.
+- Correct palette resolution for SVG exports.
+- Typography SVG alignment regression coverage.
+- Fluid Gradient preview recovery after WebGL failure or generator switching.
+- Reuse of the offscreen WebGL surface to avoid context exhaustion.
+
 ## [0.1.0] - 2026-07-21
 
 ### Added
