@@ -168,7 +168,6 @@ test.describe("export parity — executable input comparison", () => {
     await page.goto(url);
     await expect(page.locator("canvas").first()).toBeVisible({ timeout: 15000 });
 
-    const seedVal = await page.locator("input[aria-label='Seed']").inputValue();
-    expect(seedVal).toBe("inputparity");
+    await expect(page.locator("input[aria-label='Seed']")).toHaveValue("inputparity", { timeout: 10000 });
   });
 });

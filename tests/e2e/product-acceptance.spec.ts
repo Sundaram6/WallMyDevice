@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
-import * as path from 'path';
 
 test.describe('Product Acceptance Tests', () => {
   test('verify core functionality and user actions end to end', async ({ page }) => {
@@ -132,6 +131,8 @@ test.describe('Product Acceptance Tests', () => {
     await presetSelect.selectOption("iphone-15-pro");
     await page.waitForTimeout(500);
     const sizeIphone = await getCanvasSize();
+    expect(sizeIphone.w).toBeGreaterThan(0);
+    expect(sizeIphone.h).toBeGreaterThan(0);
 
     await presetSelect.selectOption("custom");
     await page.waitForTimeout(500);

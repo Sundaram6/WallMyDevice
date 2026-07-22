@@ -104,7 +104,7 @@ export function ExportBar() {
       const hash = encodeHash(buildRecipe());
       const url = `${location.origin}${location.pathname}${hash}`;
       await navigator.clipboard.writeText(url);
-    } catch (e) {
+    } catch (_e) {
       setError("Could not copy link. Recipe URL too long?");
     }
   }

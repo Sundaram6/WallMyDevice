@@ -14,6 +14,8 @@ import { DropZone } from "@/components/DropZone";
 import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
 
 function restoreFromLocalStorage() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#r=")) return;
   const saved = loadLocalState();
   if (!saved) return;
   useEditorStore.setState(saved);

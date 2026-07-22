@@ -56,7 +56,7 @@ describe("Generator Registry", () => {
     // Attempt mutation
     try {
       (retrieved.schema.defaults as any).testKey = "mutated";
-    } catch (e) {
+    } catch (_e) {
       // It might throw if frozen, which is good
     }
     
@@ -76,7 +76,7 @@ describe("Generator Registry", () => {
     // Attempt mutation
     try {
       (retrieved.paramControls[0] as any).label = "Mutated Label";
-    } catch (e) {
+    } catch (_e) {
       // It might throw if frozen, which is good
     }
     

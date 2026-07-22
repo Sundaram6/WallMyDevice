@@ -24,6 +24,7 @@ vi.mock("ogl", () => {
       uSaturation: { value: null },
     };
     constructor() {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias -- capturing the mock instance for assertions
       lastProgram = this;
     }
   }

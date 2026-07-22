@@ -20,9 +20,6 @@ export default async function OpengraphImage() {
           position: "relative",
         }}
       >
-        <svg width="0" height="0">
-          <defs />
-        </svg>
         <svg
           width="640"
           height="240"
