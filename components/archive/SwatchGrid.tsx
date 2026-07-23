@@ -113,6 +113,9 @@ export function SwatchGrid({
     try {
       import("@/lib/storage/library").then((m) => m.addRecentlyViewed(swatch.id));
     } catch {}
+  const handleRemix = (swatch: SwatchRecipe) => {
+    handleSelectSwatch(swatch);
+    if (onOpenStudio) onOpenStudio();
   };
 
   const hasMore = visibleCount < filteredSwatches.length;
@@ -192,6 +195,7 @@ export function SwatchGrid({
             isFavorite={favorites.has(swatch.id)}
             onSelect={handleSelectSwatch}
             onToggleFavorite={onToggleFavorite}
+            onRemix={handleRemix}
           />
         ))}
       </div>

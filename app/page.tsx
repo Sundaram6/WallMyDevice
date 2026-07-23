@@ -13,6 +13,7 @@ import { DropZone } from "@/components/DropZone";
 import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
 
 import { ArchiveShell } from "@/components/archive/ArchiveShell";
+import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
 
 function restoreFromLocalStorage() {
   const hash = window.location.hash;
@@ -104,10 +105,28 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith("#r=")) {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get("view");
+    const recipeParam = params.get("recipe");
+
+    if (viewParam === "studio" || window.location.hash.startsWith("#r=")) {
       setTab("studio");
     }
+
+    if (recipeParam) {
+      const swatch = ARCHIVE_PRESETS.find((p) => p.id === recipeParam);
+      if (swatch) {
+        const store = useEditorStore.getState();
+        store.setGenerator(swatch.generatorId);
+        store.setPalette([...swatch.palette]);
+        store.setMode(swatch.mode);
+        store.setSeed(swatch.seed);
+        Object.entries(swatch.params).forEach(([key, val]) => {
+          store.updateParam(swatch.generatorId, key, val);
+        });
+      }
+    }
+
     const hasSavedState = Boolean(loadLocalState());
     restoreFromLocalStorage();
     loadHashRecipe();

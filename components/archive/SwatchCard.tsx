@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import type { SwatchRecipe } from "@/lib/presets/archive-presets";
 import { SwatchThumbnail } from "./SwatchThumbnail";
+import { getResolutionStrategyLabel, getOrientationLabel } from "@/lib/recipe/metadata";
 
 type Props = {
   swatch: SwatchRecipe;
@@ -8,9 +11,13 @@ type Props = {
   isFavorite?: boolean;
   onSelect: (swatch: SwatchRecipe) => void;
   onToggleFavorite?: (swatchId: string) => void;
+  onRemix?: (swatch: SwatchRecipe) => void;
 };
 
-export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleFavorite }: Props) {
+export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleFavorite, onRemix }: Props) {
+  const resLabel = getResolutionStrategyLabel(swatch);
+  const orientLabel = getOrientationLabel(swatch);
+
   return (
     <article
       onClick={() => onSelect(swatch)}
@@ -46,14 +53,28 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
           {isFavorite ? "♥" : "♡"}
         </button>
 
-        {/* Tag (Dimension/Resolution) */}
+        {/* Truthful Resolution / Strategy Tag */}
         <div className="absolute right-0 top-3.5 z-20 rounded-l border border-r-0 border-[#D4CDBC] bg-[#FAF8F4]/90 px-2 py-1 font-mono text-[10px] text-[#5B584F]">
-          1179×2556
+          {resLabel} · {orientLabel}
         </div>
 
         {/* Print Wallpaper Canvas Thumbnail */}
         <div className="absolute inset-[9px] overflow-hidden rounded-[1px]">
           <SwatchThumbnail swatch={swatch} />
+        </div>
+
+        {/* Hover Action Layer: Remix This */}
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemix?.(swatch);
+            }}
+            className="rounded-xl bg-[#2B2A26] px-4 py-2 text-xs font-medium text-white shadow-md hover:bg-[#C9552F] transition"
+          >
+            ✦ Remix This
+          </button>
         </div>
       </div>
 
@@ -78,9 +99,6 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
           <p className="mt-0.5 text-xs text-[#8A8579]">
             {swatch.category} · {swatch.volume}
           </p>
-        </div>
-        <div className="text-xs text-[#8A8579] transition group-hover:text-[#C9552F]">
-          {isFavorite ? "♥" : "♡"}
         </div>
       </div>
     </article>
