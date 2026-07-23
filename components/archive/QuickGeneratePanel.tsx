@@ -228,11 +228,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
           Generate Wallpaper ✦
         </button>
 
-        {toastMessage && (
-          <div className="text-center font-mono text-[11px] font-medium text-[#C9552F] bg-[#F3EFE6] py-1 px-3 rounded-md border border-[#D4CDBC] animate-fade-in">
-            {toastMessage}
-          </div>
-        )}
+
 
         {/* Secondary Export Action */}
         <button
