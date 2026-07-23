@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { SwatchRecipe } from "@/lib/presets/archive-presets";
 import { SwatchThumbnail } from "./SwatchThumbnail";
 import { getResolutionStrategyLabel, getOrientationLabel } from "@/lib/recipe/metadata";
@@ -15,12 +15,17 @@ type Props = {
 };
 
 export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleFavorite, onRemix }: Props) {
+  const [isHovered, setIsHovered] = useState(false);
   const resLabel = getResolutionStrategyLabel(swatch);
   const orientLabel = getOrientationLabel(swatch);
 
   return (
     <article
       onClick={() => onSelect(swatch)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -60,7 +65,7 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
 
         {/* Print Wallpaper Canvas Thumbnail */}
         <div className="absolute inset-[9px] overflow-hidden rounded-[1px]">
-          <SwatchThumbnail swatch={swatch} />
+          <SwatchThumbnail swatch={swatch} isHovered={isHovered} />
         </div>
 
         {/* Hover Action Layer: Remix This */}

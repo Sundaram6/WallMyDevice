@@ -3,6 +3,7 @@ import { SwatchCard } from "./SwatchCard";
 import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
 import { useEditorStore } from "@/store/useEditorStore";
 import Link from "next/link";
+import { WallpaperDetailModal } from "./WallpaperDetailModal";
 
 type Props = {
   activeCategory: string;
@@ -25,6 +26,7 @@ export function SwatchGrid({
 }: Props) {
   const store = useEditorStore();
   const [selectedSwatchId, setSelectedSwatchId] = useState<string>("terracotta-bloom");
+  const [activeModalSwatch, setActiveModalSwatch] = useState<SwatchRecipe | null>(null);
   const [sortOption, setSortOption] = useState<"newest" | "name">("newest");
   const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -110,9 +112,10 @@ export function SwatchGrid({
     });
 
     // Record in shared library recently viewed
-    try {
-      import("@/lib/storage/library").then((m) => m.addRecentlyViewed(swatch.id));
-    } catch {}
+    // Open Wallpaper Detail View Modal
+    setActiveModalSwatch(swatch);
+  };
+
   const handleRemix = (swatch: SwatchRecipe) => {
     handleSelectSwatch(swatch);
     if (onOpenStudio) onOpenStudio();
@@ -219,6 +222,18 @@ export function SwatchGrid({
           </button>
         </div>
       )}
+      {/* Wallpaper Detail View Modal */}
+      <WallpaperDetailModal
+        swatch={activeModalSwatch}
+        isOpen={Boolean(activeModalSwatch)}
+        isFavorite={Boolean(activeModalSwatch && favorites.has(activeModalSwatch.id))}
+        onClose={() => setActiveModalSwatch(null)}
+        onOpenStudio={() => {
+          if (activeModalSwatch) handleRemix(activeModalSwatch);
+          setActiveModalSwatch(null);
+        }}
+        onToggleFavorite={onToggleFavorite}
+      />
     </section>
   );
 }
