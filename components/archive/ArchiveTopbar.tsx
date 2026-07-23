@@ -139,7 +139,7 @@ export function ArchiveTopbar({
               onTabChange("archive");
               setDrawerOpen(false);
             }}
-            className="focus:outline-none flex items-center min-h-[44px]"
+            className="focus:outline-none flex items-center min-h-[44px] px-1"
           >
             WallMyDevice
           </Link>
@@ -148,12 +148,12 @@ export function ArchiveTopbar({
         {/* Desktop Navigation (Hidden below sm) */}
         <nav
           aria-label="Main Navigation"
-          className="hidden sm:flex gap-4 md:gap-8 text-xs md:text-sm text-[#5B584F]"
+          className="hidden sm:flex gap-2 lg:gap-4 text-xs md:text-sm text-[#5B584F]"
         >
           <Link
             href="/"
             onClick={() => onTabChange("archive")}
-            className={`pb-1 transition flex items-center ${
+            className={`min-h-[44px] px-2.5 transition flex items-center ${
               pathname === "/" && currentTab === "archive"
                 ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
                 : "hover:text-[#2B2A26]"
@@ -164,7 +164,7 @@ export function ArchiveTopbar({
           <button
             type="button"
             onClick={() => onTabChange("studio")}
-            className={`pb-1 transition flex items-center ${
+            className={`min-h-[44px] px-2.5 transition flex items-center ${
               pathname === "/" && currentTab === "studio"
                 ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
                 : "hover:text-[#2B2A26]"
@@ -174,7 +174,7 @@ export function ArchiveTopbar({
           </button>
           <Link
             href="/collections"
-            className={`pb-1 transition flex items-center ${
+            className={`min-h-[44px] px-2.5 transition flex items-center ${
               pathname === "/collections"
                 ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
                 : "hover:text-[#2B2A26]"
@@ -184,7 +184,7 @@ export function ArchiveTopbar({
           </Link>
           <Link
             href="/inspiration"
-            className={`pb-1 transition flex items-center ${
+            className={`min-h-[44px] px-2.5 transition flex items-center ${
               pathname === "/inspiration"
                 ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
                 : "hover:text-[#2B2A26]"
@@ -194,7 +194,7 @@ export function ArchiveTopbar({
           </Link>
           <Link
             href="/about"
-            className={`pb-1 transition flex items-center ${
+            className={`min-h-[44px] px-2.5 transition flex items-center ${
               pathname === "/about"
                 ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
                 : "hover:text-[#2B2A26]"
@@ -205,7 +205,7 @@ export function ArchiveTopbar({
         </nav>
 
         {/* Right Tools */}
-        <div className="flex items-center gap-1 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Desktop Search Input */}
           <div className="relative hidden sm:flex items-center">
             <span className="absolute left-3 text-xs text-[#8A8579]">🔍</span>
@@ -215,7 +215,7 @@ export function ArchiveTopbar({
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search prints, palettes, moods..."
               aria-label="Search prints, palettes, moods"
-              className="w-56 lg:w-64 rounded-lg border border-[#E4DFD3] bg-white py-2 pl-9 pr-3 text-xs text-[#2B2A26] placeholder-[#8A8579] focus:border-[#C9552F] focus:outline-none"
+              className="w-48 lg:w-64 rounded-lg border border-[#E4DFD3] bg-white py-2 pl-9 pr-3 text-xs text-[#2B2A26] placeholder-[#8A8579] focus:border-[#C9552F] focus:outline-none"
             />
           </div>
 
@@ -233,7 +233,7 @@ export function ArchiveTopbar({
           <Link
             href="/sign-in"
             aria-label="Favorites"
-            className="relative flex h-11 w-11 items-center justify-center text-[#5B584F] hover:text-[#C9552F]"
+            className="relative flex h-11 w-11 items-center justify-center text-[#5B584F] hover:text-[#C9552F] rounded-lg transition focus:outline-none focus:ring-2 focus:ring-[#C9552F]"
           >
             ♡
             {favoriteCount > 0 && (
@@ -248,14 +248,14 @@ export function ArchiveTopbar({
             <button
               type="button"
               onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-              aria-label="User Menu"
+              aria-label="Guest mode user menu"
               aria-expanded={avatarMenuOpen}
               aria-haspopup="true"
               aria-controls="avatar-menu-dropdown"
-              className="flex h-11 w-11 items-center justify-center rounded-full focus:outline-none"
+              className="flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#C9552F]"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white hover:ring-2 hover:ring-[#C9552F] transition">
-                A
+                G
               </div>
             </button>
 
@@ -265,14 +265,14 @@ export function ArchiveTopbar({
                 className="absolute right-0 top-12 w-48 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs"
               >
                 <div className="px-3 py-2 border-b border-[#E4DFD3] font-medium text-[#2B2A26]">
-                  Guest User
+                  Guest Profile
                 </div>
                 <Link
                   href="/sign-in"
                   onClick={() => setAvatarMenuOpen(false)}
                   className="flex items-center min-h-[44px] px-3 py-2 text-[#5B584F] hover:bg-[#FAF8F4] hover:text-[#C9552F] rounded transition"
                 >
-                  Sign In / Profile →
+                  Guest Mode / Profile →
                 </Link>
               </div>
             )}
@@ -380,7 +380,7 @@ export function ArchiveTopbar({
                     : "text-[#5B584F] hover:bg-[#F3EFE6] hover:text-[#2B2A26]"
                 }`}
               >
-                Favorites ({favoriteCount})
+                Guest Mode ({favoriteCount} favorites)
               </Link>
             </nav>
 
@@ -412,7 +412,7 @@ export function ArchiveTopbar({
                 <button
                   type="button"
                   onClick={() => onSearchChange("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8A8579] hover:text-[#2B2A26]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center text-xs text-[#8A8579] hover:text-[#2B2A26]"
                 >
                   ✕
                 </button>
@@ -421,7 +421,7 @@ export function ArchiveTopbar({
             <button
               type="button"
               onClick={() => setSearchOverlayOpen(false)}
-              className="flex h-11 px-3 items-center justify-center rounded-xl bg-[#2B2A26] text-xs font-medium text-white shadow-sm shrink-0"
+              className="flex h-11 px-3 items-center justify-center rounded-xl bg-[#2B2A26] text-xs font-medium text-white shadow-xs shrink-0"
             >
               Done
             </button>
