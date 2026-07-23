@@ -140,14 +140,44 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
               ⤨ Shuffle
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            {store.palette.slice(0, 5).map((col, idx) => (
-              <div
-                key={idx}
-                style={{ backgroundColor: col }}
-                className="h-8 w-8 rounded-md border border-black/10 shadow-sm"
-              />
-            ))}
+          <div className="space-y-1.5 rounded-lg border border-[#D4CDBC] bg-white p-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {store.palette.map((col, idx) => (
+                <div key={idx} className="relative group flex items-center">
+                  <input
+                    type="color"
+                    value={col}
+                    onChange={(e) => {
+                      const next = [...store.palette];
+                      next[idx] = e.target.value;
+                      store.setPalette(next);
+                    }}
+                    className="h-7 w-7 rounded cursor-pointer border border-black/10 p-0"
+                    title={`Edit Color ${idx + 1}`}
+                  />
+                  {store.palette.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => store.setPalette(store.palette.filter((_, i) => i !== idx))}
+                      className="absolute -top-1 -right-1 hidden group-hover:flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2B2A26] text-[8px] text-white"
+                      title="Remove color"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              ))}
+              {store.palette.length < 6 && (
+                <button
+                  type="button"
+                  onClick={() => store.setPalette([...store.palette, store.palette[store.palette.length - 1] ?? "#888888"])}
+                  className="flex h-7 w-7 items-center justify-center rounded border border-dashed border-[#D4CDBC] text-xs font-medium text-[#5B584F] hover:border-[#C9552F] hover:text-[#C9552F]"
+                  title="Add color"
+                >
+                  +
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

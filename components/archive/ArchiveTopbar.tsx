@@ -21,8 +21,17 @@ export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchCh
         setAvatarMenuOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAvatarMenuOpen(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   return (
@@ -82,7 +91,16 @@ export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchCh
         >
           Inspiration
         </Link>
-        <span className="cursor-not-allowed opacity-60">About</span>
+        <Link
+          href="/about"
+          className={`pb-1 transition ${
+            pathname === "/about"
+              ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
+              : "hover:text-[#2B2A26]"
+          }`}
+        >
+          About
+        </Link>
       </nav>
 
       {/* Right Tools */}
@@ -118,27 +136,25 @@ export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchCh
             onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
             aria-label="User Menu"
             aria-expanded={avatarMenuOpen}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white hover:ring-2 hover:ring-[#C9552F] transition focus:outline-none"
+            aria-haspopup="true"
+            aria-controls="avatar-menu-dropdown"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white hover:ring-2 hover:ring-[#C9552F] transition focus:outline-none focus:ring-2 focus:ring-[#C9552F]"
           >
             A
           </button>
 
           {avatarMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs">
+            <div id="avatar-menu-dropdown" className="absolute right-0 mt-2 w-48 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs">
               <div className="px-3 py-2 border-b border-[#E4DFD3] font-medium text-[#2B2A26]">
                 Guest User
               </div>
-              <a
-                href="#signin"
-                onClick={(e) => {
-                  e.preventDefault();
-                  alert("Sign-in functionality coming soon!");
-                  setAvatarMenuOpen(false);
-                }}
+              <Link
+                href="/sign-in"
+                onClick={() => setAvatarMenuOpen(false)}
                 className="block px-3 py-2 text-[#5B584F] hover:bg-[#FAF8F4] hover:text-[#C9552F] rounded transition"
               >
                 Sign In →
-              </a>
+              </Link>
             </div>
           )}
         </div>

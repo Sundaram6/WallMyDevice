@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { DEVICE_PRESETS, ASPECT_PRESETS, PHONE_CATALOGUE } from "@/lib/devices/presets";
 import { useEditorStore } from "@/store/useEditorStore";
 import { PHONE_BRANDS, findModel } from "@/lib/devices/phones";
@@ -19,6 +20,8 @@ export function ResolutionPicker() {
   const setPhoneSelection = useEditorStore(s => s.setPhoneSelection);
   const orientation = useEditorStore(s => s.orientation);
   const setOrientation = useEditorStore(s => s.setOrientation);
+
+  const [modelSearch, setModelSearch] = useState("");
 
   // Apply phone model / display selection
   function handleModelChange(modelId: string) {
@@ -136,14 +139,27 @@ export function ResolutionPicker() {
               </select>
             </div>
 
-            <div>
-              <label className="mb-1 block text-[10px] text-zinc-400">Model</label>
+            <div className="col-span-2">
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[10px] text-zinc-400">Model Search</label>
+                <input
+                  type="text"
+                  placeholder="Filter model..."
+                  value={modelSearch}
+                  onChange={(e) => setModelSearch(e.target.value)}
+                  className="rounded border border-zinc-700 bg-zinc-950 px-1.5 py-0.5 text-[10px] text-zinc-200 w-24"
+                />
+              </div>
               <select
                 value={phoneModel ?? PHONE_CATALOGUE[0].id}
                 onChange={(e) => handleModelChange(e.target.value)}
                 className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-100"
               >
-                {PHONE_CATALOGUE.filter(m => m.brandId === (phoneBrand ?? "apple")).map(m => (
+                {PHONE_CATALOGUE.filter(m => {
+                  const matchBrand = m.brandId === (phoneBrand ?? "apple");
+                  const matchQuery = !modelSearch || m.name.toLowerCase().includes(modelSearch.toLowerCase());
+                  return matchBrand && matchQuery;
+                }).map(m => (
                   <option key={m.id} value={m.id}>{m.name}</option>
                 ))}
               </select>

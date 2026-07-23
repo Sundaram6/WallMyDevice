@@ -39,7 +39,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
 
       {/* Main Studio View vs Archive View */}
       {currentTab === "studio" ? (
-        <div className="relative flex h-[calc(100vh-72px)] overflow-hidden bg-[#F3EFE6]">
+        <div className="relative flex h-[calc(100vh-72px)] w-full overflow-hidden bg-[#F3EFE6]">
           {childrenStudio}
         </div>
       ) : (
