@@ -10,64 +10,7 @@ import { useRouter } from "next/navigation";
 import { CURATED_COLLECTIONS } from "@/lib/presets/collections";
 import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
 
-const COLLECTIONS: Collection[] = [
-  {
-    id: "botanical-calm",
-    title: "Botanical Calm",
-    emoji: "🌿",
-    description: "Organic waveforms and earthy palettes inspired by leaves, moss, and quiet forest light.",
-    itemIds: ["terracotta-bloom", "indigo-garden", "olive-branch", "fern-shadow", "sage-smoke", "moss-tide", "forest-depth"],
-  },
-  {
-    id: "midnight-screens",
-    title: "Midnight Screens",
-    emoji: "🌑",
-    description: "OLED-optimised dark wallpapers built for true-black displays and deep ambient modes.",
-    itemIds: ["abyss", "void-matter", "carbon-waves", "nightfall", "obsidian-flow", "static-noise", "nebula-drift"],
-  },
-  {
-    id: "warm-minimalism",
-    title: "Warm Minimalism",
-    emoji: "☀️",
-    description: "Soft paper textures and linen-toned gradients. Nothing unnecessary, nothing missing.",
-    itemIds: ["paper-field", "linen-wave", "dust-circle", "fog-gradient", "rice-paper", "dune-flow", "ochre-field"],
-  },
-  {
-    id: "bold-geometry",
-    title: "Bold Geometry",
-    emoji: "◆",
-    description: "Sharp angles, high-contrast grids, and graphic triangles that command attention.",
-    itemIds: ["cobalt-fracture", "hex-field", "diamond-grid", "neon-grid", "circuit-lines", "arches-shadows", "prism-break"],
-  },
-  {
-    id: "soft-pastels",
-    title: "Soft Pastels",
-    emoji: "🌸",
-    description: "Gentle candy gradients and dreamy haze for a tender, pastel-forward home screen.",
-    itemIds: ["cotton-sky", "blush-petal", "mint-cool", "lavender-haze", "peach-soft", "candy-cloud", "blush-terrain"],
-  },
-  {
-    id: "earth-tones",
-    title: "Earth Tones",
-    emoji: "🪨",
-    description: "Sienna, ochre, clay, and desert — warm sediment-layer palettes for grounded aesthetics.",
-    itemIds: ["dune-flow", "horizon-weave", "desert-rift", "ochre-field", "clay-plates", "sagebrush-lines"],
-  },
-  {
-    id: "editorial-type",
-    title: "Editorial Type",
-    emoji: "A",
-    description: "Typography-driven wallpapers where bold serifs and tracked caps become the visual.",
-    itemIds: ["editorial-bold", "mono-whisper", "serif-study", "blueprint-text", "code-poetic", "type-specimen"],
-  },
-  {
-    id: "retro-wave",
-    title: "Retro Wave",
-    emoji: "📼",
-    description: "VHS grain, vaporwave grids, and lo-fi gradient sunsets built on analogue memory.",
-    itemIds: ["vhs-noise", "vapor-grid", "lofi-sunset", "pixel-garden", "crt-glow"],
-  },
-];
+
 
 // ─── Colour chip row ──────────────────────────────────────────────────────────
 function PaletteStrip({ presets }: { presets: SwatchRecipe[] }) {
@@ -101,7 +44,7 @@ export default function CollectionsPage() {
     router.push("/");
   }
 
-  const filteredCollections = COLLECTIONS.filter(c => {
+  const filteredCollections = CURATED_COLLECTIONS.filter(c => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
@@ -131,7 +74,7 @@ export default function CollectionsPage() {
 
         {/* Collection grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {CURATED_COLLECTIONS.map((col) => {
+          {filteredCollections.map((col) => {
             const items = col.itemIds
               .map(id => ARCHIVE_PRESETS.find(p => p.id === id))
               .filter((p): p is SwatchRecipe => !!p);

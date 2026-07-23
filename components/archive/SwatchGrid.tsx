@@ -27,7 +27,7 @@ export function SwatchGrid({
   const store = useEditorStore();
   const [selectedSwatchId, setSelectedSwatchId] = useState<string>("terracotta-bloom");
   const [activeModalSwatch, setActiveModalSwatch] = useState<SwatchRecipe | null>(null);
-  const [sortOption, setSortOption] = useState<"newest" | "name">("newest");
+  const [sortOption, setSortOption] = useState<"newest" | "name" | "curated" | "mostFavourited">("newest");
   const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -151,7 +151,7 @@ export function SwatchGrid({
               Procedural Laboratory
             </span>
             <h2 className="mt-1 font-serif text-lg font-medium text-[#2B2A26]">
-              Every wallpaper is generated in code.
+              Print Swatch Archive.
             </h2>
             <p className="mt-1.5 text-xs text-[#5B584F] leading-relaxed">
               WallMyDevice renders geometric patterns, fluid gradients, and wave curves on your device canvas. Every print is powered by a unique seed — edit palettes, scale dimensions, or remix any artwork in real time. Rendering and exports happen 100% locally.

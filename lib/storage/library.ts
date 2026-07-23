@@ -167,9 +167,9 @@ export function initLibrary(): LibraryData {
             loaded = {
               version: 1,
               profileName: typeof parsed.profileName === "string" ? parsed.profileName : "",
-              favourites: Array.isArray(parsed.favourites) ? Array.from(new Set(parsed.favourites.map(String))) : [],
+              favourites: Array.isArray(parsed.favourites) ? Array.from<string>(new Set(parsed.favourites.map((x: any) => String(x)))) : [],
               savedRecipes: Array.isArray(parsed.savedRecipes) ? parsed.savedRecipes.filter((r: any) => r && r.id && r.name) : [],
-              recentlyViewed: Array.isArray(parsed.recentlyViewed) ? Array.from(new Set(parsed.recentlyViewed.map(String))).slice(0, RECENT_LIMIT) : [],
+              recentlyViewed: Array.isArray(parsed.recentlyViewed) ? Array.from<string>(new Set(parsed.recentlyViewed.map((x: any) => String(x)))).slice(0, RECENT_LIMIT) : [],
               recentlyGenerated: Array.isArray(parsed.recentlyGenerated) ? parsed.recentlyGenerated.filter((r: any) => r && r.id) : [],
               wishlists: Array.isArray(parsed.wishlists) ? parsed.wishlists.filter((w: any) => w && w.id) : [],
               onboardingDismissed: Boolean(parsed.onboardingDismissed),

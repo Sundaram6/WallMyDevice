@@ -117,7 +117,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
           applyGrain(domTarget, input.grainIntensity, input.seed + "|grain");
         }
         if (input.overlays) {
-          drawOverlays(domTarget, input.overlays);
+          drawOverlays(domTarget, input.overlays, input.palette);
         }
       } else {
         const ctx2d = canvas.getContext("2d");
@@ -144,7 +144,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
           applyGrain(domTarget, input.grainIntensity, input.seed + "|grain");
         }
         if (input.overlays) {
-          drawOverlays(domTarget, input.overlays);
+          drawOverlays(domTarget, input.overlays, input.palette);
         }
       }
 

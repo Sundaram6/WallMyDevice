@@ -1,5 +1,6 @@
 import pako from "pako";
 import { parseRecipe, type Recipe } from "./validate";
+export type { Recipe };
 
 const HASH_PREFIX = "#r=";
 const URL_RAW_LIMIT = 2048;

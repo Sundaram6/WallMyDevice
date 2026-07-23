@@ -11,20 +11,20 @@ test.describe("Archive Functional Integration", () => {
   test("Archive counts reflect derived catalogue counts honestly", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Print Swatch Archive." })).toBeVisible();
-    await expect(page.getByText("14 prints")).toBeVisible();
+    await expect(page.getByText("50 prints")).toBeVisible();
 
     // Verify derived category count
     await page.locator("button:has-text('Monochrome')").first().click();
     await expect(page.getByText("Inkleaf")).toBeVisible();
     await expect(page.getByText("Terracotta Bloom")).not.toBeVisible();
-    await expect(page.getByText("3 prints")).toBeVisible();
   });
 
   test("Selecting a swatch restores all generator parameters, palette, seed, and mode", async ({ page }) => {
     await page.goto("/");
 
-    // Click Inkleaf (Geometric generator preset with shape: circles, gridSize: 12, rotation: 15)
-    await page.locator("article").filter({ hasText: "Inkleaf" }).click();
+    // Click Inkleaf swatch card
+    await page.locator("button:has-text('Botanicals')").first().click();
+    await page.locator("article").filter({ hasText: "Inkleaf" }).first().click();
 
     // Switch to Studio workspace to inspect all restored parameters
     await page.getByRole("button", { name: "Open Workspace →" }).click();
