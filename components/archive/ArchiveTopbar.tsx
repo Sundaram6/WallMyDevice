@@ -111,7 +111,7 @@ export function ArchiveTopbar({
     <>
       <header className="flex h-[72px] items-center justify-between border-b border-[#E4DFD3] px-4 sm:px-6 lg:px-10 bg-[#FAF8F4] relative z-20">
         {/* Left Mobile Controls (Hamburger) */}
-        <div className="flex items-center gap-1 sm:hidden">
+        <div className="flex items-center gap-1 md:hidden">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -149,10 +149,10 @@ export function ArchiveTopbar({
           </Link>
         </h1>
 
-        {/* Desktop Navigation (Hidden below sm) */}
+        {/* Desktop Navigation (Hidden below md) */}
         <nav
           aria-label="Main Navigation"
-          className="hidden sm:flex gap-2 lg:gap-4 text-xs md:text-sm text-[#5B584F]"
+          className="hidden md:flex gap-2 lg:gap-4 text-xs md:text-sm text-[#5B584F]"
         >
           <Link
             href="/"

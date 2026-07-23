@@ -14,6 +14,11 @@ import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/l
 
 import { ArchiveShell } from "@/components/archive/ArchiveShell";
 import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
+import {
+  AccessibilityPreviewBar,
+  getAccessibilityFilterStyle,
+  type AccessibilityMode,
+} from "@/components/Preview/AccessibilityPreviewBar";
 
 function restoreFromLocalStorage() {
   const hash = window.location.hash;
@@ -178,6 +183,22 @@ export default function Page() {
     };
   }, []);
 
+  const [accMode, setAccMode] = useState<AccessibilityMode>("normal");
+  const [showContrastGrid, setShowContrastGrid] = useState(false);
+  const [deviceNotice, setDeviceNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hasSavedState = Boolean(loadLocalState());
+    if (!hasSavedState && typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setDeviceNotice("Started with a phone-sized canvas based on this screen.");
+      } else if (width >= 640 && width < 1024) {
+        setDeviceNotice("Started with a tablet-sized canvas based on this screen.");
+      }
+    }
+  }, []);
+
   const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
   const aspect = customWidth / customHeight;
 
@@ -185,14 +206,30 @@ export default function Page() {
     <DropZone>
       <div className="relative flex h-[calc(100dvh-72px)] w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
         <KeyboardShortcuts />
-        <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
+        <div className="flex flex-col sm:flex-row h-auto sm:h-10 shrink-0 items-start sm:items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 py-2 sm:py-0 text-xs gap-2">
           <span className="font-mono text-[#5B584F]">{generatorId} — {customWidth}×{customHeight}</span>
+          {deviceNotice && (
+            <div className="flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 font-mono text-[10.5px] text-[#2B2A26] border border-[#D4CDBC]">
+              <span>📱 {deviceNotice}</span>
+              <button type="button" onClick={() => setDeviceNotice(null)} className="text-[#8A8579] hover:text-[#2B2A26]">✕</button>
+            </div>
+          )}
+        </div>
+        <div className="p-3 bg-[#FAF8F4] border-b border-[#E4DFD3]">
+          <AccessibilityPreviewBar
+            mode={accMode}
+            onModeChange={setAccMode}
+            showContrastGrid={showContrastGrid}
+            onContrastGridToggle={setShowContrastGrid}
+          />
         </div>
         <div className="flex flex-1 flex-col overflow-hidden w-full md:grid md:grid-cols-[minmax(0,1fr)_384px]">
           <main className="flex flex-1 items-center justify-center p-4 md:p-8 min-h-[240px] overflow-auto pb-20 md:pb-8">
-            <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
-              <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
-            </DeviceFrame>
+            <div style={getAccessibilityFilterStyle(accMode)} className="transition-all">
+              <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
+                <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
+              </DeviceFrame>
+            </div>
           </main>
           <ControlPanel />
         </div>
