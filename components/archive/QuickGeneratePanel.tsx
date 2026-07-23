@@ -59,6 +59,19 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
 
   const handleGenerate = () => {
     store.randomizeSeed();
+    try {
+      import("@/lib/storage/library").then((m) => {
+        const state = store;
+        m.addRecentlyGenerated({
+          name: `Generated Wallpaper`,
+          generatorId: state.generatorId,
+          palette: [...state.palette],
+          mode: state.mode,
+          seed: state.seed,
+          params: { ...state.params },
+        });
+      });
+    } catch {}
   };
 
   const handleSaveRecipe = () => {

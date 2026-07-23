@@ -108,6 +108,11 @@ export function SwatchGrid({
     Object.entries(swatch.params).forEach(([key, val]) => {
       store.updateParam(swatch.generatorId, key, val);
     });
+
+    // Record in shared library recently viewed
+    try {
+      import("@/lib/storage/library").then((m) => m.addRecentlyViewed(swatch.id));
+    } catch {}
   };
 
   const hasMore = visibleCount < filteredSwatches.length;
