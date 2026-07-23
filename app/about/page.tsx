@@ -198,7 +198,7 @@ export default function AboutPage() {
 
             {submitted && (
               <div className="mt-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-xs text-green-700">
-                Thank you! Your {feedbackType} has been saved locally and will be reviewed.
+                Saved on this device. Direct feedback submission is coming soon.
               </div>
             )}
 

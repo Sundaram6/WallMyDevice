@@ -108,8 +108,34 @@ export default function Page() {
     if (hash.startsWith("#r=")) {
       setTab("studio");
     }
+    const hasSavedState = Boolean(loadLocalState());
     restoreFromLocalStorage();
     loadHashRecipe();
+
+    // If first visit (no saved state in localStorage), select safe device preset based on viewport size
+    if (!hasSavedState && typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width < 640) {
+        // Phone-like viewport -> default to iPhone 16 Pro
+        useEditorStore.setState({
+          deviceType: "phone",
+          phoneBrand: "apple",
+          phoneModel: "iphone-16-pro",
+          resolutionId: "iphone-15-pro",
+          customWidth: 1206,
+          customHeight: 2622,
+        });
+      } else if (width >= 640 && width < 1024) {
+        // Tablet-like viewport -> default to iPad Air 11"
+        useEditorStore.setState({
+          deviceType: "tablet",
+          resolutionId: "ipad-air-11",
+          customWidth: 1640,
+          customHeight: 2360,
+        });
+      }
+    }
+
     const handleHash = () => {
       if (window.location.hash.startsWith("#r=")) {
         setTab("studio");

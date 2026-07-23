@@ -4,6 +4,7 @@ import { ArchiveSidebar } from "./ArchiveSidebar";
 import { SwatchGrid } from "./SwatchGrid";
 import { QuickGeneratePanel } from "./QuickGeneratePanel";
 import { GenerateBottomSheet } from "./GenerateBottomSheet";
+import { FavoritesDrawer } from "./FavoritesDrawer";
 import { ARCHIVE_CATEGORIES } from "@/lib/presets/archive-presets";
 
 type Props = {
@@ -17,6 +18,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
@@ -36,6 +38,16 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         favoriteCount={favorites.size}
+        onOpenFavoritesModal={() => setIsFavoritesDrawerOpen(true)}
+      />
+
+      {/* Favorites Drawer Overlay */}
+      <FavoritesDrawer
+        isOpen={isFavoritesDrawerOpen}
+        onClose={() => setIsFavoritesDrawerOpen(false)}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+        onOpenStudio={() => onTabChange("studio")}
       />
 
       {/* Main Studio View vs Archive View */}

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { SwatchCard } from "./SwatchCard";
 import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
 import { useEditorStore } from "@/store/useEditorStore";
+import Link from "next/link";
 
 type Props = {
   activeCategory: string;
@@ -13,11 +14,12 @@ type Props = {
 
 const INITIAL_PAGE_SIZE = 12;
 const PAGE_INCREMENT = 12;
+const ONBOARDING_DISMISSED_KEY = "wallmydevice:onboardingDismissed";
 
 export function SwatchGrid({
   activeCategory,
   searchQuery,
-  onOpenStudio: _onOpenStudio,
+  onOpenStudio,
   favorites,
   onToggleFavorite,
 }: Props) {
@@ -26,6 +28,24 @@ export function SwatchGrid({
   const [sortOption, setSortOption] = useState<"newest" | "name">("newest");
   const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check onboarding dismissal on mount
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(ONBOARDING_DISMISSED_KEY);
+      if (!dismissed) {
+        setShowOnboarding(true);
+      }
+    } catch {}
+  }, []);
+
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    try {
+      localStorage.setItem(ONBOARDING_DISMISSED_KEY, "true");
+    } catch {}
+  };
 
   // Filter swatches based on Category & Search Query
   const filteredSwatches = useMemo(() => {
@@ -69,7 +89,6 @@ export function SwatchGrid({
 
   const handleLoadMore = () => {
     setIsLoadingMore(true);
-    // Simulate smooth batch append
     setTimeout(() => {
       setVisibleCount((prev) => prev + PAGE_INCREMENT);
       setIsLoadingMore(false);
@@ -95,6 +114,48 @@ export function SwatchGrid({
 
   return (
     <section className="flex-1 p-4 sm:p-6 lg:p-11 pb-28 sm:pb-16">
+      {/* First-time Onboarding Banner */}
+      {showOnboarding && (
+        <div className="mb-6 rounded-2xl border border-[#E4DFD3] bg-[#F3EFE6] p-5 shadow-xs relative">
+          <button
+            type="button"
+            onClick={handleDismissOnboarding}
+            aria-label="Dismiss introduction"
+            className="absolute top-3.5 right-3.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs text-[#5B584F] hover:text-[#2B2A26] border border-[#D4CDBC]"
+          >
+            ✕
+          </button>
+          <div className="max-w-2xl">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#C9552F]">
+              Procedural Laboratory
+            </span>
+            <h2 className="mt-1 font-serif text-lg font-medium text-[#2B2A26]">
+              Every wallpaper is generated in code.
+            </h2>
+            <p className="mt-1.5 text-xs text-[#5B584F] leading-relaxed">
+              WallMyDevice renders geometric patterns, fluid gradients, and wave curves on your device canvas. Every print is powered by a unique seed — edit palettes, scale dimensions, or remix any artwork in real time. Rendering and exports happen 100% locally.
+            </p>
+            <div className="mt-4 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenStudio) onOpenStudio();
+                }}
+                className="rounded-xl bg-[#2B2A26] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917] transition"
+              >
+                Create a Wallpaper ✦
+              </button>
+              <Link
+                href="/about"
+                className="rounded-xl border border-[#D4CDBC] bg-white px-4 py-2 text-xs font-medium text-[#5B584F] hover:text-[#2B2A26] hover:bg-[#FAF8F4] transition"
+              >
+                How It Works →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header bar */}
       <div className="mb-4 sm:mb-6 flex items-center justify-between">
         <div className="text-xs text-[#5B584F]">

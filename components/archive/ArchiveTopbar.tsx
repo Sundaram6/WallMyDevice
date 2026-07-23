@@ -10,6 +10,7 @@ type Props = {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   favoriteCount: number;
+  onOpenFavoritesModal?: () => void;
 };
 
 export function ArchiveTopbar({
@@ -18,6 +19,7 @@ export function ArchiveTopbar({
   searchQuery,
   onSearchChange,
   favoriteCount,
+  onOpenFavoritesModal,
 }: Props) {
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -229,10 +231,17 @@ export function ArchiveTopbar({
             🔍
           </button>
 
-          {/* Favorites Link / Button */}
-          <Link
-            href="/sign-in"
-            aria-label="Favorites"
+          {/* Favorites Heart Button: opens favourites overlay/drawer or routes to /profile */}
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenFavoritesModal) {
+                onOpenFavoritesModal();
+              } else {
+                window.location.href = "/profile";
+              }
+            }}
+            aria-label={`Favourites (${favoriteCount} saved)`}
             className="relative flex h-11 w-11 items-center justify-center text-[#5B584F] hover:text-[#C9552F] rounded-lg transition focus:outline-none focus:ring-2 focus:ring-[#C9552F]"
           >
             ♡
@@ -241,38 +250,39 @@ export function ArchiveTopbar({
                 {favoriteCount}
               </span>
             )}
-          </Link>
+          </button>
 
           {/* Profile Avatar & Dropdown */}
           <div className="relative flex items-center" ref={menuRef}>
             <button
               type="button"
               onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-              aria-label="Guest mode user menu"
+              aria-label="Local Profile user menu"
               aria-expanded={avatarMenuOpen}
               aria-haspopup="true"
               aria-controls="avatar-menu-dropdown"
               className="flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-[#C9552F]"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white hover:ring-2 hover:ring-[#C9552F] transition">
-                G
+                L
               </div>
             </button>
 
             {avatarMenuOpen && (
               <div
                 id="avatar-menu-dropdown"
-                className="absolute right-0 top-12 w-48 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs"
+                className="absolute right-0 top-12 w-52 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs"
               >
-                <div className="px-3 py-2 border-b border-[#E4DFD3] font-medium text-[#2B2A26]">
-                  Guest Profile
+                <div className="px-3 py-2 border-b border-[#E4DFD3]">
+                  <p className="font-medium text-[#2B2A26]">Local Profile</p>
+                  <p className="text-[10px] text-[#8A8579]">Saved on this device</p>
                 </div>
                 <Link
-                  href="/sign-in"
+                  href="/profile"
                   onClick={() => setAvatarMenuOpen(false)}
                   className="flex items-center min-h-[44px] px-3 py-2 text-[#5B584F] hover:bg-[#FAF8F4] hover:text-[#C9552F] rounded transition"
                 >
-                  Guest Mode / Profile →
+                  Manage Profile &amp; Favourites →
                 </Link>
               </div>
             )}
@@ -371,21 +381,33 @@ export function ArchiveTopbar({
               >
                 About
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  if (onOpenFavoritesModal) onOpenFavoritesModal();
+                  else window.location.href = "/profile";
+                }}
+                className="flex h-11 w-full items-center justify-between px-3 rounded-lg text-sm font-medium text-[#5B584F] hover:bg-[#F3EFE6] hover:text-[#2B2A26] transition"
+              >
+                <span>Favourites</span>
+                <span className="font-mono text-xs bg-[#E4DFD3] px-2 py-0.5 rounded-full text-[#2B2A26]">{favoriteCount}</span>
+              </button>
               <Link
-                href="/sign-in"
+                href="/profile"
                 onClick={() => setDrawerOpen(false)}
                 className={`flex h-11 items-center px-3 rounded-lg text-sm font-medium transition ${
-                  pathname === "/sign-in"
+                  pathname === "/profile"
                     ? "bg-[#2B2A26] text-white"
                     : "text-[#5B584F] hover:bg-[#F3EFE6] hover:text-[#2B2A26]"
                 }`}
               >
-                Guest Mode ({favoriteCount} favorites)
+                Local Profile
               </Link>
             </nav>
 
             <div className="mt-auto border-t border-[#E4DFD3] pt-4 text-xs text-[#8A8579]">
-              © 2026 WallMyDevice
+              © 2026 WallMyDevice · Saved on this device
             </div>
           </div>
         </div>
