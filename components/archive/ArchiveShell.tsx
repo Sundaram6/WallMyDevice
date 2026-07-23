@@ -4,6 +4,7 @@ import { ArchiveSidebar } from "./ArchiveSidebar";
 import { SwatchGrid } from "./SwatchGrid";
 import { QuickGeneratePanel } from "./QuickGeneratePanel";
 import { GenerateBottomSheet } from "./GenerateBottomSheet";
+import { ARCHIVE_CATEGORIES } from "@/lib/presets/archive-presets";
 
 type Props = {
   currentTab: "archive" | "studio";
@@ -56,19 +57,26 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
           {/* Central Gallery Grid */}
           <main className="flex-1 min-w-0">
             {/* Category horizontal scroll bar on small screens */}
-            <div className="md:hidden flex gap-2 overflow-x-auto p-4 border-b border-[#E4DFD3] bg-[#F3EFE6]">
-              {["all", "new", "trending", "botanicals", "geometric", "monochrome"].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setActiveCategory(cat)}
-                  className={`rounded-full px-3 py-1 text-xs capitalize whitespace-nowrap border ${
-                    activeCategory === cat ? "bg-[#2B2A26] text-white border-[#2B2A26]" : "border-[#D4CDBC] text-[#5B584F] bg-white"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="md:hidden relative border-b border-[#E4DFD3] bg-[#F3EFE6]">
+              <div className="flex gap-2 overflow-x-auto p-3 no-scrollbar scroll-smooth">
+                {ARCHIVE_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`flex items-center min-h-[44px] rounded-full px-4 text-xs capitalize whitespace-nowrap border shrink-0 transition ${
+                      activeCategory === cat.id
+                        ? "bg-[#2B2A26] text-white border-[#2B2A26] shadow-xs"
+                        : "border-[#D4CDBC] text-[#5B584F] bg-white hover:text-[#2B2A26]"
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    <span className="ml-1.5 font-mono text-[10px] opacity-75">({cat.count})</span>
+                  </button>
+                ))}
+              </div>
+              {/* Trailing edge gradient fade hint */}
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F3EFE6] to-transparent" />
             </div>
 
             <SwatchGrid
