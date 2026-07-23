@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArchiveTopbar } from "@/components/archive/ArchiveTopbar";
 import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
+import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
+import { getFeaturedTodayRecipe } from "@/lib/presets/collections";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useRouter } from "next/navigation";
 
@@ -29,13 +31,10 @@ function InspirationCard({ swatch, label }: { swatch: SwatchRecipe; label?: stri
       onClick={openInStudio}
       className="group relative w-full overflow-hidden rounded-2xl border border-[#E4DFD3] bg-white shadow-sm hover:-translate-y-1 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-[#C9552F] text-left"
     >
-      {/* Gradient preview */}
-      <div
-        className="h-36 w-full"
-        style={{
-          background: `linear-gradient(135deg, ${swatch.palette[0]} 0%, ${swatch.palette[Math.floor(swatch.palette.length / 2)]} 50%, ${swatch.palette[swatch.palette.length - 1]} 100%)`,
-        }}
-      />
+      {/* Real Canvas Preview */}
+      <div className="h-36 w-full overflow-hidden bg-[#F3EFE6]">
+        <SwatchThumbnail swatch={swatch} width={240} height={200} />
+      </div>
       {/* Info */}
       <div className="p-3">
         {label && (
@@ -181,12 +180,58 @@ export default function InspirationPage() {
 
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-8">
           <h1 className="font-serif text-3xl font-medium text-[#2B2A26]">Inspiration</h1>
           <p className="mt-2 text-sm text-[#5B584F]">
             Discover wallpapers from every generator, colour story, and mood. Click any card to open it directly in Studio.
           </p>
         </div>
+
+        {/* Featured Today Banner */}
+        {(() => {
+          const featured = getFeaturedTodayRecipe();
+          return (
+            <div className="mb-12 rounded-2xl border border-[#E4DFD3] bg-[#F3EFE6] p-6 shadow-xs flex flex-col md:flex-row items-center gap-6">
+              <div className="h-48 w-36 shrink-0 overflow-hidden rounded-lg border border-[#D4CDBC] shadow-md">
+                <SwatchThumbnail swatch={featured} width={280} height={360} />
+              </div>
+              <div className="flex-1">
+                <span className="font-mono text-[10px] uppercase tracking-wider text-[#C9552F]">
+                  Featured Today · {new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
+                </span>
+                <h2 className="font-serif text-2xl font-medium text-[#2B2A26] mt-1">{featured.name}</h2>
+                <p className="text-xs text-[#5B584F] mt-1 leading-relaxed">
+                  Daily deterministic pick. Every visitor sees the same curated artwork today. Remix parameters or export in high-resolution.
+                </p>
+                <div className="mt-4 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const store = useEditorStore.getState();
+                      store.setGenerator(featured.generatorId);
+                      store.setPalette([...featured.palette]);
+                      store.setMode(featured.mode);
+                      store.setSeed(featured.seed);
+                      Object.entries(featured.params).forEach(([key, val]) => {
+                        store.updateParam(featured.generatorId, key, val);
+                      });
+                      router.push("/");
+                    }}
+                    className="rounded-xl bg-[#2B2A26] px-4 py-2.5 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917]"
+                  >
+                    ✦ Remix Featured Wallpaper
+                  </button>
+                  <Link
+                    href={`/r/${featured.id}`}
+                    className="rounded-xl border border-[#D4CDBC] bg-white px-4 py-2.5 text-xs font-medium text-[#5B584F] hover:bg-[#FAF8F4]"
+                  >
+                    Share Recipe →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Trending */}
         <Section title="Trending Now" subtitle="The most popular prints across the archive this week.">

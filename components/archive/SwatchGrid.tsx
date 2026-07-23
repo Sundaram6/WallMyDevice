@@ -49,7 +49,7 @@ export function SwatchGrid({
     } catch {}
   };
 
-  // Filter swatches based on Category & Search Query
+  // Filter & Sort swatches based on Category, Search Query & Sort Modes
   const filteredSwatches = useMemo(() => {
     return ARCHIVE_PRESETS.filter((swatch) => {
       // Category Filter
@@ -64,21 +64,31 @@ export function SwatchGrid({
         return false;
       }
 
-      // Search Query Filter
+      // Comprehensive Search Query Filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = swatch.name.toLowerCase().includes(q);
         const matchesCat = swatch.category.toLowerCase().includes(q);
         const matchesGen = swatch.generatorId.toLowerCase().includes(q);
-        if (!matchesName && !matchesCat && !matchesGen) return false;
+        const matchesSeed = swatch.seed.toLowerCase() === q;
+        const matchesTag = swatch.tags.some((t) => t.toLowerCase().includes(q));
+        const matchesPalette = swatch.palette.some((c) => c.toLowerCase().includes(q));
+        const matchesOled = q.includes("oled") && (swatch.mode === "dark" || swatch.tags.includes("oled"));
+
+        if (!matchesName && !matchesCat && !matchesGen && !matchesSeed && !matchesTag && !matchesPalette && !matchesOled) {
+          return false;
+        }
       }
 
       return true;
     }).sort((a, b) => {
       if (sortOption === "name") return a.name.localeCompare(b.name);
-      return 0; // Default order
+      if (sortOption === "curated") return (a.id.length % 5) - (b.id.length % 5);
+      if (sortOption === "mostFavourited") return (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0);
+      if (sortOption === "newest") return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+      return 0;
     });
-  }, [activeCategory, searchQuery, sortOption]);
+  }, [activeCategory, searchQuery, sortOption, favorites]);
 
   // Reset pagination whenever filters or search query change
   useEffect(() => {
@@ -181,8 +191,10 @@ export function SwatchGrid({
               onChange={(e) => setSortOption(e.target.value as any)}
               className="bg-transparent font-medium text-[#2B2A26] focus:outline-none"
             >
-              <option value="newest">Newest</option>
-              <option value="name">Name</option>
+              <option value="newest">Newest First</option>
+              <option value="curated">Curated Rank</option>
+              <option value="name">Alphabetical</option>
+              <option value="mostFavourited">Most Favourited</option>
             </select>
           </label>
         </div>

@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
+import { SwatchThumbnail } from "./SwatchThumbnail";
 
 type Props = {
   currentTab: "archive" | "studio";
@@ -451,9 +453,56 @@ export function ArchiveTopbar({
 
           <div className="flex-1 overflow-y-auto pt-4 text-xs text-[#5B584F]">
             {searchQuery ? (
-              <p>Searching for &ldquo;{searchQuery}&rdquo;...</p>
+              (() => {
+                const q = searchQuery.toLowerCase();
+                const matches = ARCHIVE_PRESETS.filter(
+                  (s) =>
+                    s.name.toLowerCase().includes(q) ||
+                    s.category.toLowerCase().includes(q) ||
+                    s.generatorId.toLowerCase().includes(q) ||
+                    s.seed.toLowerCase() === q ||
+                    s.tags.some((t) => t.toLowerCase().includes(q))
+                );
+
+                if (matches.length === 0) {
+                  return (
+                    <div className="py-12 text-center text-[#8A8579]">
+                      <p className="text-sm font-medium">No matching prints found</p>
+                      <p className="mt-1 text-xs">Try searching for &ldquo;waveform&rdquo;, &ldquo;botanicals&rdquo;, or &ldquo;dark&rdquo;.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-3">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+                      Found {matches.length} matching {matches.length === 1 ? "print" : "prints"}
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {matches.slice(0, 10).map((swatch) => (
+                        <div
+                          key={swatch.id}
+                          onClick={() => {
+                            setSearchOverlayOpen(false);
+                            window.location.href = `/?recipe=${swatch.id}`;
+                          }}
+                          className="group relative cursor-pointer rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-xs"
+                        >
+                          <div className="h-28 w-full overflow-hidden rounded bg-[#F3EFE6]">
+                            <SwatchThumbnail swatch={swatch} width={160} height={200} />
+                          </div>
+                          <p className="mt-1.5 truncate font-serif text-xs font-medium text-[#2B2A26]">{swatch.name}</p>
+                          <p className="text-[10px] text-[#8A8579]">{swatch.category}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()
             ) : (
-              <p>Type above to filter wallpapers in real time.</p>
+              <div className="py-8 text-center text-[#8A8579]">
+                <p className="text-xs">Type a keyword, seed, or palette color to search in real time.</p>
+              </div>
             )}
           </div>
         </div>

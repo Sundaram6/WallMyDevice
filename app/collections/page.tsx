@@ -7,14 +7,8 @@ import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-preset
 import { useEditorStore } from "@/store/useEditorStore";
 import { useRouter } from "next/navigation";
 
-// ─── Collection definitions ───────────────────────────────────────────────────
-type Collection = {
-  id: string;
-  title: string;
-  description: string;
-  itemIds: string[];
-  emoji: string;
-};
+import { CURATED_COLLECTIONS } from "@/lib/presets/collections";
+import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
 
 const COLLECTIONS: Collection[] = [
   {
@@ -137,24 +131,22 @@ export default function CollectionsPage() {
 
         {/* Collection grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCollections.map((col) => {
+          {CURATED_COLLECTIONS.map((col) => {
             const items = col.itemIds
               .map(id => ARCHIVE_PRESETS.find(p => p.id === id))
               .filter((p): p is SwatchRecipe => !!p);
+            const coverSwatch = ARCHIVE_PRESETS.find(p => p.id === col.coverRecipeId) || items[0] || ARCHIVE_PRESETS[0];
             const isOpen = expanded === col.id;
 
             return (
-              <article key={col.id} className="rounded-2xl border border-[#E4DFD3] bg-white shadow-sm overflow-hidden">
-                {/* Cover */}
+              <article key={col.id} className="rounded-2xl border border-[#E4DFD3] bg-white shadow-sm overflow-hidden flex flex-col">
+                {/* Real Rendered Cover */}
                 <div
-                  className="relative h-40 flex items-center justify-center cursor-pointer"
-                  style={{
-                    background: `linear-gradient(135deg, ${items[0]?.palette[0] ?? "#E4DFD3"} 0%, ${items[0]?.palette[1] ?? "#FAF8F4"} 50%, ${items[1]?.palette[0] ?? "#D4CDBC"} 100%)`,
-                  }}
+                  className="relative h-44 w-full bg-[#F3EFE6] overflow-hidden cursor-pointer"
                   onClick={() => setExpanded(isOpen ? null : col.id)}
                 >
-                  <span className="text-5xl drop-shadow">{col.emoji}</span>
-                  <span className="absolute top-3 right-3 rounded-full bg-black/30 px-2 py-0.5 text-[10px] text-white font-mono">
+                  <SwatchThumbnail swatch={coverSwatch} width={300} height={200} />
+                  <span className="absolute top-3 right-3 rounded-full bg-black/50 backdrop-blur-xs px-2.5 py-0.5 text-[10px] text-white font-mono z-10">
                     {items.length} prints
                   </span>
                 </div>
