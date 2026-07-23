@@ -11,9 +11,8 @@ import { RecipeLoader } from "./RecipeLoader";
 
 type ControlPanelProps = {
   /**
-   * "sidebar" (default) renders the fixed-width desktop panel, hidden below the
-   * `md` breakpoint. "sheet" renders just the control sections with no wrapper
-   * chrome, meant to be placed inside a <BottomSheet> on mobile.
+   * "sidebar" (default) renders the fixed-width desktop panel.
+   * "sheet" renders a compact, warm-styled single scroll list for mobile sheets.
    */
   variant?: "sidebar" | "sheet";
 };
@@ -23,7 +22,7 @@ export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
     <>
       <Section title="Generator"><GeneratorPicker /></Section>
 
-      <div className="grid gap-6">
+      <div className="grid gap-5 sm:gap-6">
         <Section title="Seed & Randomize"><SeedBar /></Section>
         <Section title="Device and Resolution"><ResolutionPicker /></Section>
         <Section title="Palette and Appearance"><PalettePicker /><ModeToggle /></Section>
@@ -36,14 +35,18 @@ export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
   );
 
   if (variant === "sheet") {
-    return <div className="flex flex-col gap-6 text-zinc-100">{sections}</div>;
+    return (
+      <div className="flex flex-col gap-5 text-[#2B2A26] pb-6">
+        {sections}
+      </div>
+    );
   }
 
   return (
     <aside className="hidden md:flex h-full w-full flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
       <div className="sticky top-0 z-10 bg-zinc-950 pt-2 pb-2">
         <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
-        <p className="text-xs text-zinc-500">Controls & export</p>
+        <p className="text-xs text-zinc-500">Controls &amp; export</p>
       </div>
 
       {sections}
@@ -54,7 +57,7 @@ export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">{title}</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A8579]">{title}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   );

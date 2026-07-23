@@ -138,13 +138,13 @@ export default function Page() {
 
   const studioView = (
     <DropZone>
-      <div className="relative flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
+      <div className="relative flex h-[calc(100dvh-72px)] w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
         <KeyboardShortcuts />
         <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
-          <span className="font-mono text-[#5B584F]">{generatorId} - {customWidth}x{customHeight}</span>
+          <span className="font-mono text-[#5B584F]">{generatorId} — {customWidth}×{customHeight}</span>
         </div>
         <div className="flex flex-1 flex-col overflow-hidden w-full md:grid md:grid-cols-[minmax(0,1fr)_384px]">
-          <main className="flex flex-1 items-center justify-center p-4 md:p-8 min-h-[300px] overflow-auto">
+          <main className="flex flex-1 items-center justify-center p-4 md:p-8 min-h-[240px] overflow-auto pb-20 md:pb-8">
             <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
               <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
             </DeviceFrame>
@@ -152,7 +152,7 @@ export default function Page() {
           <ControlPanel />
         </div>
         <div className="md:hidden">
-          <BottomSheet title="Editor" collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
+          <BottomSheet title="Studio Editor" collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
             <ControlPanel variant="sheet" />
           </BottomSheet>
         </div>

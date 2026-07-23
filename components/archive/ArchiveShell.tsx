@@ -40,11 +40,11 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
 
       {/* Main Studio View vs Archive View */}
       {currentTab === "studio" ? (
-        <div className="relative flex h-[calc(100vh-72px)] w-full overflow-hidden bg-[#F3EFE6]">
+        <div className="relative flex h-[calc(100dvh-72px)] w-full overflow-hidden bg-[#F3EFE6]">
           {childrenStudio}
         </div>
       ) : (
-        <div className="flex min-h-[calc(100vh-72px)]">
+        <div className="flex min-h-[calc(100dvh-72px)]">
           {/* Left Archive Sidebar (Desktop/Tablet) */}
           <div className="hidden md:block">
             <ArchiveSidebar
@@ -101,7 +101,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
           <button
             type="button"
             onClick={() => setIsMobileSheetOpen(true)}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-[#2B2A26] px-6 py-3 text.xs font-medium text-white shadow-xl hover:bg-[#1a1917]"
+            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-[#2B2A26] px-6 py-3 text-xs font-medium text-white shadow-xl hover:bg-[#1a1917]"
           >
             ✦ Generate Wallpaper
           </button>
