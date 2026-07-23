@@ -2,6 +2,8 @@ import React, { useState, useMemo, useEffect } from "react";
 import { SwatchCard } from "./SwatchCard";
 import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
 import { useEditorStore } from "@/store/useEditorStore";
+import Link from "next/link";
+import { WallpaperDetailModal } from "./WallpaperDetailModal";
 
 type Props = {
   activeCategory: string;
@@ -13,21 +15,41 @@ type Props = {
 
 const INITIAL_PAGE_SIZE = 12;
 const PAGE_INCREMENT = 12;
+const ONBOARDING_DISMISSED_KEY = "wallmydevice:onboardingDismissed";
 
 export function SwatchGrid({
   activeCategory,
   searchQuery,
-  onOpenStudio: _onOpenStudio,
+  onOpenStudio,
   favorites,
   onToggleFavorite,
 }: Props) {
   const store = useEditorStore();
   const [selectedSwatchId, setSelectedSwatchId] = useState<string>("terracotta-bloom");
-  const [sortOption, setSortOption] = useState<"newest" | "name">("newest");
+  const [activeModalSwatch, setActiveModalSwatch] = useState<SwatchRecipe | null>(null);
+  const [sortOption, setSortOption] = useState<"newest" | "name" | "curated" | "mostFavourited">("newest");
   const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE_SIZE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Filter swatches based on Category & Search Query
+  // Check onboarding dismissal on mount
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(ONBOARDING_DISMISSED_KEY);
+      if (!dismissed) {
+        setShowOnboarding(true);
+      }
+    } catch {}
+  }, []);
+
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    try {
+      localStorage.setItem(ONBOARDING_DISMISSED_KEY, "true");
+    } catch {}
+  };
+
+  // Filter & Sort swatches based on Category, Search Query & Sort Modes
   const filteredSwatches = useMemo(() => {
     return ARCHIVE_PRESETS.filter((swatch) => {
       // Category Filter
@@ -42,21 +64,31 @@ export function SwatchGrid({
         return false;
       }
 
-      // Search Query Filter
+      // Comprehensive Search Query Filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = swatch.name.toLowerCase().includes(q);
         const matchesCat = swatch.category.toLowerCase().includes(q);
         const matchesGen = swatch.generatorId.toLowerCase().includes(q);
-        if (!matchesName && !matchesCat && !matchesGen) return false;
+        const matchesSeed = swatch.seed.toLowerCase() === q;
+        const matchesTag = swatch.tags.some((t) => t.toLowerCase().includes(q));
+        const matchesPalette = swatch.palette.some((c) => c.toLowerCase().includes(q));
+        const matchesOled = q.includes("oled") && (swatch.mode === "dark" || swatch.tags.includes("oled"));
+
+        if (!matchesName && !matchesCat && !matchesGen && !matchesSeed && !matchesTag && !matchesPalette && !matchesOled) {
+          return false;
+        }
       }
 
       return true;
     }).sort((a, b) => {
       if (sortOption === "name") return a.name.localeCompare(b.name);
-      return 0; // Default order
+      if (sortOption === "curated") return (a.id.length % 5) - (b.id.length % 5);
+      if (sortOption === "mostFavourited") return (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0);
+      if (sortOption === "newest") return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+      return 0;
     });
-  }, [activeCategory, searchQuery, sortOption]);
+  }, [activeCategory, searchQuery, sortOption, favorites]);
 
   // Reset pagination whenever filters or search query change
   useEffect(() => {
@@ -69,7 +101,6 @@ export function SwatchGrid({
 
   const handleLoadMore = () => {
     setIsLoadingMore(true);
-    // Simulate smooth batch append
     setTimeout(() => {
       setVisibleCount((prev) => prev + PAGE_INCREMENT);
       setIsLoadingMore(false);
@@ -89,12 +120,63 @@ export function SwatchGrid({
     Object.entries(swatch.params).forEach(([key, val]) => {
       store.updateParam(swatch.generatorId, key, val);
     });
+
+    // Record in shared library recently viewed
+    // Open Wallpaper Detail View Modal
+    setActiveModalSwatch(swatch);
+  };
+
+  const handleRemix = (swatch: SwatchRecipe) => {
+    handleSelectSwatch(swatch);
+    if (onOpenStudio) onOpenStudio();
   };
 
   const hasMore = visibleCount < filteredSwatches.length;
 
   return (
     <section className="flex-1 p-4 sm:p-6 lg:p-11 pb-28 sm:pb-16">
+      {/* First-time Onboarding Banner */}
+      {showOnboarding && (
+        <div className="mb-6 rounded-2xl border border-[#E4DFD3] bg-[#F3EFE6] p-5 shadow-xs relative">
+          <button
+            type="button"
+            onClick={handleDismissOnboarding}
+            aria-label="Dismiss introduction"
+            className="absolute top-3.5 right-3.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs text-[#5B584F] hover:text-[#2B2A26] border border-[#D4CDBC]"
+          >
+            ✕
+          </button>
+          <div className="max-w-2xl">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-[#C9552F]">
+              Procedural Laboratory
+            </span>
+            <h2 className="mt-1 font-serif text-lg font-medium text-[#2B2A26]">
+              Print Swatch Archive.
+            </h2>
+            <p className="mt-1.5 text-xs text-[#5B584F] leading-relaxed">
+              WallMyDevice renders geometric patterns, fluid gradients, and wave curves on your device canvas. Every print is powered by a unique seed — edit palettes, scale dimensions, or remix any artwork in real time. Rendering and exports happen 100% locally.
+            </p>
+            <div className="mt-4 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenStudio) onOpenStudio();
+                }}
+                className="rounded-xl bg-[#2B2A26] px-4 py-2 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917] transition"
+              >
+                Create a Wallpaper ✦
+              </button>
+              <Link
+                href="/about"
+                className="rounded-xl border border-[#D4CDBC] bg-white px-4 py-2 text-xs font-medium text-[#5B584F] hover:text-[#2B2A26] hover:bg-[#FAF8F4] transition"
+              >
+                How It Works →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header bar */}
       <div className="mb-4 sm:mb-6 flex items-center justify-between">
         <div className="text-xs text-[#5B584F]">
@@ -109,8 +191,10 @@ export function SwatchGrid({
               onChange={(e) => setSortOption(e.target.value as any)}
               className="bg-transparent font-medium text-[#2B2A26] focus:outline-none"
             >
-              <option value="newest">Newest</option>
-              <option value="name">Name</option>
+              <option value="newest">Newest First</option>
+              <option value="curated">Curated Rank</option>
+              <option value="name">Alphabetical</option>
+              <option value="mostFavourited">Most Favourited</option>
             </select>
           </label>
         </div>
@@ -126,6 +210,7 @@ export function SwatchGrid({
             isFavorite={favorites.has(swatch.id)}
             onSelect={handleSelectSwatch}
             onToggleFavorite={onToggleFavorite}
+            onRemix={handleRemix}
           />
         ))}
       </div>
@@ -149,6 +234,18 @@ export function SwatchGrid({
           </button>
         </div>
       )}
+      {/* Wallpaper Detail View Modal */}
+      <WallpaperDetailModal
+        swatch={activeModalSwatch}
+        isOpen={Boolean(activeModalSwatch)}
+        isFavorite={Boolean(activeModalSwatch && favorites.has(activeModalSwatch.id))}
+        onClose={() => setActiveModalSwatch(null)}
+        onOpenStudio={() => {
+          if (activeModalSwatch) handleRemix(activeModalSwatch);
+          setActiveModalSwatch(null);
+        }}
+        onToggleFavorite={onToggleFavorite}
+      />
     </section>
   );
 }

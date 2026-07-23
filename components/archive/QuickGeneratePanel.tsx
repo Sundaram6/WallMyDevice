@@ -5,6 +5,7 @@ import { PHONE_CATALOGUE } from "@/lib/devices/presets";
 import { CURATED_PALETTES } from "@/lib/palettes/data";
 import { listGenerators } from "@/lib/generators";
 import { triggerSingleExport } from "@/lib/export/actions";
+import { deriveFourVariations } from "@/lib/export/variations";
 import { ResolutionPicker } from "@/components/Panel/ResolutionPicker";
 import { MiniPreviewCanvas } from "./MiniPreviewCanvas";
 
@@ -57,12 +58,42 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
     }
   };
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
+
   const handleGenerate = () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
     store.randomizeSeed();
+    try {
+      import("@/lib/storage/library").then((m) => {
+        const state = store;
+        m.addRecentlyGenerated({
+          name: `Generated Wallpaper`,
+          generatorId: state.generatorId,
+          palette: [...state.palette],
+          mode: state.mode,
+          seed: state.seed,
+          params: { ...state.params },
+        });
+      });
+    } catch {}
+
+    setTimeout(() => {
+      setIsGenerating(false);
+    }, 300);
   };
 
-  const handleSaveRecipe = () => {
-    triggerSingleExport({ width: targetW, height: targetH });
+  const handleSaveRecipe = async () => {
+    if (exportStatus) return;
+    try {
+      await triggerSingleExport({ width: targetW, height: targetH }, (msg) => {
+        setExportStatus(msg);
+      });
+    } catch (e) {
+    } finally {
+      setTimeout(() => setExportStatus(null), 2500);
+    }
   };
 
   const handleCustomScaleClick = () => {
@@ -241,9 +272,9 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
         {/* Selected Device Summary & Mini Result Preview */}
         <div>
           <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
-            Generated Result Preview
+            Generated Result Preview & 4 Variations
           </label>
-          <div className="flex items-center gap-3 rounded-lg border border-[#D4CDBC] bg-[#F3EFE6] p-3">
+          <div className="flex items-center gap-3 rounded-lg border border-[#D4CDBC] bg-[#F3EFE6] p-3 mb-2">
             <MiniPreviewCanvas width={48} height={64} />
             <div className="flex-1 min-w-0">
               <b className="block text-xs font-medium text-[#2B2A26] truncate">{activePreset.label}</b>
@@ -255,24 +286,43 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
               </span>
             </div>
           </div>
+
+          <div className="grid grid-cols-4 gap-1.5">
+            {deriveFourVariations(store.seed, 0).map((vSeed, idx) => (
+              <button
+                key={vSeed}
+                type="button"
+                onClick={() => store.setSeed(vSeed)}
+                className={`relative aspect-[3/4] overflow-hidden rounded border text-left transition ${
+                  store.seed === vSeed ? "ring-2 ring-[#C9552F] border-[#C9552F]" : "border-[#D4CDBC] hover:border-[#2B2A26]"
+                }`}
+              >
+                <div className="h-full w-full bg-[#FAF8F4] flex items-center justify-center font-mono text-[8px] text-[#5B584F]">
+                  #{idx + 1}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Primary CTA */}
         <button
           type="button"
+          disabled={isGenerating}
           onClick={handleGenerate}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow-xs transition hover:bg-[#1a1917]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow-xs transition hover:bg-[#1a1917] disabled:opacity-50"
         >
-          Generate Wallpaper ✦
+          {isGenerating ? "Generating preview…" : "Generate 4 Variations ✦"}
         </button>
 
-        {/* Secondary Export Action */}
+        {/* Secondary Export Actions */}
         <button
           type="button"
+          disabled={Boolean(exportStatus)}
           onClick={handleSaveRecipe}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-xs transition hover:bg-[#FAF8F4]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-xs transition hover:bg-[#FAF8F4] disabled:opacity-50"
         >
-          ⛁ Export Wallpaper
+          {exportStatus ?? "⛁ Export Single Wallpaper"}
         </button>
 
         {onOpenStudio && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ControlPanel } from "@/components/Panel/ControlPanel";
 import { PreviewCanvas } from "@/components/Preview/PreviewCanvas";
 import { DeviceFrame } from "@/components/Preview/DeviceFrame";
@@ -13,6 +14,13 @@ import { DropZone } from "@/components/DropZone";
 import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
 
 import { ArchiveShell } from "@/components/archive/ArchiveShell";
+import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
+import { CURRENT_VERSION } from "@/lib/changelog/data";
+import {
+  AccessibilityPreviewBar,
+  getAccessibilityFilterStyle,
+  type AccessibilityMode,
+} from "@/components/Preview/AccessibilityPreviewBar";
 
 function restoreFromLocalStorage() {
   const hash = window.location.hash;
@@ -104,12 +112,56 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.startsWith("#r=")) {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get("view");
+    const recipeParam = params.get("recipe");
+
+    if (viewParam === "studio" || window.location.hash.startsWith("#r=")) {
       setTab("studio");
     }
+
+    if (recipeParam) {
+      const swatch = ARCHIVE_PRESETS.find((p) => p.id === recipeParam);
+      if (swatch) {
+        const store = useEditorStore.getState();
+        store.setGenerator(swatch.generatorId);
+        store.setPalette([...swatch.palette]);
+        store.setMode(swatch.mode);
+        store.setSeed(swatch.seed);
+        Object.entries(swatch.params).forEach(([key, val]) => {
+          store.updateParam(swatch.generatorId, key, val);
+        });
+      }
+    }
+
+    const hasSavedState = Boolean(loadLocalState());
     restoreFromLocalStorage();
     loadHashRecipe();
+
+    // If first visit (no saved state in localStorage), select safe device preset based on viewport size
+    if (!hasSavedState && typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width < 640) {
+        // Phone-like viewport -> default to iPhone 16 Pro
+        useEditorStore.setState({
+          deviceType: "phone",
+          phoneBrand: "apple",
+          phoneModel: "iphone-16-pro",
+          resolutionId: "iphone-15-pro",
+          customWidth: 1206,
+          customHeight: 2622,
+        });
+      } else if (width >= 640 && width < 1024) {
+        // Tablet-like viewport -> default to iPad Air 11"
+        useEditorStore.setState({
+          deviceType: "tablet",
+          resolutionId: "ipad-air-11",
+          customWidth: 1640,
+          customHeight: 2360,
+        });
+      }
+    }
+
     const handleHash = () => {
       if (window.location.hash.startsWith("#r=")) {
         setTab("studio");
@@ -133,6 +185,32 @@ export default function Page() {
     };
   }, []);
 
+  const [accMode, setAccMode] = useState<AccessibilityMode>("normal");
+  const [showContrastGrid, setShowContrastGrid] = useState(false);
+  const [deviceNotice, setDeviceNotice] = useState<string | null>(null);
+
+  const [whatsNewBanner, setWhatsNewBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const hasSavedState = Boolean(loadLocalState());
+    if (!hasSavedState && typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setDeviceNotice("Started with a phone-sized canvas based on this screen.");
+      } else if (width >= 640 && width < 1024) {
+        setDeviceNotice("Started with a tablet-sized canvas based on this screen.");
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      const LAST_SEEN_KEY = "wallmydevice:last_seen_version";
+      const lastSeen = localStorage.getItem(LAST_SEEN_KEY);
+      if (lastSeen !== CURRENT_VERSION) {
+        setWhatsNewBanner(`WallMyDevice ${CURRENT_VERSION} is now live with 4 variations & multi-device export packs!`);
+      }
+    }
+  }, []);
+
   const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
   const aspect = customWidth / customHeight;
 
@@ -140,14 +218,48 @@ export default function Page() {
     <DropZone>
       <div className="relative flex h-[calc(100dvh-72px)] w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
         <KeyboardShortcuts />
-        <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
+        <div className="flex flex-col sm:flex-row h-auto sm:h-10 shrink-0 items-start sm:items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 py-2 sm:py-0 text-xs gap-2">
           <span className="font-mono text-[#5B584F]">{generatorId} — {customWidth}×{customHeight}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            {whatsNewBanner && (
+              <div className="flex items-center gap-2 rounded bg-[#C9552F]/10 px-2 py-0.5 font-mono text-[10.5px] text-[#C9552F] border border-[#C9552F]/30">
+                <span>✦ {whatsNewBanner}</span>
+                <Link href="/changelog" className="underline hover:text-[#2B2A26]">Read Changelog</Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem("wallmydevice:last_seen_version", CURRENT_VERSION);
+                    setWhatsNewBanner(null);
+                  }}
+                  className="text-[#8A8579] hover:text-[#2B2A26]"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            {deviceNotice && (
+              <div className="flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 font-mono text-[10.5px] text-[#2B2A26] border border-[#D4CDBC]">
+                <span>📱 {deviceNotice}</span>
+                <button type="button" onClick={() => setDeviceNotice(null)} className="text-[#8A8579] hover:text-[#2B2A26]">✕</button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="p-3 bg-[#FAF8F4] border-b border-[#E4DFD3]">
+          <AccessibilityPreviewBar
+            mode={accMode}
+            onModeChange={setAccMode}
+            showContrastGrid={showContrastGrid}
+            onContrastGridToggle={setShowContrastGrid}
+          />
         </div>
         <div className="flex flex-1 flex-col overflow-hidden w-full md:grid md:grid-cols-[minmax(0,1fr)_384px]">
           <main className="flex flex-1 items-center justify-center p-4 md:p-8 min-h-[240px] overflow-auto pb-20 md:pb-8">
-            <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
-              <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
-            </DeviceFrame>
+            <div style={getAccessibilityFilterStyle(accMode)} className="transition-all">
+              <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
+                <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
+              </DeviceFrame>
+            </div>
           </main>
           <ControlPanel />
         </div>

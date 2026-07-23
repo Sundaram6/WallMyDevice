@@ -7,73 +7,10 @@ import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-preset
 import { useEditorStore } from "@/store/useEditorStore";
 import { useRouter } from "next/navigation";
 
-// ─── Collection definitions ───────────────────────────────────────────────────
-type Collection = {
-  id: string;
-  title: string;
-  description: string;
-  itemIds: string[];
-  emoji: string;
-};
+import { CURATED_COLLECTIONS } from "@/lib/presets/collections";
+import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
 
-const COLLECTIONS: Collection[] = [
-  {
-    id: "botanical-calm",
-    title: "Botanical Calm",
-    emoji: "🌿",
-    description: "Organic waveforms and earthy palettes inspired by leaves, moss, and quiet forest light.",
-    itemIds: ["terracotta-bloom", "indigo-garden", "olive-branch", "fern-shadow", "sage-smoke", "moss-tide", "forest-depth"],
-  },
-  {
-    id: "midnight-screens",
-    title: "Midnight Screens",
-    emoji: "🌑",
-    description: "OLED-optimised dark wallpapers built for true-black displays and deep ambient modes.",
-    itemIds: ["abyss", "void-matter", "carbon-waves", "nightfall", "obsidian-flow", "static-noise", "nebula-drift"],
-  },
-  {
-    id: "warm-minimalism",
-    title: "Warm Minimalism",
-    emoji: "☀️",
-    description: "Soft paper textures and linen-toned gradients. Nothing unnecessary, nothing missing.",
-    itemIds: ["paper-field", "linen-wave", "dust-circle", "fog-gradient", "rice-paper", "dune-flow", "ochre-field"],
-  },
-  {
-    id: "bold-geometry",
-    title: "Bold Geometry",
-    emoji: "◆",
-    description: "Sharp angles, high-contrast grids, and graphic triangles that command attention.",
-    itemIds: ["cobalt-fracture", "hex-field", "diamond-grid", "neon-grid", "circuit-lines", "arches-shadows", "prism-break"],
-  },
-  {
-    id: "soft-pastels",
-    title: "Soft Pastels",
-    emoji: "🌸",
-    description: "Gentle candy gradients and dreamy haze for a tender, pastel-forward home screen.",
-    itemIds: ["cotton-sky", "blush-petal", "mint-cool", "lavender-haze", "peach-soft", "candy-cloud", "blush-terrain"],
-  },
-  {
-    id: "earth-tones",
-    title: "Earth Tones",
-    emoji: "🪨",
-    description: "Sienna, ochre, clay, and desert — warm sediment-layer palettes for grounded aesthetics.",
-    itemIds: ["dune-flow", "horizon-weave", "desert-rift", "ochre-field", "clay-plates", "sagebrush-lines"],
-  },
-  {
-    id: "editorial-type",
-    title: "Editorial Type",
-    emoji: "A",
-    description: "Typography-driven wallpapers where bold serifs and tracked caps become the visual.",
-    itemIds: ["editorial-bold", "mono-whisper", "serif-study", "blueprint-text", "code-poetic", "type-specimen"],
-  },
-  {
-    id: "retro-wave",
-    title: "Retro Wave",
-    emoji: "📼",
-    description: "VHS grain, vaporwave grids, and lo-fi gradient sunsets built on analogue memory.",
-    itemIds: ["vhs-noise", "vapor-grid", "lofi-sunset", "pixel-garden", "crt-glow"],
-  },
-];
+
 
 // ─── Colour chip row ──────────────────────────────────────────────────────────
 function PaletteStrip({ presets }: { presets: SwatchRecipe[] }) {
@@ -107,7 +44,7 @@ export default function CollectionsPage() {
     router.push("/");
   }
 
-  const filteredCollections = COLLECTIONS.filter(c => {
+  const filteredCollections = CURATED_COLLECTIONS.filter(c => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
@@ -141,20 +78,18 @@ export default function CollectionsPage() {
             const items = col.itemIds
               .map(id => ARCHIVE_PRESETS.find(p => p.id === id))
               .filter((p): p is SwatchRecipe => !!p);
+            const coverSwatch = ARCHIVE_PRESETS.find(p => p.id === col.coverRecipeId) || items[0] || ARCHIVE_PRESETS[0];
             const isOpen = expanded === col.id;
 
             return (
-              <article key={col.id} className="rounded-2xl border border-[#E4DFD3] bg-white shadow-sm overflow-hidden">
-                {/* Cover */}
+              <article key={col.id} className="rounded-2xl border border-[#E4DFD3] bg-white shadow-sm overflow-hidden flex flex-col">
+                {/* Real Rendered Cover */}
                 <div
-                  className="relative h-40 flex items-center justify-center cursor-pointer"
-                  style={{
-                    background: `linear-gradient(135deg, ${items[0]?.palette[0] ?? "#E4DFD3"} 0%, ${items[0]?.palette[1] ?? "#FAF8F4"} 50%, ${items[1]?.palette[0] ?? "#D4CDBC"} 100%)`,
-                  }}
+                  className="relative h-44 w-full bg-[#F3EFE6] overflow-hidden cursor-pointer"
                   onClick={() => setExpanded(isOpen ? null : col.id)}
                 >
-                  <span className="text-5xl drop-shadow">{col.emoji}</span>
-                  <span className="absolute top-3 right-3 rounded-full bg-black/30 px-2 py-0.5 text-[10px] text-white font-mono">
+                  <SwatchThumbnail swatch={coverSwatch} width={300} height={200} />
+                  <span className="absolute top-3 right-3 rounded-full bg-black/50 backdrop-blur-xs px-2.5 py-0.5 text-[10px] text-white font-mono z-10">
                     {items.length} prints
                   </span>
                 </div>

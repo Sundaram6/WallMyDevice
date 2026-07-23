@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import type { SwatchRecipe } from "@/lib/presets/archive-presets";
 import { ensureRegistered } from "@/lib/generators";
@@ -8,19 +10,20 @@ type Props = {
   swatch: SwatchRecipe;
   width?: number;
   height?: number;
+  isHovered?: boolean;
 };
 
-export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
+export function SwatchThumbnail({ swatch, width = 240, height = 320, isHovered = false }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isInView, setIsInView] = useState(false);
+  const [activeSeed, setActiveSeed] = useState(swatch.seed);
 
-  // Lazy observation: only render when scrolled near viewport
+  // Lazy observation: render canvas when in view
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    // Fallback if IntersectionObserver is unsupported in test/old environments
     if (typeof IntersectionObserver === "undefined") {
       setIsInView(true);
       return;
@@ -42,6 +45,26 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
     return () => observer.disconnect();
   }, []);
 
+  // Hover variation preview (pointer desktop only, respects prefers-reduced-motion)
+  useEffect(() => {
+    if (!isHovered) {
+      setActiveSeed(swatch.seed);
+      return;
+    }
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) return;
+
+    // Hover variation preview: subtle seed variation after 200ms hover
+    const timer = setTimeout(() => {
+      setActiveSeed(`${swatch.seed}-var`);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isHovered, swatch.seed]);
+
   useEffect(() => {
     if (!isInView) return;
 
@@ -58,7 +81,7 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
         params: { [swatch.generatorId]: swatch.params },
         palette: swatch.palette,
         mode: swatch.mode,
-        seed: swatch.seed,
+        seed: activeSeed,
         grainEnabled: false,
         grainIntensity: 0,
         blurIntensity: 0,
@@ -84,13 +107,11 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
     try {
       renderToTarget(target, input);
     } catch {
-      // Fallback clean background if webgl offscreen unavailable for thumbnail
       ctx.fillStyle = swatch.palette[0] || "#FAF8F4";
       ctx.fillRect(0, 0, width, height);
     }
-  }, [isInView, swatch, width, height]);
+  }, [isInView, swatch, activeSeed, width, height]);
 
-  // Derive background gradient style for placeholder before render
   const placeholderBg =
     swatch.palette.length >= 2
       ? `linear-gradient(135deg, ${swatch.palette[0]} 0%, ${swatch.palette[1]} 100%)`
@@ -108,7 +129,7 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
         ref={canvasRef}
         width={width}
         height={height}
-        className={`h-full w-full object-cover ${!isInView ? "hidden" : "block"}`}
+        className={`h-full w-full object-cover transition-opacity duration-200 ${!isInView ? "hidden" : "block"}`}
       />
     </div>
   );

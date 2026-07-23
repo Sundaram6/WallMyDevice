@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArchiveTopbar } from "./ArchiveTopbar";
 import { ArchiveSidebar } from "./ArchiveSidebar";
 import { SwatchGrid } from "./SwatchGrid";
 import { QuickGeneratePanel } from "./QuickGeneratePanel";
 import { GenerateBottomSheet } from "./GenerateBottomSheet";
+import { FavoritesDrawer } from "./FavoritesDrawer";
 import { ARCHIVE_CATEGORIES } from "@/lib/presets/archive-presets";
+import { initLibrary, subscribeLibrary, toggleFavourite } from "@/lib/storage/library";
 
 type Props = {
   currentTab: "archive" | "studio";
@@ -17,14 +19,21 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  // Subscribe to persistent shared library
+  useEffect(() => {
+    const initial = initLibrary();
+    setFavorites(new Set(initial.favourites));
+
+    const unsub = subscribeLibrary((data) => {
+      setFavorites(new Set(data.favourites));
     });
+    return unsub;
+  }, []);
+
+  const handleToggleFavorite = (id: string) => {
+    toggleFavourite(id);
   };
 
   return (
@@ -36,6 +45,16 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         favoriteCount={favorites.size}
+        onOpenFavoritesModal={() => setIsFavoritesDrawerOpen(true)}
+      />
+
+      {/* Favorites Drawer Overlay */}
+      <FavoritesDrawer
+        isOpen={isFavoritesDrawerOpen}
+        onClose={() => setIsFavoritesDrawerOpen(false)}
+        favorites={favorites}
+        onToggleFavorite={handleToggleFavorite}
+        onOpenStudio={() => onTabChange("studio")}
       />
 
       {/* Main Studio View vs Archive View */}
@@ -84,7 +103,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
               searchQuery={searchQuery}
               onOpenStudio={() => onTabChange("studio")}
               favorites={favorites}
-              onToggleFavorite={toggleFavorite}
+              onToggleFavorite={handleToggleFavorite}
             />
           </main>
 
