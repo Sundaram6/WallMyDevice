@@ -20,9 +20,11 @@ const MOOD_OPTIONS = [
 
 type Props = {
   onOpenStudio?: () => void;
+  variant?: "desktop" | "mobile";
+  hideHeading?: boolean;
 };
 
-export function QuickGeneratePanel({ onOpenStudio }: Props) {
+export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHeading = false }: Props) {
   const store = useEditorStore();
   const [showDevicePicker, setShowDevicePicker] = useState(false);
   const [activeMood, setActiveMood] = useState<string>("calm");
@@ -68,25 +70,29 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
     store.setResolution("custom", store.customWidth, store.customHeight);
   };
 
-  return (
-    <aside className="w-[340px] shrink-0 border-l border-[#E4DFD3] bg-[#FAF8F4] p-7">
-      <div className="flex items-center gap-2 font-serif text-lg font-medium text-[#2B2A26]">
-        <span className="text-[#C9552F]">✦</span> Generate Wallpaper
-      </div>
+  const isMobile = variant === "mobile";
 
-      <div className="mt-6 flex flex-col gap-5 text-xs">
+  return (
+    <aside className={isMobile ? "w-full p-4" : "w-[340px] shrink-0 border-l border-[#E4DFD3] bg-[#FAF8F4] p-7"}>
+      {!hideHeading && (
+        <div className="flex items-center gap-2 font-serif text-lg font-medium text-[#2B2A26]">
+          <span className="text-[#C9552F]">✦</span> Generate Wallpaper
+        </div>
+      )}
+
+      <div className={`${!hideHeading ? "mt-6" : ""} flex flex-col gap-4 text-xs`}>
         {/* Device Picker */}
         <div>
-          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+          <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
             Device
           </label>
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowDevicePicker(!showDevicePicker)}
-              className="flex w-full items-center gap-3 rounded-lg border border-[#D4CDBC] bg-white p-3 text-left shadow-sm hover:border-[#C9552F]"
+              className="flex w-full items-center gap-3 rounded-lg border border-[#D4CDBC] bg-white p-3 text-left shadow-xs hover:border-[#C9552F]"
             >
-              <div className="h-8 w-8 rounded-md bg-[#2B2A26]" />
+              <div className="h-8 w-8 rounded-md bg-[#2B2A26] shrink-0" />
               <div className="flex-1 min-w-0">
                 <b className="block text-sm font-medium text-[#2B2A26] truncate">
                   {store.deviceType === "phone" && store.phoneModel
@@ -101,7 +107,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
             </button>
 
             {showDevicePicker && (
-              <div className="absolute left-0 right-0 top-full z-30 mt-1 rounded-lg border border-[#D4CDBC] bg-white p-3 shadow-lg">
+              <div className="absolute left-0 right-0 top-full z-30 mt-1 rounded-lg border border-[#D4CDBC] bg-white p-3 shadow-lg max-h-60 overflow-y-auto">
                 <ResolutionPicker />
               </div>
             )}
@@ -110,7 +116,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
 
         {/* Generator Picker */}
         <div>
-          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+          <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
             Generator
           </label>
           <select
@@ -128,7 +134,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
 
         {/* Palette & Shuffle */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-1.5">
             <label className="font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
               Palette
             </label>
@@ -141,7 +147,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
             </button>
           </div>
           <div className="space-y-1.5 rounded-lg border border-[#D4CDBC] bg-white p-2">
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               {store.palette.map((col, idx) => (
                 <div key={idx} className="relative group flex items-center">
                   <input
@@ -152,15 +158,17 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
                       next[idx] = e.target.value;
                       store.setPalette(next);
                     }}
-                    className="h-7 w-7 rounded cursor-pointer border border-black/10 p-0"
+                    className="h-8 w-8 rounded cursor-pointer border border-black/10 p-0"
                     title={`Edit Color ${idx + 1}`}
                   />
                   {store.palette.length > 2 && (
                     <button
                       type="button"
                       onClick={() => store.setPalette(store.palette.filter((_, i) => i !== idx))}
-                      className="absolute -top-1 -right-1 hidden group-hover:flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#2B2A26] text-[8px] text-white"
+                      /* Touch-friendly remove button: visible unconditionally on mobile or sm:hidden group-hover:flex on desktop */
+                      className="absolute -top-1.5 -right-1.5 flex sm:hidden sm:group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-[#2B2A26] text-[10px] font-bold text-white shadow-xs focus:outline-none"
                       title="Remove color"
+                      aria-label={`Remove color ${idx + 1}`}
                     >
                       ×
                     </button>
@@ -171,7 +179,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
                 <button
                   type="button"
                   onClick={() => store.setPalette([...store.palette, store.palette[store.palette.length - 1] ?? "#888888"])}
-                  className="flex h-7 w-7 items-center justify-center rounded border border-dashed border-[#D4CDBC] text-xs font-medium text-[#5B584F] hover:border-[#C9552F] hover:text-[#C9552F]"
+                  className="flex h-8 w-8 items-center justify-center rounded border border-dashed border-[#D4CDBC] text-sm font-medium text-[#5B584F] hover:border-[#C9552F] hover:text-[#C9552F]"
                   title="Add color"
                 >
                   +
@@ -183,7 +191,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
 
         {/* Mood Options */}
         <div>
-          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+          <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
             Mood (optional)
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -206,7 +214,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
 
         {/* Resolution Scale */}
         <div>
-          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+          <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
             Resolution Scale
           </label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -232,7 +240,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
 
         {/* Selected Device Summary & Mini Result Preview */}
         <div>
-          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+          <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
             Generated Result Preview
           </label>
           <div className="flex items-center gap-3 rounded-lg border border-[#D4CDBC] bg-[#F3EFE6] p-3">
@@ -253,18 +261,16 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
         <button
           type="button"
           onClick={handleGenerate}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow transition hover:bg-[#1a1917]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow-xs transition hover:bg-[#1a1917]"
         >
           Generate Wallpaper ✦
         </button>
-
-
 
         {/* Secondary Export Action */}
         <button
           type="button"
           onClick={handleSaveRecipe}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-sm transition hover:bg-[#FAF8F4]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-xs transition hover:bg-[#FAF8F4]"
         >
           ⛁ Export Wallpaper
         </button>
