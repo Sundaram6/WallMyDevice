@@ -14,6 +14,7 @@ import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/l
 
 import { ArchiveShell } from "@/components/archive/ArchiveShell";
 import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
+import { CURRENT_VERSION } from "@/lib/changelog/data";
 import {
   AccessibilityPreviewBar,
   getAccessibilityFilterStyle,
@@ -187,6 +188,8 @@ export default function Page() {
   const [showContrastGrid, setShowContrastGrid] = useState(false);
   const [deviceNotice, setDeviceNotice] = useState<string | null>(null);
 
+  const [whatsNewBanner, setWhatsNewBanner] = useState<string | null>(null);
+
   useEffect(() => {
     const hasSavedState = Boolean(loadLocalState());
     if (!hasSavedState && typeof window !== "undefined") {
@@ -195,6 +198,14 @@ export default function Page() {
         setDeviceNotice("Started with a phone-sized canvas based on this screen.");
       } else if (width >= 640 && width < 1024) {
         setDeviceNotice("Started with a tablet-sized canvas based on this screen.");
+      }
+    }
+
+    if (typeof window !== "undefined") {
+      const LAST_SEEN_KEY = "wallmydevice:last_seen_version";
+      const lastSeen = localStorage.getItem(LAST_SEEN_KEY);
+      if (lastSeen !== CURRENT_VERSION) {
+        setWhatsNewBanner(`WallMyDevice ${CURRENT_VERSION} is now live with 4 variations & multi-device export packs!`);
       }
     }
   }, []);
@@ -208,12 +219,30 @@ export default function Page() {
         <KeyboardShortcuts />
         <div className="flex flex-col sm:flex-row h-auto sm:h-10 shrink-0 items-start sm:items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 py-2 sm:py-0 text-xs gap-2">
           <span className="font-mono text-[#5B584F]">{generatorId} — {customWidth}×{customHeight}</span>
-          {deviceNotice && (
-            <div className="flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 font-mono text-[10.5px] text-[#2B2A26] border border-[#D4CDBC]">
-              <span>📱 {deviceNotice}</span>
-              <button type="button" onClick={() => setDeviceNotice(null)} className="text-[#8A8579] hover:text-[#2B2A26]">✕</button>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            {whatsNewBanner && (
+              <div className="flex items-center gap-2 rounded bg-[#C9552F]/10 px-2 py-0.5 font-mono text-[10.5px] text-[#C9552F] border border-[#C9552F]/30">
+                <span>✦ {whatsNewBanner}</span>
+                <Link href="/changelog" className="underline hover:text-[#2B2A26]">Read Changelog</Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem("wallmydevice:last_seen_version", CURRENT_VERSION);
+                    setWhatsNewBanner(null);
+                  }}
+                  className="text-[#8A8579] hover:text-[#2B2A26]"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+            {deviceNotice && (
+              <div className="flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 font-mono text-[10.5px] text-[#2B2A26] border border-[#D4CDBC]">
+                <span>📱 {deviceNotice}</span>
+                <button type="button" onClick={() => setDeviceNotice(null)} className="text-[#8A8579] hover:text-[#2B2A26]">✕</button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="p-3 bg-[#FAF8F4] border-b border-[#E4DFD3]">
           <AccessibilityPreviewBar
