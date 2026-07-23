@@ -26,6 +26,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
   const [showDevicePicker, setShowDevicePicker] = useState(false);
   const [activeMood, setActiveMood] = useState<string>("calm");
   const [resolutionScale, setResolutionScale] = useState<"1x" | "2x" | "3x" | "custom">("1x");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const generators = listGenerators();
 
@@ -37,6 +38,11 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
   const currentScale = resolutionScale === "2x" ? 2 : resolutionScale === "3x" ? 3 : 1;
   const targetW = baseWidth * currentScale;
   const targetH = baseHeight * currentScale;
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2000);
+  };
 
   const handleMoodSelect = (moodId: string) => {
     setActiveMood(moodId);
@@ -51,11 +57,13 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
     const randomPal = CURATED_PALETTES[Math.floor(Math.random() * CURATED_PALETTES.length)];
     if (randomPal) {
       store.setPalette(randomPal.colors);
+      showToast("Palette updated");
     }
   };
 
   const handleGenerate = () => {
     store.randomizeSeed();
+    showToast("Generated new pattern ✦");
   };
 
   const handleSaveRecipe = () => {
@@ -214,10 +222,16 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
         <button
           type="button"
           onClick={handleGenerate}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow transition hover:bg-[#1a1917]"
+          className="relative flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow transition hover:bg-[#1a1917]"
         >
           Generate Wallpaper ✦
         </button>
+
+        {toastMessage && (
+          <div className="text-center font-mono text-[11px] font-medium text-[#C9552F] bg-[#F3EFE6] py-1 px-3 rounded-md border border-[#D4CDBC] animate-fade-in">
+            {toastMessage}
+          </div>
+        )}
 
         {/* Secondary Export Action */}
         <button

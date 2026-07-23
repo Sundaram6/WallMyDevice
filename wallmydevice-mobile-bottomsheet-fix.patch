@@ -1,0 +1,127 @@
+diff --git a/app/page.tsx b/app/page.tsx
+index 5e0c36a..d3bb744 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
+ import { ControlPanel } from "@/components/Panel/ControlPanel";
+ import { PreviewCanvas } from "@/components/Preview/PreviewCanvas";
+ import { DeviceFrame } from "@/components/Preview/DeviceFrame";
++import { BottomSheet } from "@/components/Preview/BottomSheet";
+ import { useEditorStore } from "@/store/useEditorStore";
+ import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
+ import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
+@@ -87,18 +88,9 @@ export default function Page() {
+   const customWidth = useEditorStore(s => s.customWidth);
+   const customHeight = useEditorStore(s => s.customHeight);
+ 
+-  const [isMobile, setIsMobile] = useState(false);
+   const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
+   const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
+ 
+-  useEffect(() => {
+-    const mq = window.matchMedia("(max-width: 767px)");
+-    const onChange = () => setIsMobile(mq.matches);
+-    onChange();
+-    mq.addEventListener("change", onChange);
+-    return () => mq.removeEventListener("change", onChange);
+-  }, []);
+-
+   useEffect(() => {
+     const mq = window.matchMedia("(prefers-color-scheme: dark)");
+     const apply = () => {
+@@ -144,7 +136,7 @@ export default function Page() {
+ 
+   const studioView = (
+     <DropZone>
+-      <div className="flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
++      <div className="relative flex h-full w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
+         <KeyboardShortcuts />
+         <div className="flex h-10 items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 text-xs">
+           <span className="font-mono text-[#5B584F]">{generatorId} - {customWidth}x{customHeight}</span>
+@@ -157,6 +149,11 @@ export default function Page() {
+           </main>
+           <ControlPanel />
+         </div>
++        <div className="md:hidden">
++          <BottomSheet title="Editor" collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
++            <ControlPanel variant="sheet" />
++          </BottomSheet>
++        </div>
+       </div>
+     </DropZone>
+   );
+diff --git a/components/Panel/ControlPanel.test.tsx b/components/Panel/ControlPanel.test.tsx
+index ab64759..0eb0e26 100644
+--- a/components/Panel/ControlPanel.test.tsx
++++ b/components/Panel/ControlPanel.test.tsx
+@@ -43,4 +43,18 @@ describe("ControlPanel", () => {
+     fireEvent.click(getByText("Waveform"));
+     expect(useEditorStore.getState().generatorId).toBe("waveform");
+   });
++
++  it("default (sidebar) variant is hidden below md, matching the mobile BottomSheet handoff", () => {
++    const { container } = render(<ControlPanel />);
++    const aside = container.querySelector("aside");
++    expect(aside).not.toBeNull();
++    expect(aside?.className).toMatch(/\bhidden\b/);
++    expect(aside?.className).toMatch(/\bmd:flex\b/);
++  });
++
++  it("sheet variant renders the same controls with no sidebar chrome, for use inside BottomSheet", () => {
++    const { container, getByText } = render(<ControlPanel variant="sheet" />);
++    expect(container.querySelector("aside")).toBeNull();
++    expect(getByText("Waveform")).toBeInTheDocument();
++  });
+ });
+diff --git a/components/Panel/ControlPanel.tsx b/components/Panel/ControlPanel.tsx
+index ac7396b..d810163 100644
+--- a/components/Panel/ControlPanel.tsx
++++ b/components/Panel/ControlPanel.tsx
+@@ -9,14 +9,18 @@ import { OverlayControls } from "./OverlayControls";
+ import { ExportBar } from "./ExportBar";
+ import { RecipeLoader } from "./RecipeLoader";
+ 
+-export function ControlPanel() {
+-  return (
+-    <aside className="flex h-full w-96 min-w-[280px] flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
+-      <div className="sticky top-0 z-10 bg-zinc-950 pt-4 pb-2">
+-        <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
+-        <p className="text-xs text-zinc-500">Controls & export</p>
+-      </div>
++type ControlPanelProps = {
++  /**
++   * "sidebar" (default) renders the fixed-width desktop panel, hidden below the
++   * `md` breakpoint. "sheet" renders just the control sections with no wrapper
++   * chrome, meant to be placed inside a <BottomSheet> on mobile.
++   */
++  variant?: "sidebar" | "sheet";
++};
+ 
++export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
++  const sections = (
++    <>
+       <Section title="Generator"><GeneratorPicker /></Section>
+ 
+       <div className="grid gap-6">
+@@ -28,6 +32,21 @@ export function ControlPanel() {
+       <Section title="Generator Controls"><ParamsForm /></Section>
+       <Section title="Frame and Overlays"><FinishControls /><OverlayControls /></Section>
+       <Section title="Export and Recipe"><ExportBar /><RecipeLoader /></Section>
++    </>
++  );
++
++  if (variant === "sheet") {
++    return <div className="flex flex-col gap-6 text-zinc-100">{sections}</div>;
++  }
++
++  return (
++    <aside className="hidden md:flex h-full w-96 min-w-[280px] flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
++      <div className="sticky top-0 z-10 bg-zinc-950 pt-4 pb-2">
++        <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
++        <p className="text-xs text-zinc-500">Controls & export</p>
++      </div>
++
++      {sections}
+     </aside>
+   );
+ }

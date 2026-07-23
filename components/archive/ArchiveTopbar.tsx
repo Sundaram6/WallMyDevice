@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type Props = {
   currentTab: "archive" | "studio";
@@ -9,45 +11,77 @@ type Props = {
 };
 
 export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchChange, favoriteCount }: Props) {
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setAvatarMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <header className="flex h-[72px] items-center justify-between border-b border-[#E4DFD3] px-6 lg:px-10 bg-[#FAF8F4]">
       {/* Brand Logo */}
       <h1 className="font-serif text-xl font-medium tracking-tight text-[#2B2A26]">
-        <button
-          type="button"
+        <Link
+          href="/"
           onClick={() => onTabChange("archive")}
           className="focus:outline-none"
         >
           WallMyDevice
-        </button>
+        </Link>
       </h1>
 
       {/* Centered Navigation */}
       <nav aria-label="Main Navigation" className="flex gap-4 md:gap-8 text-xs md:text-sm text-[#5B584F]">
-        <button
-          type="button"
+        <Link
+          href="/"
           onClick={() => onTabChange("archive")}
           className={`pb-1 transition ${
-            currentTab === "archive"
+            pathname === "/" && currentTab === "archive"
               ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
               : "hover:text-[#2B2A26]"
           }`}
         >
           Archive
-        </button>
+        </Link>
         <button
           type="button"
           onClick={() => onTabChange("studio")}
           className={`pb-1 transition ${
-            currentTab === "studio"
+            pathname === "/" && currentTab === "studio"
               ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
               : "hover:text-[#2B2A26]"
           }`}
         >
           Studio
         </button>
-        <span className="cursor-not-allowed opacity-60">Collections</span>
-        <span className="cursor-not-allowed opacity-60">Inspiration</span>
+        <Link
+          href="/collections"
+          className={`pb-1 transition ${
+            pathname === "/collections"
+              ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
+              : "hover:text-[#2B2A26]"
+          }`}
+        >
+          Collections
+        </Link>
+        <Link
+          href="/inspiration"
+          className={`pb-1 transition ${
+            pathname === "/inspiration"
+              ? "font-medium text-[#2B2A26] border-b-2 border-[#C9552F]"
+              : "hover:text-[#2B2A26]"
+          }`}
+        >
+          Inspiration
+        </Link>
         <span className="cursor-not-allowed opacity-60">About</span>
       </nav>
 
@@ -76,8 +110,37 @@ export function ArchiveTopbar({ currentTab, onTabChange, searchQuery, onSearchCh
             </span>
           )}
         </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white">
-          A
+        
+        {/* Guest Profile Menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            type="button"
+            onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
+            aria-label="User Menu"
+            aria-expanded={avatarMenuOpen}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xs text-white hover:ring-2 hover:ring-[#C9552F] transition focus:outline-none"
+          >
+            A
+          </button>
+
+          {avatarMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[#E4DFD3] bg-white p-2 shadow-lg z-50 text-xs">
+              <div className="px-3 py-2 border-b border-[#E4DFD3] font-medium text-[#2B2A26]">
+                Guest User
+              </div>
+              <a
+                href="#signin"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert("Sign-in functionality coming soon!");
+                  setAvatarMenuOpen(false);
+                }}
+                className="block px-3 py-2 text-[#5B584F] hover:bg-[#FAF8F4] hover:text-[#C9552F] rounded transition"
+              >
+                Sign In →
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </header>

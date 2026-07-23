@@ -4,13 +4,26 @@ import type { FrameStyle } from "@/lib/devices/presets";
 type Props = {
   frame: FrameStyle;
   aspect: number;
+  deviceType?: string;
+  phoneModel?: string;
   children: ReactNode;
 };
 
-export function DeviceFrame({ frame, aspect, children }: Props) {
-  if (frame === "none") {
+export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }: Props) {
+  // Determine effective frame based on deviceType if available
+  const effectiveFrame: FrameStyle = deviceType === "phone"
+    ? "iphone"
+    : deviceType === "tablet"
+      ? "ipad"
+      : deviceType === "laptop"
+        ? "macbook"
+        : deviceType === "desktop"
+          ? "desktop-monitor"
+          : frame;
+
+  if (effectiveFrame === "none") {
     return (
-      <div data-frame={frame} className="flex items-center justify-center">
+      <div data-frame={effectiveFrame} className="flex items-center justify-center">
         <div
           data-aspect={aspect}
           style={{ aspectRatio: `${aspect} / 1` }}
@@ -22,19 +35,19 @@ export function DeviceFrame({ frame, aspect, children }: Props) {
     );
   }
   return (
-    <div data-frame={frame} className="flex items-center justify-center">
-      <FrameShell frame={frame}>
+    <div data-frame={effectiveFrame} className="flex items-center justify-center">
+      <FrameShell frame={effectiveFrame}>
         <div
           data-aspect={aspect}
           style={{ aspectRatio: `${aspect} / 1` }}
           className="relative overflow-hidden bg-black"
         >
           {children}
-          {frame === "iphone" ? <IPhoneChrome /> : null}
-          {frame === "macbook" ? <MacBookChrome /> : null}
-          {frame === "desktop-monitor" ? <MonitorStand /> : null}
-          {frame === "android" ? <AndroidChrome /> : null}
-          <SafeZoneHint frame={frame} />
+          {effectiveFrame === "iphone" ? <IPhoneChrome /> : null}
+          {effectiveFrame === "macbook" ? <MacBookChrome /> : null}
+          {effectiveFrame === "desktop-monitor" ? <MonitorStand /> : null}
+          {effectiveFrame === "android" ? <AndroidChrome /> : null}
+          <SafeZoneHint frame={effectiveFrame} />
         </div>
       </FrameShell>
     </div>
