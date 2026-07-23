@@ -57,7 +57,12 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
     }
   };
 
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
+
   const handleGenerate = () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
     store.randomizeSeed();
     try {
       import("@/lib/storage/library").then((m) => {
@@ -72,10 +77,22 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
         });
       });
     } catch {}
+
+    setTimeout(() => {
+      setIsGenerating(false);
+    }, 300);
   };
 
-  const handleSaveRecipe = () => {
-    triggerSingleExport({ width: targetW, height: targetH });
+  const handleSaveRecipe = async () => {
+    if (exportStatus) return;
+    try {
+      await triggerSingleExport({ width: targetW, height: targetH }, (msg) => {
+        setExportStatus(msg);
+      });
+    } catch (e) {
+    } finally {
+      setTimeout(() => setExportStatus(null), 2500);
+    }
   };
 
   const handleCustomScaleClick = () => {
@@ -273,19 +290,21 @@ export function QuickGeneratePanel({ onOpenStudio, variant = "desktop", hideHead
         {/* Primary CTA */}
         <button
           type="button"
+          disabled={isGenerating}
           onClick={handleGenerate}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow-xs transition hover:bg-[#1a1917]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow-xs transition hover:bg-[#1a1917] disabled:opacity-50"
         >
-          Generate Wallpaper ✦
+          {isGenerating ? "Generating preview…" : "Generate Wallpaper ✦"}
         </button>
 
         {/* Secondary Export Action */}
         <button
           type="button"
+          disabled={Boolean(exportStatus)}
           onClick={handleSaveRecipe}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-xs transition hover:bg-[#FAF8F4]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-3 text-xs font-medium text-[#5B584F] shadow-xs transition hover:bg-[#FAF8F4] disabled:opacity-50"
         >
-          ⛁ Export Wallpaper
+          {exportStatus ?? "⛁ Export Wallpaper"}
         </button>
 
         {onOpenStudio && (
