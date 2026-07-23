@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { FrameStyle } from "@/lib/devices/presets";
+import { findModel } from "@/lib/devices/phones";
 
 type Props = {
   frame: FrameStyle;
@@ -10,16 +11,20 @@ type Props = {
 };
 
 export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }: Props) {
-  // Determine effective frame based on deviceType if available
-  const effectiveFrame: FrameStyle = deviceType === "phone"
-    ? "iphone"
-    : deviceType === "tablet"
-      ? "ipad"
-      : deviceType === "laptop"
-        ? "macbook"
-        : deviceType === "desktop"
-          ? "desktop-monitor"
-          : frame;
+  // Determine effective frame based on deviceType or preset frame
+  let effectiveFrame: FrameStyle = frame;
+  if (deviceType === "phone") {
+    const model = phoneModel ? findModel(phoneModel) : null;
+    effectiveFrame = model ? model.frame : "iphone";
+  } else if (deviceType === "tablet") {
+    effectiveFrame = "ipad";
+  } else if (deviceType === "laptop") {
+    effectiveFrame = "macbook";
+  } else if (deviceType === "desktop") {
+    effectiveFrame = frame === "ultrawide" ? "ultrawide" : "desktop-monitor";
+  } else if (deviceType === "custom") {
+    effectiveFrame = "none";
+  }
 
   if (effectiveFrame === "none") {
     return (
@@ -27,13 +32,14 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
         <div
           data-aspect={aspect}
           style={{ aspectRatio: `${aspect} / 1` }}
-          className="relative overflow-hidden rounded-md bg-zinc-900"
+          className="relative overflow-hidden rounded-md bg-zinc-900 shadow-2xl"
         >
           {children}
         </div>
       </div>
     );
   }
+
   return (
     <div data-frame={effectiveFrame} className="flex items-center justify-center">
       <FrameShell frame={effectiveFrame}>
@@ -44,9 +50,9 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
         >
           {children}
           {effectiveFrame === "iphone" ? <IPhoneChrome /> : null}
+          {effectiveFrame === "android" ? <AndroidChrome /> : null}
           {effectiveFrame === "macbook" ? <MacBookChrome /> : null}
           {effectiveFrame === "desktop-monitor" ? <MonitorStand /> : null}
-          {effectiveFrame === "android" ? <AndroidChrome /> : null}
           <SafeZoneHint frame={effectiveFrame} />
         </div>
       </FrameShell>

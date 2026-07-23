@@ -40,8 +40,8 @@ export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
   }
 
   return (
-    <aside className="hidden md:flex h-full w-96 min-w-[280px] flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
-      <div className="sticky top-0 z-10 bg-zinc-950 pt-4 pb-2">
+    <aside className="hidden md:flex h-full w-96 shrink-0 flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
+      <div className="sticky top-0 z-10 bg-zinc-950 pt-2 pb-2">
         <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
         <p className="text-xs text-zinc-500">Controls & export</p>
       </div>

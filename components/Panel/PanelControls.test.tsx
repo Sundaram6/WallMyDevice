@@ -61,7 +61,7 @@ describe("ResolutionPicker", () => {
   it("selecting a preset updates the store", () => {
     const { container } = render(<ResolutionPicker />);
     const select = container.querySelector("select") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "iphone-15-pro" } });
-    expect(useEditorStore.getState().resolutionId).toBe("iphone-15-pro");
+    fireEvent.change(select, { target: { value: "desktop-1440p" } });
+    expect(useEditorStore.getState().resolutionId).toBe("desktop-1440p");
   });
 });

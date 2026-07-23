@@ -6,6 +6,7 @@ import { CURATED_PALETTES } from "@/lib/palettes/data";
 import { listGenerators } from "@/lib/generators";
 import { triggerSingleExport } from "@/lib/export/actions";
 import { ResolutionPicker } from "@/components/Panel/ResolutionPicker";
+import { MiniPreviewCanvas } from "./MiniPreviewCanvas";
 
 const MOOD_OPTIONS = [
   { id: "calm", label: "Calm", palette: ["#6E7A5C", "#E4DCC8", "#2F4A5C", "#C79A66", "#C77A5E"], mode: "light" },
@@ -26,7 +27,6 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
   const [showDevicePicker, setShowDevicePicker] = useState(false);
   const [activeMood, setActiveMood] = useState<string>("calm");
   const [resolutionScale, setResolutionScale] = useState<"1x" | "2x" | "3x" | "custom">("1x");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const generators = listGenerators();
 
@@ -38,11 +38,6 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
   const currentScale = resolutionScale === "2x" ? 2 : resolutionScale === "3x" ? 3 : 1;
   const targetW = baseWidth * currentScale;
   const targetH = baseHeight * currentScale;
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2000);
-  };
 
   const handleMoodSelect = (moodId: string) => {
     setActiveMood(moodId);
@@ -57,13 +52,11 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
     const randomPal = CURATED_PALETTES[Math.floor(Math.random() * CURATED_PALETTES.length)];
     if (randomPal) {
       store.setPalette(randomPal.colors);
-      showToast("Palette updated");
     }
   };
 
   const handleGenerate = () => {
     store.randomizeSeed();
-    showToast("Generated new pattern ✦");
   };
 
   const handleSaveRecipe = () => {
@@ -207,14 +200,22 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
           </div>
         </div>
 
-        {/* Selected Device Summary */}
-        <div className="flex items-center gap-3 rounded-lg border border-[#D4CDBC] bg-[#F3EFE6] p-3">
-          <div className="h-[36px] w-[36px] rounded-lg border border-[#D4CDBC] bg-white" />
-          <div>
-            <b className="block text-xs font-medium text-[#2B2A26]">{activePreset.label}</b>
-            <span className="font-mono text-[10.5px] text-[#8A8579]">
-              {targetW} × {targetH} px · 19.5:9
-            </span>
+        {/* Selected Device Summary & Mini Result Preview */}
+        <div>
+          <label className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-[#8A8579]">
+            Generated Result Preview
+          </label>
+          <div className="flex items-center gap-3 rounded-lg border border-[#D4CDBC] bg-[#F3EFE6] p-3">
+            <MiniPreviewCanvas width={48} height={64} />
+            <div className="flex-1 min-w-0">
+              <b className="block text-xs font-medium text-[#2B2A26] truncate">{activePreset.label}</b>
+              <span className="font-mono text-[10.5px] text-[#8A8579]">
+                {targetW} × {targetH} px
+              </span>
+              <span className="block font-mono text-[9.5px] text-[#C9552F] truncate mt-0.5">
+                Seed: {store.seed}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -222,7 +223,7 @@ export function QuickGeneratePanel({ onOpenStudio }: Props) {
         <button
           type="button"
           onClick={handleGenerate}
-          className="relative flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow transition hover:bg-[#1a1917]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3.5 text-sm font-medium text-white shadow transition hover:bg-[#1a1917]"
         >
           Generate Wallpaper ✦
         </button>
