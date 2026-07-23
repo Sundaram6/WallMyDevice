@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { SwatchRecipe } from "@/lib/presets/archive-presets";
 import { ensureRegistered } from "@/lib/generators";
 import { renderToTarget, buildRenderInput } from "@/lib/render/renderToTarget";
@@ -11,9 +11,40 @@ type Props = {
 };
 
 export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  // Lazy observation: only render when scrolled near viewport
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Fallback if IntersectionObserver is unsupported in test/old environments
+    if (typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
+    if (!isInView) return;
+
     ensureRegistered();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -57,14 +88,28 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320 }: Props) {
       ctx.fillStyle = swatch.palette[0] || "#FAF8F4";
       ctx.fillRect(0, 0, width, height);
     }
-  }, [swatch, width, height]);
+  }, [isInView, swatch, width, height]);
+
+  // Derive background gradient style for placeholder before render
+  const placeholderBg =
+    swatch.palette.length >= 2
+      ? `linear-gradient(135deg, ${swatch.palette[0]} 0%, ${swatch.palette[1]} 100%)`
+      : swatch.palette[0] || "#FAF8F4";
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      className="h-full w-full object-cover"
-    />
+    <div ref={containerRef} className="h-full w-full relative">
+      {!isInView && (
+        <div
+          className="h-full w-full animate-pulse transition-opacity duration-300"
+          style={{ background: placeholderBg }}
+        />
+      )}
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        className={`h-full w-full object-cover ${!isInView ? "hidden" : "block"}`}
+      />
+    </div>
   );
 }
