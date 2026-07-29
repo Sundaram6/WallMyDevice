@@ -119,7 +119,7 @@ export function MiniPreviewCanvas({ width = 120, height = 180 }: Props) {
   }, [generatorId, params, palette, mode, seed, customWidth, customHeight, width, height]);
 
   return (
-    <div className="relative flex items-center justify-center overflow-hidden rounded-md border border-[#D4CDBC] bg-[#2B2A26] shadow-inner" style={{ width, height }}>
+    <div className="relative flex items-center justify-center overflow-hidden rounded-md border border-brand-border bg-brand-ink shadow-inner" style={{ width, height }}>
       <canvas ref={canvasRef} className={`block max-h-full max-w-full ${webglError ? "hidden" : ""}`} />
       {webglError && (
         <span className="text-[10px] text-zinc-400">Canvas2D</span>

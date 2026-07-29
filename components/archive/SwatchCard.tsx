@@ -35,12 +35,12 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
       tabIndex={0}
       role="button"
       aria-pressed={isSelected}
-      className={`group relative cursor-pointer transition-transform duration-200 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-[#C9552F] ${
+      className={`group relative cursor-pointer transition-transform duration-200 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-brand-accent ${
         isSelected ? "ring-2 ring-[#C9552F] rounded-sm" : ""
       }`}
     >
       {/* 3:4 Portrait specimen frame with pinked/scalloped fabric edges */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2px] border border-[#D4CDBC] bg-[#F6F3EC]">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2px] border border-brand-border bg-[#F6F3EC]">
         {/* Pinked scalloped top & bottom edge overlays */}
         <div className="pinked-edge-top pointer-events-none absolute inset-x-0 top-0 z-10 h-[9px]" />
         <div className="pinked-edge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[9px]" />
@@ -53,13 +53,13 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
             onToggleFavorite?.(swatch.id);
           }}
           aria-label={`Favorite ${swatch.name}`}
-          className="absolute left-3.5 top-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-[#FAF8F4]/90 text-xs text-[#5B584F] shadow-sm transition hover:text-[#C9552F]"
+          className="absolute left-3.5 top-3.5 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-brand-bg/90 text-xs text-brand-muted shadow-sm transition hover:text-brand-accent"
         >
           {isFavorite ? "♥" : "♡"}
         </button>
 
         {/* Truthful Resolution / Strategy Tag */}
-        <div className="absolute right-0 top-3.5 z-20 rounded-l border border-r-0 border-[#D4CDBC] bg-[#FAF8F4]/90 px-2 py-1 font-mono text-[10px] text-[#5B584F]">
+        <div className="absolute right-0 top-3.5 z-20 rounded-l border border-r-0 border-brand-border bg-brand-bg/90 px-2 py-1 font-mono text-[10px] text-brand-muted">
           {resLabel} · {orientLabel}
         </div>
 
@@ -76,7 +76,7 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
               e.stopPropagation();
               onRemix?.(swatch);
             }}
-            className="rounded-xl bg-[#2B2A26] px-4 py-2 text-xs font-medium text-white shadow-md hover:bg-[#C9552F] transition"
+            className="rounded-xl bg-brand-ink px-4 py-2 text-xs font-medium text-brand-bg shadow-md hover:bg-brand-accent transition"
           >
             ✦ Remix This
           </button>
@@ -98,10 +98,10 @@ export function SwatchCard({ swatch, isSelected, isFavorite, onSelect, onToggleF
       {/* Meta Information */}
       <div className="mt-2.5 flex items-start justify-between">
         <div>
-          <h3 className="font-serif text-base font-medium leading-tight text-[#2B2A26] group-hover:text-[#C9552F]">
+          <h3 className="font-serif text-base font-medium leading-tight text-brand-ink group-hover:text-brand-accent">
             {swatch.name}
           </h3>
-          <p className="mt-0.5 text-xs text-[#8A8579]">
+          <p className="mt-0.5 text-xs text-brand-muted">
             {swatch.category} · {swatch.volume}
           </p>
         </div>

@@ -8,7 +8,30 @@ export const RecipeSchema = z.object({
   type: z.literal("wallmydevice/recipe"),
   generator: z.string().min(1),
   params: z.record(z.string(), z.unknown()),
-  palette: z.array(z.string().regex(HEX)).min(2).max(6),
+  palette: z.array(z.string().regex(HEX)).min(2).max(8),
+  colorMode: z
+    .discriminatedUnion("mode", [
+      z.object({
+        mode: z.literal("harmony"),
+        seedHue: z.number().min(0).max(360),
+        rule: z.enum([
+          "complementary",
+          "analogous",
+          "triadic",
+          "split-complementary",
+          "monochromatic",
+          "tetradic",
+        ]),
+      }),
+      z.object({
+        mode: z.literal("curated"),
+        collectionId: z.string(),
+      }),
+      z.object({
+        mode: z.literal("custom"),
+      }),
+    ])
+    .optional(),
   mode: z.enum(["light", "dark", "auto"]),
   seed: z.string().regex(SEED),
   grain: z.object({ enabled: z.boolean(), intensity: z.number().min(0).max(1) }),

@@ -7,14 +7,15 @@ import { buildFilename } from "@/lib/export/filename";
 import { encodeRecipe, encodeHash } from "@/lib/recipe/encode";
 import type { Recipe } from "@/lib/recipe/validate";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
-import { Button } from "@/components/ui/Button";
-import { Select } from "@/components/ui/Select";
 import { buildInput, downloadBlob } from "@/lib/export/actions";
 import { validateExportSize } from "@/lib/export/limits";
 
-export function ExportBar() {
-  useEditorStore(s => s.exportFormat);
-  const setExportFormat = useEditorStore(s => s.setExportFormat);
+const FORMATS = ["PNG", "JPG", "WEBP", "SVG"] as const;
+type Format = "png" | "jpg" | "webp" | "svg";
+
+export function ExportBar({ compact = false }: { compact?: boolean }) {
+  useEditorStore((s) => s.exportFormat);
+  const setExportFormat = useEditorStore((s) => s.setExportFormat);
   const exportFormat = useEditorStore.getState().exportFormat;
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +54,7 @@ export function ExportBar() {
       const w = useEditorStore.getState().customWidth;
       const h = useEditorStore.getState().customHeight;
       const sizeCheck = validateExportSize(w, h);
-      if (!sizeCheck.ok) {
-        setError(sizeCheck.error);
-        return;
-      }
+      if (!sizeCheck.ok) { setError(sizeCheck.error); return; }
       if (exportFormat === "svg") {
         const g = getGenerator(built.generatorId);
         if (!g || !g.toSvg) throw new Error("This generator cannot export as SVG");
@@ -77,9 +75,9 @@ export function ExportBar() {
     const built = buildInput();
     if (!built) return;
     const sizes = batchSelection
-      .map(id => DEVICE_PRESETS.find(p => p.id === id))
+      .map((id) => DEVICE_PRESETS.find((p) => p.id === id))
       .filter((p): p is NonNullable<typeof p> => p != null && p.id !== "custom")
-      .map(p => ({ width: p.w, height: p.h }));
+      .map((p) => ({ width: p.w, height: p.h }));
     if (sizes.length === 0) return;
     setProgress({ done: 0, total: sizes.length });
     try {
@@ -110,60 +108,187 @@ export function ExportBar() {
   }
 
   function toggleBatch(id: string) {
-    setBatchSelection(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setBatchSelection((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
+
+  // SVG available?
+  const canSvg = (() => {
+    const gId = useEditorStore.getState().generatorId;
+    const gen = getGenerator(gId);
+    return gen?.supportsSvgExport ?? false;
+  })();
+
+  const btnBase: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 500,
+    border: "1.5px solid #EDE8E0",
+    borderRadius: 12,
+    background: "#FAF8F4",
+    color: "#5B584F",
+    padding: "7px 12px",
+    cursor: "pointer",
+    transition: "all 0.15s ease",
+    whiteSpace: "nowrap" as const,
+  };
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-2">
-        <Select
-          value={exportFormat}
-          onChange={(v) => setExportFormat(v as typeof exportFormat)}
-          options={(() => {
-            const g = useEditorStore.getState().generatorId;
-            const gen = getGenerator(g);
-            return [
-              { value: "png", label: "PNG" },
-              { value: "jpg", label: "JPG" },
-              { value: "webp", label: "WEBP" },
-              { value: "svg", label: "SVG" },
-            ].filter(o => o.value !== "svg" || (gen && gen.supportsSvgExport));
-          })()}
-          ariaLabel="Export format"
-        />
-        <Button onClick={onDownload}>Download</Button>
+      {/* Format pills */}
+      <div
+        className="flex rounded-xl p-1"
+        style={{ background: "#F5F1EB", border: "1.5px solid #EDE8E0" }}
+      >
+        {FORMATS.filter((f) => f !== "SVG" || canSvg).map((f) => {
+          const isActive = exportFormat === f.toLowerCase() as Format;
+          return (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setExportFormat(f.toLowerCase() as Format)}
+              className="flex-1 rounded-lg py-1.5 transition-all"
+              style={{
+                fontSize: 10,
+                fontWeight: isActive ? 700 : 400,
+                fontFamily: "monospace",
+                background: isActive ? "#FFFFFF" : "transparent",
+                color: isActive ? "#C9552F" : "#8A8579",
+                boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+              }}
+            >
+              {f}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex gap-2">
-        <Button onClick={() => setBatchOpen(o => !o)}>Batch export</Button>
-        <Button onClick={onRecipeJson}>Recipe JSON</Button>
-        <Button onClick={onCopyShareLink}>Share link</Button>
-      </div>
+      {/* Primary download button */}
+      <button
+        type="button"
+        onClick={onDownload}
+        className="w-full flex items-center justify-center gap-2 rounded-xl py-3 transition-all font-semibold"
+        style={{
+          fontSize: 13,
+          background: "#C9552F",
+          color: "#FFFFFF",
+          border: "none",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "#A8441F";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.background = "#C9552F";
+        }}
+      >
+        <span>↓</span>
+        <span>Download Wallpaper</span>
+      </button>
 
-      {batchOpen ? (
-        <div className="space-y-2 rounded-md border border-zinc-800 bg-zinc-900 p-2">
-          {DEVICE_PRESETS.filter(p => p.id !== "custom").map(p => (
-            <label key={p.id} className="flex items-center gap-2 text-xs text-zinc-300">
+      {/* Secondary row */}
+      {!compact && (
+        <div className="grid grid-cols-3 gap-1.5">
+          <button
+            type="button"
+            onClick={() => setBatchOpen((o) => !o)}
+            style={btnBase}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+          >
+            Batch
+          </button>
+          <button
+            type="button"
+            onClick={onRecipeJson}
+            style={btnBase}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+          >
+            Recipe
+          </button>
+          <button
+            type="button"
+            onClick={onCopyShareLink}
+            style={btnBase}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+          >
+            Share ↗
+          </button>
+        </div>
+      )}
+
+      {/* Compact: secondary actions as tiny icon-links */}
+      {compact && (
+        <div className="flex justify-center gap-4">
+          {[
+            { label: "Batch", action: () => setBatchOpen((o) => !o) },
+            { label: "Recipe JSON", action: onRecipeJson },
+            { label: "Share Link ↗", action: onCopyShareLink },
+          ].map(({ label, action }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={action}
+              style={{ fontSize: 10, fontFamily: "monospace", color: "#A0968C", background: "none", border: "none", cursor: "pointer" }}
+              className="hover:underline transition-opacity hover:opacity-70"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Batch panel */}
+      {batchOpen && (
+        <div
+          className="space-y-2 rounded-xl p-3"
+          style={{ border: "1.5px solid #EDE8E0", background: "#FFFFFF" }}
+        >
+          <p style={{ fontSize: 9, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: "#A0968C", marginBottom: 6 }}>
+            Target Devices
+          </p>
+          {DEVICE_PRESETS.filter((p) => p.id !== "custom").map((p) => (
+            <label
+              key={p.id}
+              className="flex items-center gap-2 cursor-pointer select-none"
+              style={{ fontSize: 11, color: "#2B2A26" }}
+            >
               <input
                 type="checkbox"
                 checked={batchSelection.includes(p.id)}
                 onChange={() => toggleBatch(p.id)}
+                style={{ accentColor: "#C9552F" }}
               />
-              {p.label} ({p.w}x{p.h})
+              <span>{p.label}</span>
+              <span style={{ fontSize: 9, fontFamily: "monospace", color: "#A0968C" }}>
+                {p.w}×{p.h}
+              </span>
             </label>
           ))}
-          <Button onClick={onBatch} disabled={batchSelection.length === 0 || progress !== null}>
-            Generate all
-          </Button>
-          {progress ? (
-            <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-800">
-              <div className="h-full bg-blue-500 transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
+          <button
+            type="button"
+            onClick={onBatch}
+            disabled={batchSelection.length === 0 || progress !== null}
+            className="w-full rounded-xl py-2 mt-1 font-semibold transition-all disabled:opacity-40"
+            style={{ fontSize: 12, background: "#C9552F", color: "#FFFFFF", border: "none" }}
+          >
+            {progress
+              ? `Generating ${progress.done}/${progress.total}…`
+              : "Generate All Selected"}
+          </button>
+          {progress && (
+            <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "#EDE8E0" }}>
+              <div
+                className="h-full transition-all duration-300"
+                style={{ width: `${(progress.done / progress.total) * 100}%`, background: "#C9552F" }}
+              />
             </div>
-          ) : null}
+          )}
         </div>
-      ) : null}
+      )}
 
-      {error ? <p className="text-xs text-red-400">{error}</p> : null}
+      {error && (
+        <p style={{ fontSize: 10, fontFamily: "monospace", color: "#DC2626" }}>{error}</p>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getGenerator } from "../lib/generators/registry";
 import { hashSeed } from "../lib/prng";
+import { ARCHIVE_PRESETS } from "../lib/presets/archive-presets";
 
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
@@ -40,6 +41,13 @@ export type EditorState = {
   overlayTextValue: string;
   overlayFont: string;
   overlaySize: number;
+
+  paletteLocked: boolean;
+  seedLocked: boolean;
+  togglePaletteLock: () => void;
+  toggleSeedLock: () => void;
+  randomizePalette: () => void;
+  surpriseMe: () => void;
 
   exportFormat: ExportFormat;
 
@@ -128,6 +136,33 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   updateParam: (id, key, value) => {
     const current = (get().params[id] ?? {}) as Record<string, unknown>;
     set({ params: { ...get().params, [id]: { ...current, [key]: value } } });
+  },
+
+  paletteLocked: false,
+  seedLocked: false,
+  togglePaletteLock: () => set((s) => ({ paletteLocked: !s.paletteLocked })),
+  toggleSeedLock: () => set((s) => ({ seedLocked: !s.seedLocked })),
+  randomizePalette: () => {
+    const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
+    if (randomPreset) {
+      set({ palette: [...randomPreset.palette] });
+    }
+  },
+  surpriseMe: () => {
+    const state = get();
+    const updates: Partial<EditorState> = {};
+    if (!state.seedLocked) {
+      updates.seed = hashSeed(String(Math.random() * 1e9));
+    }
+    if (!state.paletteLocked) {
+      const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
+      if (randomPreset) {
+        updates.palette = [...randomPreset.palette];
+      }
+    }
+    if (Object.keys(updates).length > 0) {
+      set(updates);
+    }
   },
 
   setPalette: (palette) => set({ palette }),

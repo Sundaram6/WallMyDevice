@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
 import { GeneratorPicker } from "./GeneratorPicker";
 import { PalettePicker } from "./PalettePicker";
 import { ModeToggle } from "./ModeToggle";
@@ -8,57 +11,329 @@ import { FinishControls } from "./FinishControls";
 import { OverlayControls } from "./OverlayControls";
 import { ExportBar } from "./ExportBar";
 import { RecipeLoader } from "./RecipeLoader";
+import { useEditorStore } from "@/store/useEditorStore";
 
-type ControlPanelProps = {
-  /**
-   * "sidebar" (default) renders the fixed-width desktop panel.
-   * "sheet" renders a compact, warm-styled single scroll list for mobile sheets.
-   */
-  variant?: "sidebar" | "sheet";
-};
+type SectionId = "device" | "generator" | "palette" | "style" | "finish" | "recipes";
 
-export function ControlPanel({ variant = "sidebar" }: ControlPanelProps) {
-  const sections = (
-    <>
-      <Section title="Generator"><GeneratorPicker /></Section>
-
-      <div className="grid gap-5 sm:gap-6">
-        <Section title="Seed & Randomize"><SeedBar /></Section>
-        <Section title="Device and Resolution"><ResolutionPicker /></Section>
-        <Section title="Palette and Appearance"><PalettePicker /><ModeToggle /></Section>
-      </div>
-
-      <Section title="Generator Controls"><ParamsForm /></Section>
-      <Section title="Frame and Overlays"><FinishControls /><OverlayControls /></Section>
-      <Section title="Export and Recipe"><ExportBar /><RecipeLoader /></Section>
-    </>
-  );
-
-  if (variant === "sheet") {
-    return (
-      <div className="flex flex-col gap-5 text-[#2B2A26] pb-6">
-        {sections}
-      </div>
-    );
-  }
-
+function PanelSection({
+  id,
+  label,
+  open,
+  onToggle,
+  children,
+  badge,
+}: {
+  id: SectionId;
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+  badge?: string;
+}) {
   return (
-    <aside className="hidden md:flex h-full w-full flex-col gap-6 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-zinc-100">
-      <div className="sticky top-0 z-10 bg-zinc-950 pt-2 pb-2">
-        <h1 className="text-sm font-semibold tracking-wider">Editor</h1>
-        <p className="text-xs text-zinc-500">Controls &amp; export</p>
-      </div>
-
-      {sections}
-    </aside>
+    <div style={{ borderBottom: "1px solid #EDE8E0" }}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-6 py-3 text-left group"
+        style={{ background: "transparent" }}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            style={{
+              fontSize: 9,
+              fontFamily: "monospace",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              color: "#A0968C",
+              fontWeight: 500,
+            }}
+          >
+            {label}
+          </span>
+          {badge && (
+            <span
+              style={{
+                fontSize: 8,
+                fontFamily: "monospace",
+                color: "#C9552F",
+                background: "rgba(201,85,47,0.08)",
+                borderRadius: 4,
+                padding: "1px 5px",
+                border: "1px solid rgba(201,85,47,0.2)",
+              }}
+            >
+              {badge}
+            </span>
+          )}
+        </div>
+        <span
+          style={{
+            color: "#C4BAA8",
+            fontSize: 10,
+            display: "inline-block",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s ease",
+          }}
+        >
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div className="px-6 pb-5">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "sheet" }) {
+  const [open, setOpen] = useState<Record<SectionId, boolean>>({
+    device: false,
+    generator: true,
+    palette: true,
+    style: false,
+    finish: false,
+    recipes: false,
+  });
+
+  const [safeZone, setSafeZone] = useState(false);
+
+  function toggle(id: SectionId) {
+    setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  const surpriseMe = useEditorStore((s) => s.surpriseMe);
+  const customWidth = useEditorStore((s) => s.customWidth);
+  const customHeight = useEditorStore((s) => s.customHeight);
+  const generatorId = useEditorStore((s) => s.generatorId);
+
+  const sidebarContent = (
+    <div className="flex flex-col h-full">
+      {/* ── Header ─────────────────────────────────────────────── */}
+      <div className="px-6 pt-7 pb-5 shrink-0" style={{ borderBottom: "1px solid #EDE8E0" }}>
+        <p
+          style={{
+            fontSize: 9,
+            fontFamily: "monospace",
+            textTransform: "uppercase",
+            letterSpacing: "0.12em",
+            color: "#C9552F",
+            marginBottom: 10,
+            fontWeight: 500,
+          }}
+        >
+          Wallpaper Studio
+        </p>
+        <h1
+          style={{
+            fontFamily: "var(--font-fraunces, Georgia, serif)",
+            fontSize: 22,
+            fontWeight: 500,
+            fontStyle: "italic",
+            color: "#2B2A26",
+            lineHeight: 1.25,
+            marginBottom: 8,
+          }}
+        >
+          Compose your<br />wallpaper.
+        </h1>
+        <p style={{ fontSize: 11, color: "#8A8579", lineHeight: 1.55 }}>
+          Choose a generator, pick a palette, select a device. Every change re-renders live.
+        </p>
+      </div>
+
+      {/* ── Scrollable sections ────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
+
+        {/* DEVICE */}
+        <PanelSection id="device" label="Device" open={open.device} onToggle={() => toggle("device")}>
+          <ResolutionPicker />
+        </PanelSection>
+
+        {/* GENERATOR */}
+        <PanelSection id="generator" label="Generator" open={open.generator} onToggle={() => toggle("generator")} badge={generatorId.replace(/-/g, " ")}>
+          <GeneratorPicker />
+        </PanelSection>
+
+        {/* PALETTE */}
+        <PanelSection id="palette" label="Palette" open={open.palette} onToggle={() => toggle("palette")}>
+          <PalettePicker />
+        </PanelSection>
+
+        {/* STYLE */}
+        <PanelSection id="style" label="Style & Parameters" open={open.style} onToggle={() => toggle("style")}>
+          <div className="space-y-4">
+            <ModeToggle />
+            <ParamsForm />
+          </div>
+        </PanelSection>
+
+        {/* FINISH */}
+        <PanelSection id="finish" label="Finish & Overlays" open={open.finish} onToggle={() => toggle("finish")}>
+          <div className="space-y-4">
+            <FinishControls />
+            <OverlayControls />
+          </div>
+        </PanelSection>
+
+        {/* RECIPES */}
+        <PanelSection id="recipes" label="Recipes" open={open.recipes} onToggle={() => toggle("recipes")}>
+          <RecipeLoader />
+        </PanelSection>
+
+        {/* SEED — always visible */}
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid #EDE8E0" }}>
+          <p
+            style={{
+              fontSize: 9,
+              fontFamily: "monospace",
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              color: "#A0968C",
+              marginBottom: 8,
+            }}
+          >
+            Seed
+          </p>
+          <SeedBar />
+          <label
+            className="flex items-center gap-2 mt-2.5 cursor-pointer select-none"
+            style={{ fontSize: 11, color: "#5B584F" }}
+          >
+            <input
+              type="checkbox"
+              checked={safeZone}
+              onChange={(e) => setSafeZone(e.target.checked)}
+              style={{ accentColor: "#C9552F" }}
+            />
+            Safe-zone overlay
+          </label>
+        </div>
+
+        {/* SURPRISE ME */}
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid #EDE8E0" }}>
+          <button
+            type="button"
+            onClick={surpriseMe}
+            className="w-full flex items-center justify-between rounded-xl px-4 py-3 transition-all"
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: "#2B2A26",
+              border: "1px solid #E4DFD3",
+              background: "#FAF8F4",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F";
+              (e.currentTarget as HTMLButtonElement).style.color = "#C9552F";
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,85,47,0.04)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "#E4DFD3";
+              (e.currentTarget as HTMLButtonElement).style.color = "#2B2A26";
+              (e.currentTarget as HTMLButtonElement).style.background = "#FAF8F4";
+            }}
+          >
+            <span>✦ Surprise Me</span>
+            <kbd
+              style={{
+                fontSize: 9,
+                fontFamily: "monospace",
+                color: "#A0968C",
+                border: "1px solid #E4DFD3",
+                borderRadius: 4,
+                padding: "1px 5px",
+                background: "#F5F1EB",
+              }}
+            >
+              ⌘K
+            </kbd>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Sticky Export ──────────────────────────────────────── */}
+      <div
+        className="shrink-0 px-6 py-4"
+        style={{
+          borderTop: "1px solid #EDE8E0",
+          background: "#FFFFFF",
+        }}
+      >
+        <ExportBar compact />
+      </div>
+    </div>
+  );
+
+  /* ── Mobile sheet variant ──────────────────────────────────── */
+  if (variant === "sheet") {
+    return <MobilePanel />;
+  }
+
+  return sidebarContent;
+}
+
+function MobilePanel() {
+  const [tab, setTab] = useState<"style" | "device" | "export">("style");
+  const surpriseMe = useEditorStore((s) => s.surpriseMe);
+
   return (
-    <section>
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A8579]">{title}</h2>
-      <div className="space-y-3">{children}</div>
-    </section>
+    <div className="flex flex-col gap-4 pb-8" style={{ color: "#2B2A26" }}>
+      {/* 3-tab selector */}
+      <div
+        className="flex rounded-xl p-1 text-xs"
+        style={{ background: "#F5F1EB", border: "1px solid #E4DFD3" }}
+      >
+        {(["style", "device", "export"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTab(t)}
+            className="flex-1 rounded-lg py-2 capitalize font-medium transition-all"
+            style={{
+              fontSize: 11,
+              background: tab === t ? "#FFFFFF" : "transparent",
+              color: tab === t ? "#2B2A26" : "#8A8579",
+              boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+            }}
+          >
+            {t === "style" ? "🎨 Style" : t === "device" ? "📱 Device" : "📤 Export"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "style" && (
+        <div className="space-y-5">
+          <GeneratorPicker />
+          <PalettePicker />
+          <ModeToggle />
+          <SeedBar />
+          <ParamsForm />
+          <button
+            type="button"
+            onClick={surpriseMe}
+            className="w-full rounded-xl py-3 text-sm font-medium transition-all"
+            style={{ border: "1px solid #E4DFD3", background: "#FAF8F4", color: "#2B2A26" }}
+          >
+            ✦ Surprise Me
+          </button>
+        </div>
+      )}
+      {tab === "device" && (
+        <div className="space-y-4">
+          <ResolutionPicker />
+          <FinishControls />
+          <OverlayControls />
+        </div>
+      )}
+      {tab === "export" && (
+        <div className="space-y-4">
+          <ExportBar />
+          <RecipeLoader />
+        </div>
+      )}
+    </div>
   );
 }

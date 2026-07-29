@@ -42,7 +42,8 @@ function svgShape(x: number, y: number, size: number, shape: Params["shape"]): s
 export const geometric: Generator<Params> = {
   id: "geometric",
   label: "Geometric",
-  description: "Grid pattern of geometric shapes",
+  category: "Geometric & Pattern",
+  description: "Grid pattern of repeated geometric primitives",
   kind: "canvas2d",
   schema: {
     zod: Schema,

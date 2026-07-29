@@ -34,12 +34,19 @@ export function WallpaperDetailModal({
   const [copySuccess, setCopySuccess] = useState(false);
   const [packModalOpen, setPackModalOpen] = useState(false);
 
+  const swatchId = swatch?.id;
+  const swatchSeed = swatch?.seed;
+  const prevOpenedIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    if (isOpen && swatch) {
-      triggerRef.current = document.activeElement as HTMLElement;
-      setActiveSeed(swatch.seed);
-      setSetIndex(0);
-      addRecentlyViewed(swatch.id);
+    if (isOpen && swatchId && swatchSeed) {
+      if (prevOpenedIdRef.current !== swatchId) {
+        prevOpenedIdRef.current = swatchId;
+        triggerRef.current = document.activeElement as HTMLElement;
+        setActiveSeed(swatchSeed);
+        setSetIndex(0);
+        addRecentlyViewed(swatchId);
+      }
 
       document.body.style.overflow = "hidden";
       const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,12 +57,11 @@ export function WallpaperDetailModal({
       return () => {
         document.body.style.overflow = "";
         document.removeEventListener("keydown", handleKeyDown);
-        if (triggerRef.current) {
-          triggerRef.current.focus();
-        }
       };
+    } else {
+      prevOpenedIdRef.current = null;
     }
-  }, [isOpen, swatch, onClose]);
+  }, [isOpen, swatchId, swatchSeed, onClose]);
 
   if (!isOpen || !swatch) return null;
 
@@ -127,32 +133,32 @@ export function WallpaperDetailModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative flex h-[100dvh] sm:h-auto sm:max-h-[92vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-none sm:rounded-2xl border border-[#E4DFD3] bg-[#FAF8F4] text-[#2B2A26] shadow-2xl z-10"
+        className="relative flex h-[100dvh] sm:h-auto sm:max-h-[92vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-none sm:rounded-2xl border border-brand-border bg-brand-bg text-brand-ink shadow-2xl z-10"
       >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Close detail view"
-          className="absolute top-4 right-4 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-sm font-bold text-[#5B584F] hover:text-[#2B2A26] shadow-sm border border-[#D4CDBC]"
+          className="absolute top-4 right-4 z-30 flex h-8 w-8 items-center justify-center rounded-full bg-brand-surface-2/80 text-sm font-bold text-brand-muted hover:text-brand-ink shadow-sm border border-brand-border"
         >
           ✕
         </button>
 
         {/* Left / Top Large Preview Render */}
-        <div className="relative flex-1 bg-[#F3EFE6] p-6 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[480px]">
-          <div className="relative aspect-[3/4] h-full max-h-[400px] w-auto overflow-hidden rounded-lg border border-[#D4CDBC] shadow-md mb-4">
+        <div className="relative flex-1 bg-brand-surface p-6 flex flex-col items-center justify-center min-h-[300px] sm:min-h-[480px]">
+          <div className="relative aspect-[3/4] h-full max-h-[400px] w-auto overflow-hidden rounded-lg border border-brand-border shadow-md mb-4">
             <SwatchThumbnail swatch={currentRecipe} width={450} height={600} />
           </div>
 
           {/* 4 Deterministic Variations Row */}
           <div className="w-full max-w-md">
-            <div className="flex items-center justify-between mb-1.5 font-mono text-[10px] uppercase text-[#8A8579]">
+            <div className="flex items-center justify-between mb-1.5 font-mono text-[10px] uppercase text-brand-muted">
               <span>4 Deterministic Variations (Set #{setIndex + 1})</span>
               <button
                 type="button"
                 onClick={() => setSetIndex((prev) => prev + 1)}
-                className="text-[#C9552F] hover:underline"
+                className="text-brand-accent hover:underline"
               >
                 + Another Set
               </button>
@@ -165,12 +171,12 @@ export function WallpaperDetailModal({
                   onClick={() => handleSelectVariation(vSeed)}
                   className={`relative aspect-[3/4] overflow-hidden rounded-md border text-left transition ${
                     activeSeed === vSeed
-                      ? "ring-2 ring-[#C9552F] border-[#C9552F]"
-                      : "border-[#D4CDBC] hover:border-[#2B2A26]"
+                      ? "ring-2 ring-[#C9552F] border-brand-accent"
+                      : "border-brand-border hover:border-brand-ink"
                   }`}
                 >
                   <SwatchThumbnail swatch={{ ...swatch, seed: vSeed }} width={120} height={160} />
-                  <span className="absolute bottom-1 left-1 bg-black/60 px-1 py-0.5 font-mono text-[8px] text-white rounded">
+                  <span className="absolute bottom-1 left-1 bg-black/60 px-1 py-0.5 font-mono text-[8px] text-brand-bg rounded">
                     #{idx + 1}
                   </span>
                 </button>
@@ -180,22 +186,22 @@ export function WallpaperDetailModal({
         </div>
 
         {/* Right Details & Action Controls */}
-        <div className="flex w-full sm:w-[380px] flex-col p-6 overflow-y-auto max-h-full space-y-5 bg-[#FAF8F4] border-t sm:border-t-0 sm:border-l border-[#E4DFD3]">
+        <div className="flex w-full sm:w-[380px] flex-col p-6 overflow-y-auto max-h-full space-y-5 bg-brand-bg border-t sm:border-t-0 sm:border-l border-brand-border">
           <div>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[#C9552F]">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-brand-accent">
               {swatch.category} · {swatch.volume}
             </span>
-            <h2 id="modal-title" className="font-serif text-2xl font-medium text-[#2B2A26] mt-0.5">
+            <h2 id="modal-title" className="font-serif text-2xl font-medium text-brand-ink mt-0.5">
               {swatch.name}
             </h2>
-            <div className="mt-2 flex flex-wrap gap-2 text-xs font-mono text-[#8A8579]">
-              <span className="rounded bg-[#F3EFE6] px-2 py-0.5 border border-[#D4CDBC]">
+            <div className="mt-2 flex flex-wrap gap-2 text-xs font-mono text-brand-muted">
+              <span className="rounded bg-brand-surface px-2 py-0.5 border border-brand-border">
                 {getGeneratorDisplayName(swatch.generatorId)}
               </span>
-              <span className="rounded bg-[#F3EFE6] px-2 py-0.5 border border-[#D4CDBC]">
+              <span className="rounded bg-brand-surface px-2 py-0.5 border border-brand-border">
                 {resLabel} · {orientLabel}
               </span>
-              <span className="rounded bg-[#F3EFE6] px-2 py-0.5 border border-[#D4CDBC]">
+              <span className="rounded bg-brand-surface px-2 py-0.5 border border-brand-border">
                 Seed: {activeSeed}
               </span>
             </div>
@@ -203,7 +209,7 @@ export function WallpaperDetailModal({
 
           {/* Palette Colors */}
           <div>
-            <label className="block font-mono text-[10.5px] uppercase tracking-wider text-[#8A8579] mb-1.5">
+            <label className="block font-mono text-[10.5px] uppercase tracking-wider text-brand-muted mb-1.5">
               Color Palette
             </label>
             <div className="flex gap-2">
@@ -219,11 +225,11 @@ export function WallpaperDetailModal({
           </div>
 
           {/* Primary Action Controls */}
-          <div className="space-y-2 pt-2 border-t border-[#E4DFD3]">
+          <div className="space-y-2 pt-2 border-t border-brand-border">
             <button
               type="button"
               onClick={onOpenStudio}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2B2A26] py-3 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-ink py-3 text-xs font-medium text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
             >
               🛠 Remix Selected in Studio
             </button>
@@ -231,7 +237,7 @@ export function WallpaperDetailModal({
             <button
               type="button"
               onClick={() => setPackModalOpen(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-[#F3EFE6] py-2.5 text-xs font-medium text-[#2B2A26] shadow-xs hover:bg-white"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-surface py-2.5 text-xs font-medium text-brand-ink shadow-xs hover:bg-brand-surface-2"
             >
               📦 Export for all my devices (Pack)
             </button>
@@ -240,7 +246,7 @@ export function WallpaperDetailModal({
               type="button"
               disabled={Boolean(exportStatus)}
               onClick={handleExportCurrent}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4CDBC] bg-white py-2.5 text-xs font-medium text-[#5B584F] shadow-xs hover:bg-[#F3EFE6] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-surface-2 py-2.5 text-xs font-medium text-brand-muted shadow-xs hover:bg-brand-surface disabled:opacity-50"
             >
               {exportStatus ?? "⛁ Export Single Wallpaper"}
             </button>
@@ -251,7 +257,7 @@ export function WallpaperDetailModal({
             <button
               type="button"
               onClick={() => onToggleFavorite(swatch.id)}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-[#D4CDBC] bg-white py-2.5 text-xs font-medium text-[#5B584F] hover:text-[#C9552F]"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-brand-border bg-brand-surface-2 py-2.5 text-xs font-medium text-brand-muted hover:text-brand-accent"
             >
               <span>{isFavorite ? "♥" : "♡"}</span>
               <span>{isFavorite ? "Favourited" : "Favourite"}</span>
@@ -260,7 +266,7 @@ export function WallpaperDetailModal({
             <button
               type="button"
               onClick={handleCopyLink}
-              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-[#D4CDBC] bg-white py-2.5 text-xs font-medium text-[#5B584F] hover:text-[#2B2A26]"
+              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-brand-border bg-brand-surface-2 py-2.5 text-xs font-medium text-brand-muted hover:text-brand-ink"
             >
               <span>🔗</span>
               <span>{copySuccess ? "Copied!" : "Copy Link"}</span>
@@ -272,20 +278,20 @@ export function WallpaperDetailModal({
       {/* Multi-Device Pack Dialog */}
       {packModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl border border-[#E4DFD3] bg-[#FAF8F4] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#E4DFD3] pb-3">
-              <h3 className="font-serif text-lg font-medium text-[#2B2A26]">📦 Export Multi-Device Pack</h3>
-              <button type="button" onClick={() => setPackModalOpen(false)} className="text-xs text-[#8A8579]">✕</button>
+          <div className="w-full max-w-lg rounded-2xl border border-brand-border bg-brand-bg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-brand-border pb-3">
+              <h3 className="font-serif text-lg font-medium text-brand-ink">📦 Export Multi-Device Pack</h3>
+              <button type="button" onClick={() => setPackModalOpen(false)} className="text-xs text-brand-muted">✕</button>
             </div>
-            <p className="text-xs text-[#5B584F]">
+            <p className="text-xs text-brand-muted">
               Generates a ZIP archive containing phone, tablet, laptop, and 4K desktop wallpapers for seed: <b className="font-mono">{activeSeed}</b> along with recipe manifest.json.
             </p>
             <div className="space-y-2">
               {PACK_PRESETS.map((p) => (
-                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 rounded-lg border border-[#D4CDBC] bg-white">
+                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 rounded-lg border border-brand-border bg-brand-surface-2">
                   <div>
-                    <b className="block text-[#2B2A26]">{p.label}</b>
-                    <span className="font-mono text-[10px] text-[#8A8579]">{p.width}×{p.height} px</span>
+                    <b className="block text-brand-ink">{p.label}</b>
+                    <span className="font-mono text-[10px] text-brand-muted">{p.width}×{p.height} px</span>
                     {p.cropWarning && <span className="block text-[9.5px] text-amber-600 mt-0.5">⚠️ {p.cropWarning}</span>}
                   </div>
                   <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Included</span>
@@ -296,14 +302,14 @@ export function WallpaperDetailModal({
               <button
                 type="button"
                 onClick={handleExportPack}
-                className="flex-1 rounded-xl bg-[#2B2A26] py-3 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917]"
+                className="flex-1 rounded-xl bg-brand-ink py-3 text-xs font-medium text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
               >
                 Download ZIP Package →
               </button>
               <button
                 type="button"
                 onClick={() => setPackModalOpen(false)}
-                className="rounded-xl border border-[#D4CDBC] bg-white px-4 py-3 text-xs text-[#5B584F]"
+                className="rounded-xl border border-brand-border bg-brand-surface-2 px-4 py-3 text-xs text-brand-muted"
               >
                 Cancel
               </button>

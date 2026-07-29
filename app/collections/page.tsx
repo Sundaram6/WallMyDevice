@@ -41,7 +41,7 @@ export default function CollectionsPage() {
     Object.entries(swatch.params).forEach(([key, val]) => {
       store.updateParam(swatch.generatorId, key, val);
     });
-    router.push("/");
+    router.push("/studio");
   }
 
   const filteredCollections = CURATED_COLLECTIONS.filter(c => {
@@ -53,9 +53,10 @@ export default function CollectionsPage() {
   return (
     <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
       <ArchiveTopbar
+        activeRoute="collections"
         currentTab={tab}
         onTabChange={(t) => {
-          if (t === "studio") router.push("/");
+          if (t === "studio") router.push("/studio");
           else setTab(t);
         }}
         searchQuery={searchQuery}

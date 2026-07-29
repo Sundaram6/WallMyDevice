@@ -1,0 +1,25 @@
+"use client";
+
+import { StudioCore } from "@/components/studio/StudioCore";
+import { ArchiveTopbar } from "@/components/archive/ArchiveTopbar";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function StudioPage() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  return (
+    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
+      <ArchiveTopbar
+        activeRoute="studio"
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        favoriteCount={0}
+      />
+      <main className="w-full">
+        <StudioCore layout="full" />
+      </main>
+    </div>
+  );
+}

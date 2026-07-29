@@ -2,10 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #FAF8F4;
+  --color-surface: #F3EFE6;
+  --color-surface-2: #E4DFD3;
+  --color-border: #D4CDBC;
+  --color-ink: #2B2A26;
+  --color-muted: #5B584F;
+  --color-faint: #8A8579;
+  --color-accent: #C9552F;
+  --color-accent-hover: #B04523;
+  --color-card-bg: rgba(255, 255, 255, 0.85);
+  --color-card-border: rgba(212, 205, 188, 0.6);
+}
+
+[data-theme='dark'] {
+  --color-bg: #0A0A0D;
+  --color-surface: #111115;
+  --color-surface-2: #1C1C22;
+  --color-border: #2A2A35;
+  --color-ink: #F0EDE8;
+  --color-muted: #8A8799;
+  --color-faint: #55546A;
+  --color-accent: #E06B45;
+  --color-accent-hover: #C9552F;
+  --color-card-bg: rgba(17, 17, 21, 0.85);
+  --color-card-border: rgba(255, 255, 255, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 html, body {
   height: 100%;
-  background: #FAF8F4;
-  color: #2B2A26;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+::selection {
+  background-color: rgba(201, 85, 47, 0.2);
+  color: var(--color-ink);
+}
+
+/* Global Refined Focus Ring */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Link underline offset */
+a {
+  text-underline-offset: 3px;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Custom Refined Thin Scrollbar for standard elements */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+/* Ambient Pulse Keyframes */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.05);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(15px) scale(0.95);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 10s ease-in-out infinite;
 }
 
 /* Pinked / Scalloped fabric edge pattern overlay */

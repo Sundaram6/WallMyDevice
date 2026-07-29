@@ -54,18 +54,18 @@ export function FavoritesDrawer({
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className="relative flex w-full max-w-md flex-col bg-[#FAF8F4] p-6 shadow-2xl h-full z-10 border-l border-[#E4DFD3] text-[#2B2A26]"
+        className="relative flex w-full max-w-md flex-col bg-brand-bg p-6 shadow-2xl h-full z-10 border-l border-brand-border text-brand-ink"
       >
-        <div className="flex items-center justify-between border-b border-[#E4DFD3] pb-4">
+        <div className="flex items-center justify-between border-b border-brand-border pb-4">
           <div>
-            <h2 className="font-serif text-lg font-medium text-[#2B2A26]">Your Favourites</h2>
-            <p className="text-[11px] text-[#8A8579]">Saved on this device ({favList.length})</p>
+            <h2 className="font-serif text-lg font-medium text-brand-ink">Your Favourites</h2>
+            <p className="text-[11px] text-brand-muted">Saved on this device ({favList.length})</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close Favourites"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-[#5B584F] hover:text-[#2B2A26] hover:bg-[#F3EFE6]"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-brand-muted hover:text-brand-ink hover:bg-brand-surface"
           >
             ✕
           </button>
@@ -74,14 +74,14 @@ export function FavoritesDrawer({
         <div className="flex-1 overflow-y-auto py-4 space-y-3">
           {favList.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-sm text-[#8A8579]">No favourites saved on this device yet.</p>
-              <p className="mt-1 text-xs text-[#8A8579]">Click ♡ on any wallpaper to add it to your local favourites.</p>
+              <p className="text-sm text-brand-muted">No favourites saved on this device yet.</p>
+              <p className="mt-1 text-xs text-brand-muted">Click ♡ on any wallpaper to add it to your local favourites.</p>
             </div>
           ) : (
             favList.map((swatch) => (
               <div
                 key={swatch.id}
-                className="group flex items-center gap-3 rounded-xl border border-[#E4DFD3] bg-white p-3 shadow-xs"
+                className="group flex items-center gap-3 rounded-xl border border-brand-border bg-brand-surface-2 p-3 shadow-xs"
               >
                 <div
                   className="h-12 w-12 shrink-0 rounded-lg border border-black/10"
@@ -90,8 +90,8 @@ export function FavoritesDrawer({
                   }}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium text-[#2B2A26]">{swatch.name}</p>
-                  <p className="text-[10px] text-[#8A8579]">{swatch.category} · {swatch.volume}</p>
+                  <p className="truncate text-xs font-medium text-brand-ink">{swatch.name}</p>
+                  <p className="text-[10px] text-brand-muted">{swatch.category} · {swatch.volume}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -101,7 +101,7 @@ export function FavoritesDrawer({
                       if (onOpenStudio) onOpenStudio();
                       else router.push("/");
                     }}
-                    className="text-xs font-medium text-[#C9552F] hover:underline px-2 py-1"
+                    className="text-xs font-medium text-brand-accent hover:underline px-2 py-1"
                   >
                     Open
                   </button>
@@ -109,7 +109,7 @@ export function FavoritesDrawer({
                     type="button"
                     onClick={() => onToggleFavorite(swatch.id)}
                     aria-label={`Remove ${swatch.name} from favourites`}
-                    className="text-xs text-[#8A8579] hover:text-red-500 p-1"
+                    className="text-xs text-brand-muted hover:text-red-500 p-1"
                   >
                     ✕
                   </button>
@@ -119,12 +119,12 @@ export function FavoritesDrawer({
           )}
         </div>
 
-        <div className="border-t border-[#E4DFD3] pt-4 flex justify-between items-center text-xs">
-          <span className="text-[#8A8579]">Saved locally in browser</span>
+        <div className="border-t border-brand-border pt-4 flex justify-between items-center text-xs">
+          <span className="text-brand-muted">Saved locally in browser</span>
           <Link
             href="/profile"
             onClick={onClose}
-            className="text-[#C9552F] font-medium hover:underline"
+            className="text-brand-accent font-medium hover:underline"
           >
             Manage Local Profile →
           </Link>

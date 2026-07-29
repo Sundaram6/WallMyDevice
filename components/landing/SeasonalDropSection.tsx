@@ -1,0 +1,110 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
+import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
+import { useEditorStore } from "@/store/useEditorStore";
+
+// Current Seasonal Drop presets (latest curation)
+const DROP_PRESETS: SwatchRecipe[] = ARCHIVE_PRESETS.filter((p) => p.isNew).slice(0, 4);
+
+export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => void }) {
+  const store = useEditorStore();
+  const [timeLeft, setTimeLeft] = useState({ days: 4, hours: 18, minutes: 32, seconds: 15 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
+        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        return prev;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleApplyPreset = (swatch: SwatchRecipe) => {
+    store.setGenerator(swatch.generatorId);
+    store.setPalette([...swatch.palette]);
+    store.setMode(swatch.mode);
+    store.setSeed(swatch.seed);
+    Object.entries(swatch.params).forEach(([key, val]) => {
+      store.updateParam(swatch.generatorId, key, val);
+    });
+    if (onOpenStudio) onOpenStudio();
+  };
+
+  return (
+    <section className="w-full bg-brand-surface py-16 px-4 sm:px-8 lg:px-12 border-t border-brand-border">
+      <div className="mx-auto max-w-7xl">
+        {/* Banner Header */}
+        <div className="rounded-3xl border border-brand-border bg-gradient-to-r from-brand-bg via-brand-surface-2 to-brand-bg p-6 sm:p-10 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-accent/10 border border-brand-accent/30 px-3.5 py-1 text-xs font-mono text-brand-accent font-medium">
+              <span className="w-2 h-2 rounded-full bg-brand-accent animate-ping" />
+              <span>LIMITED SEASONAL DROP · VOL. 08</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-brand-ink">
+              The Winter Solstice Collection.
+            </h2>
+            <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+              4 exclusive hand-tuned generative algorithms released for a limited time. Curated palette curves designed specifically for modern AMOLED displays.
+            </p>
+          </div>
+
+          {/* Countdown Clock */}
+          <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-2xl border border-brand-border shadow-inner">
+            <div className="text-center px-2">
+              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.days).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">DAYS</div>
+            </div>
+            <span className="text-brand-faint text-lg font-mono">:</span>
+            <div className="text-center px-2">
+              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.hours).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">HRS</div>
+            </div>
+            <span className="text-brand-faint text-lg font-mono">:</span>
+            <div className="text-center px-2">
+              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.minutes).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">MINS</div>
+            </div>
+            <span className="text-brand-faint text-lg font-mono">:</span>
+            <div className="text-center px-2">
+              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-accent">{String(timeLeft.seconds).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-accent font-semibold">SECS</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Drop Wallpaper Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mt-8">
+          {DROP_PRESETS.map((swatch) => (
+            <div
+              key={swatch.id}
+              onClick={() => handleApplyPreset(swatch)}
+              className="group cursor-pointer rounded-2xl border border-brand-border bg-brand-bg p-3 transition-all duration-300 hover:border-brand-accent hover:-translate-y-1 shadow-xs"
+            >
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-black">
+                <SwatchThumbnail swatch={swatch} width={240} height={320} />
+                <div className="absolute top-2 right-2 rounded-full bg-brand-accent px-2 py-0.5 font-mono text-[8.5px] font-semibold text-white shadow-md">
+                  DROP
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <div className="font-serif text-xs font-medium text-brand-ink group-hover:text-brand-accent transition-colors">
+                    {swatch.name}
+                  </div>
+                  <div className="font-mono text-[9.5px] text-brand-faint mt-0.5">#{swatch.seed}</div>
+                </div>
+                <div className="text-brand-accent text-xs opacity-0 group-hover:opacity-100 transition-opacity">✦</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

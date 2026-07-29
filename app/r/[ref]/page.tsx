@@ -72,7 +72,7 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
   const preset = findPreset("iphone-15-pro") ?? DEVICE_PRESETS[0];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans flex flex-col">
+    <div className="min-h-screen bg-brand-bg text-brand-ink font-sans flex flex-col">
       <ArchiveTopbar
         currentTab={tab}
         onTabChange={(t) => {
@@ -86,26 +86,26 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
 
       <main className="flex-1 flex items-center justify-center p-6 py-12">
         {decodeError ? (
-          <div className="w-full max-w-md rounded-2xl border border-[#E4DFD3] bg-white p-8 text-center shadow-xs">
+          <div className="w-full max-w-md rounded-2xl border border-brand-border bg-brand-surface p-8 text-center shadow-xs">
             <div className="text-3xl mb-3">⚠️</div>
-            <h1 className="font-serif text-xl font-medium text-[#2B2A26]">Recipe Link Not Found</h1>
-            <p className="mt-2 text-xs text-[#5B584F] leading-relaxed">
+            <h1 className="font-serif text-xl font-medium text-brand-ink">Recipe Link Not Found</h1>
+            <p className="mt-2 text-xs text-brand-muted leading-relaxed">
               This shared wallpaper link is invalid, corrupted or expired. Please verify the URL or explore our curated archive.
             </p>
             <Link
               href="/"
-              className="mt-6 inline-block rounded-xl bg-[#2B2A26] px-5 py-3 text-xs font-medium text-white hover:bg-[#1a1917]"
+              className="mt-6 inline-block rounded-xl bg-brand-ink px-5 py-3 text-xs font-medium text-brand-bg hover:bg-brand-accent transition-colors"
             >
               Explore Archive →
             </Link>
           </div>
         ) : (
-          <div className="w-full max-w-xl rounded-2xl border border-[#E4DFD3] bg-white p-8 shadow-xs flex flex-col items-center">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-[#C9552F] mb-1">
+          <div className="w-full max-w-xl rounded-2xl border border-brand-border bg-brand-surface p-8 shadow-xs flex flex-col items-center">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-brand-accent mb-1">
               Shareable Recipe
             </span>
-            <h1 className="font-serif text-2xl font-medium text-[#2B2A26] text-center mb-2">{title}</h1>
-            <div className="flex gap-2 text-xs text-[#8A8579] font-mono mb-6">
+            <h1 className="font-serif text-2xl font-medium text-brand-ink text-center mb-2">{title}</h1>
+            <div className="flex gap-2 text-xs text-brand-muted font-mono mb-6">
               <span>{getGeneratorDisplayName(generatorId)}</span>
               <span>·</span>
               <span>Seed: {seed}</span>
@@ -123,13 +123,13 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
               <button
                 type="button"
                 onClick={handleRemix}
-                className="flex-1 rounded-xl bg-[#2B2A26] py-3 text-xs font-medium text-white shadow-xs hover:bg-[#1a1917]"
+                className="flex-1 rounded-xl bg-brand-ink py-3 text-xs font-medium text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
               >
                 ✦ Remix in Studio
               </button>
               <Link
                 href="/"
-                className="rounded-xl border border-[#D4CDBC] bg-[#FAF8F4] px-4 py-3 text-xs font-medium text-[#5B584F] hover:bg-[#F3EFE6]"
+                className="rounded-xl border border-brand-border bg-brand-surface-2 px-4 py-3 text-xs font-medium text-brand-ink hover:bg-brand-border transition-colors"
               >
                 Archive
               </Link>

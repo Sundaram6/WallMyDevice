@@ -43,10 +43,19 @@ export type ParamControl<P> = {
   helperText?: string;
 };
 
+export type GeneratorCategory =
+  | "Gradient & Color"
+  | "Noise & Texture"
+  | "Geometric & Pattern"
+  | "Organic"
+  | "Cosmic"
+  | "Typography";
+
 export type Generator<P = unknown> = {
   id: string;
   label: string;
   description?: string;
+  category?: GeneratorCategory;
   kind: "canvas2d" | "shader";
   schema: ParamSchema<z.ZodType<P>>;
   render: (

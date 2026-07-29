@@ -1,278 +1,116 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { LandingNav } from "@/components/landing/LandingNav";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { InlineStudio } from "@/components/landing/InlineStudio";
+import { SeasonalDropSection } from "@/components/landing/SeasonalDropSection";
+import { CollectionGrid } from "@/components/landing/CollectionGrid";
+import { SectionDivider } from "@/components/landing/SectionDivider";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import Link from "next/link";
-import { ControlPanel } from "@/components/Panel/ControlPanel";
-import { PreviewCanvas } from "@/components/Preview/PreviewCanvas";
-import { DeviceFrame } from "@/components/Preview/DeviceFrame";
-import { BottomSheet } from "@/components/Preview/BottomSheet";
-import { useEditorStore } from "@/store/useEditorStore";
-import { findPreset, DEVICE_PRESETS } from "@/lib/devices/presets";
-import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
-import { decodeHash } from "@/lib/recipe/encode";
-import { DropZone } from "@/components/DropZone";
-import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/localState";
 
-import { ArchiveShell } from "@/components/archive/ArchiveShell";
-import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
-import { CURRENT_VERSION } from "@/lib/changelog/data";
-import {
-  AccessibilityPreviewBar,
-  getAccessibilityFilterStyle,
-  type AccessibilityMode,
-} from "@/components/Preview/AccessibilityPreviewBar";
-
-function restoreFromLocalStorage() {
-  const hash = window.location.hash;
-  if (hash.startsWith("#r=")) return;
-  const saved = loadLocalState();
-  if (!saved) return;
-  useEditorStore.setState(saved);
-}
-
-function loadHashRecipe() {
-  const hash = window.location.hash;
-  if (!hash.startsWith("#r=")) return;
-  const r = decodeHash(hash);
-  if (!r.ok) return;
-  const recipe = r.recipe;
-  const params = useEditorStore.getState().params;
-  useEditorStore.setState({
-    generatorId: recipe.generator,
-    params: { ...params, [recipe.generator]: recipe.params },
-    palette: recipe.palette,
-    mode: recipe.mode,
-    seed: recipe.seed,
-    grainEnabled: recipe.grain.enabled,
-    grainIntensity: recipe.grain.intensity,
-    blurIntensity: recipe.blur,
-    resolutionId: DEVICE_PRESETS.find(p => p.id === recipe.resolution.preset) ? recipe.resolution.preset : "custom",
-    customWidth: recipe.resolution.width,
-    customHeight: recipe.resolution.height,
-    overlayClock: recipe.overlays.clock,
-    overlayDate: recipe.overlays.date,
-    overlayText: recipe.overlays.text,
-    overlayTextValue: recipe.overlays.value,
-    overlayFont: recipe.overlays.font,
-    overlaySize: recipe.overlays.size,
-  });
-}
-
-function snapshotLocalState(): LocalState {
-  const state = useEditorStore.getState();
-  return {
-    generatorId: state.generatorId,
-    params: state.params,
-    palette: state.palette,
-    mode: state.mode,
-    seed: state.seed,
-    grainEnabled: state.grainEnabled,
-    grainIntensity: state.grainIntensity,
-    blurIntensity: state.blurIntensity,
-    resolutionId: state.resolutionId,
-    customWidth: state.customWidth,
-    customHeight: state.customHeight,
-    aspectLock: state.aspectLock,
-    deviceType: (state as any).deviceType,
-    phoneBrand: (state as any).phoneBrand,
-    phoneModel: (state as any).phoneModel,
-    phoneDisplay: (state as any).phoneDisplay,
-    orientation: (state as any).orientation,
-    overlayClock: state.overlayClock,
-    overlayDate: state.overlayDate,
-    overlayText: state.overlayText,
-    overlayTextValue: state.overlayTextValue,
-    overlayFont: state.overlayFont,
-    overlaySize: state.overlaySize,
-    exportFormat: state.exportFormat,
+export default function HomePage() {
+  const scrollToStudio = () => {
+    const el = document.getElementById("studio-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   };
-}
-
-export default function Page() {
-  const [tab, setTab] = useState<"archive" | "studio">("archive");
-
-  const generatorId = useEditorStore(s => s.generatorId);
-  const resolutionId = useEditorStore(s => s.resolutionId);
-  const customWidth = useEditorStore(s => s.customWidth);
-  const customHeight = useEditorStore(s => s.customHeight);
-  const deviceType = useEditorStore(s => s.deviceType);
-  const phoneModel = useEditorStore(s => s.phoneModel);
-
-  const sheetCollapsed = useEditorStore(s => s.sheetCollapsed);
-  const setSheetCollapsed = useEditorStore(s => s.setSheetCollapsed);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      useEditorStore.getState().setSystemColorScheme(mq.matches ? "dark" : "light");
-    };
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const viewParam = params.get("view");
-    const recipeParam = params.get("recipe");
-
-    if (viewParam === "studio" || window.location.hash.startsWith("#r=")) {
-      setTab("studio");
-    }
-
-    if (recipeParam) {
-      const swatch = ARCHIVE_PRESETS.find((p) => p.id === recipeParam);
-      if (swatch) {
-        const store = useEditorStore.getState();
-        store.setGenerator(swatch.generatorId);
-        store.setPalette([...swatch.palette]);
-        store.setMode(swatch.mode);
-        store.setSeed(swatch.seed);
-        Object.entries(swatch.params).forEach(([key, val]) => {
-          store.updateParam(swatch.generatorId, key, val);
-        });
-      }
-    }
-
-    const hasSavedState = Boolean(loadLocalState());
-    restoreFromLocalStorage();
-    loadHashRecipe();
-
-    // If first visit (no saved state in localStorage), select safe device preset based on viewport size
-    if (!hasSavedState && typeof window !== "undefined") {
-      const width = window.innerWidth;
-      if (width < 640) {
-        // Phone-like viewport -> default to iPhone 16 Pro
-        useEditorStore.setState({
-          deviceType: "phone",
-          phoneBrand: "apple",
-          phoneModel: "iphone-16-pro",
-          resolutionId: "iphone-15-pro",
-          customWidth: 1206,
-          customHeight: 2622,
-        });
-      } else if (width >= 640 && width < 1024) {
-        // Tablet-like viewport -> default to iPad Air 11"
-        useEditorStore.setState({
-          deviceType: "tablet",
-          resolutionId: "ipad-air-11",
-          customWidth: 1640,
-          customHeight: 2360,
-        });
-      }
-    }
-
-    const handleHash = () => {
-      if (window.location.hash.startsWith("#r=")) {
-        setTab("studio");
-      }
-      loadHashRecipe();
-    };
-    window.addEventListener("hashchange", handleHash);
-    return () => window.removeEventListener("hashchange", handleHash);
-  }, []);
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    const flush = () => saveLocalState(snapshotLocalState());
-    const unsub = useEditorStore.subscribe(() => {
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(flush, 400);
-    });
-    return () => {
-      if (timeout) clearTimeout(timeout);
-      unsub();
-    };
-  }, []);
-
-  const [accMode, setAccMode] = useState<AccessibilityMode>("normal");
-  const [showContrastGrid, setShowContrastGrid] = useState(false);
-  const [deviceNotice, setDeviceNotice] = useState<string | null>(null);
-
-  const [whatsNewBanner, setWhatsNewBanner] = useState<string | null>(null);
-
-  useEffect(() => {
-    const hasSavedState = Boolean(loadLocalState());
-    if (!hasSavedState && typeof window !== "undefined") {
-      const width = window.innerWidth;
-      if (width < 640) {
-        setDeviceNotice("Started with a phone-sized canvas based on this screen.");
-      } else if (width >= 640 && width < 1024) {
-        setDeviceNotice("Started with a tablet-sized canvas based on this screen.");
-      }
-    }
-
-    if (typeof window !== "undefined") {
-      const LAST_SEEN_KEY = "wallmydevice:last_seen_version";
-      const lastSeen = localStorage.getItem(LAST_SEEN_KEY);
-      if (lastSeen !== CURRENT_VERSION) {
-        setWhatsNewBanner(`WallMyDevice ${CURRENT_VERSION} is now live with 4 variations & multi-device export packs!`);
-      }
-    }
-  }, []);
-
-  const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
-  const aspect = customWidth / customHeight;
-
-  const studioView = (
-    <DropZone>
-      <div className="relative flex h-[calc(100dvh-72px)] w-full flex-col bg-[#F3EFE6] text-[#2B2A26]">
-        <KeyboardShortcuts />
-        <div className="flex flex-col sm:flex-row h-auto sm:h-10 shrink-0 items-start sm:items-center justify-between border-b border-[#D4CDBC] bg-[#E4DFD3]/40 px-4 py-2 sm:py-0 text-xs gap-2">
-          <span className="font-mono text-[#5B584F]">{generatorId} — {customWidth}×{customHeight}</span>
-          <div className="flex flex-wrap items-center gap-2">
-            {whatsNewBanner && (
-              <div className="flex items-center gap-2 rounded bg-[#C9552F]/10 px-2 py-0.5 font-mono text-[10.5px] text-[#C9552F] border border-[#C9552F]/30">
-                <span>✦ {whatsNewBanner}</span>
-                <Link href="/changelog" className="underline hover:text-[#2B2A26]">Read Changelog</Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    localStorage.setItem("wallmydevice:last_seen_version", CURRENT_VERSION);
-                    setWhatsNewBanner(null);
-                  }}
-                  className="text-[#8A8579] hover:text-[#2B2A26]"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            {deviceNotice && (
-              <div className="flex items-center gap-2 rounded bg-white/80 px-2 py-0.5 font-mono text-[10.5px] text-[#2B2A26] border border-[#D4CDBC]">
-                <span>📱 {deviceNotice}</span>
-                <button type="button" onClick={() => setDeviceNotice(null)} className="text-[#8A8579] hover:text-[#2B2A26]">✕</button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="p-3 bg-[#FAF8F4] border-b border-[#E4DFD3]">
-          <AccessibilityPreviewBar
-            mode={accMode}
-            onModeChange={setAccMode}
-            showContrastGrid={showContrastGrid}
-            onContrastGridToggle={setShowContrastGrid}
-          />
-        </div>
-        <div className="flex flex-1 flex-col overflow-hidden w-full md:grid md:grid-cols-[minmax(0,1fr)_384px]">
-          <main className="flex flex-1 items-center justify-center p-4 md:p-8 min-h-[240px] overflow-auto pb-20 md:pb-8">
-            <div style={getAccessibilityFilterStyle(accMode)} className="transition-all">
-              <DeviceFrame frame={preset.frame} aspect={aspect} deviceType={deviceType} phoneModel={phoneModel}>
-                <PreviewCanvas frame={preset.frame} aspect={aspect} maxWidth={1100} maxHeight={900} />
-              </DeviceFrame>
-            </div>
-          </main>
-          <ControlPanel />
-        </div>
-        <div className="md:hidden">
-          <BottomSheet title="Studio Editor" collapsed={sheetCollapsed} onSnap={setSheetCollapsed}>
-            <ControlPanel variant="sheet" />
-          </BottomSheet>
-        </div>
-      </div>
-    </DropZone>
-  );
 
   return (
-    <ArchiveShell currentTab={tab} onTabChange={setTab} childrenStudio={studioView} />
+    <div className="relative min-h-screen bg-brand-bg text-brand-ink selection:bg-brand-accent/20">
+      {/* Navigation Bar with Shimmer CTA & ThemeToggle */}
+      <LandingNav onOpenStudioClick={scrollToStudio} />
+
+      {/* Main Page Flow */}
+      <main>
+        {/* Hero Section with Photorealistic S25 Ultra CSS Renderer */}
+        <HeroSection onOpenStudioClick={scrollToStudio} />
+
+        {/* Editorial Divider */}
+        <ScrollReveal direction="none" delayMs={0}>
+          <SectionDivider label="✦" sublabel="GENERATIVE PRINT STUDIO" />
+        </ScrollReveal>
+
+        {/* Section 2: Interactive Studio Experience */}
+        <ScrollReveal direction="up" delayMs={50}>
+          <InlineStudio />
+        </ScrollReveal>
+
+        {/* Section 3: Seasonal Weekly Drop Banner */}
+        <ScrollReveal direction="left" delayMs={0}>
+          <SeasonalDropSection onOpenStudio={scrollToStudio} />
+        </ScrollReveal>
+
+        {/* Editorial Divider */}
+        <ScrollReveal direction="none" delayMs={0}>
+          <SectionDivider label="✦" sublabel="CURATED CATALOGUE" />
+        </ScrollReveal>
+
+        {/* Section 4: Curated Collection Grid */}
+        <ScrollReveal direction="up" delayMs={80}>
+          <CollectionGrid
+            onSelectRecipe={() => {
+              scrollToStudio();
+            }}
+          />
+        </ScrollReveal>
+      </main>
+
+      {/* Refined Multi-Column Editorial Footer */}
+      <footer className="border-t border-brand-border bg-brand-bg pt-16 pb-12 px-6 sm:px-10 lg:px-16 text-brand-faint">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-brand-border">
+          {/* Column 1: Brand & Tagline */}
+          <div className="md:col-span-5 space-y-4">
+            <div className="flex items-center gap-2 font-serif text-xl text-brand-ink font-medium">
+              <span>WallMyDevice</span>
+              <span className="text-brand-accent italic font-serif">✦</span>
+            </div>
+            <p className="text-xs text-brand-muted max-w-sm leading-relaxed">
+              A generative print studio crafting native-resolution wallpapers for phones, tablets, and desktop displays entirely in your browser.
+            </p>
+            <div className="font-mono text-[10.5px] text-brand-faint uppercase tracking-widest pt-2">
+              VOL. 08 · 90+ CURATED SEEDS
+            </div>
+          </div>
+
+          {/* Column 2: Studio Navigation */}
+          <div className="md:col-span-3 space-y-3 text-xs">
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-brand-ink font-semibold">STUDIO</h4>
+            <ul className="space-y-2 text-brand-muted">
+              <li><button type="button" onClick={scrollToStudio} className="hover:text-brand-ink transition">Generator Studio ✦</button></li>
+              <li><Link href="/archive" className="hover:text-brand-ink transition">Print Archive</Link></li>
+              <li><Link href="/collections" className="hover:text-brand-ink transition">Curated Collections</Link></li>
+              <li><Link href="/inspiration" className="hover:text-brand-ink transition">Design Inspiration</Link></li>
+            </ul>
+          </div>
+
+          {/* Column 3: Resources & Product */}
+          <div className="md:col-span-4 space-y-3 text-xs">
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-brand-ink font-semibold">ABOUT & UPDATES</h4>
+            <ul className="space-y-2 text-brand-muted">
+              <li><Link href="/changelog" className="hover:text-brand-ink transition">Changelog & Version History</Link></li>
+              <li><Link href="/about" className="hover:text-brand-ink transition">About WallMyDevice</Link></li>
+              <li><Link href="/favourites" className="hover:text-brand-ink transition">My Saved Wallpapers</Link></li>
+            </ul>
+            <div className="pt-2 text-[11px] text-brand-muted">
+              <span>Made for digital devices & physical spaces.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Sub-Bar */}
+        <div className="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <p>© {new Date().getFullYear()} WallMyDevice Studio. All rights reserved.</p>
+          <div className="flex gap-6 text-brand-muted">
+            <span className="hover:text-brand-ink transition cursor-pointer">Privacy</span>
+            <span>·</span>
+            <span className="hover:text-brand-ink transition cursor-pointer">Terms</span>
+            <span>·</span>
+            <span className="hover:text-brand-ink transition cursor-pointer">GitHub</span>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }

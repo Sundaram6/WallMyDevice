@@ -84,11 +84,11 @@ export default function AboutPage() {
               <span className="text-[#C9552F]">⚠️</span> Accurate Product Boundaries &amp; Limitations
             </h2>
             <ul className="space-y-2 text-xs text-[#5B584F] list-disc list-inside">
-              <td><b>Local Profile Only:</b> Favourites, collections, and settings reside in your browser&apos;s localStorage (no cloud accounts or authentication).</td>
-              <td><b>Active Generators:</b> Supports Waveform, Fluid Gradient, Geometric, and Typography generators.</td>
-              <td><b>WebGL &amp; Canvas:</b> WebGL hardware acceleration is used for fluid shaders with automatic CPU canvas fallbacks.</td>
-              <td><b>Browser-Based Export:</b> High-resolution PNG/SVG images and ZIP multi-device packs generate directly in-browser.</td>
-              <td><b>Animated Export:</b> Live Wallpaper MP4/WebM export is a documented future capability boundary.</td>
+              <li><b>Local Profile Only:</b> Favourites, collections, and settings reside in your browser&apos;s localStorage (no cloud accounts or authentication).</li>
+              <li><b>Active Generators:</b> Supports Waveform, Fluid Gradient, Geometric, and Typography generators.</li>
+              <li><b>WebGL &amp; Canvas:</b> WebGL hardware acceleration is used for fluid shaders with automatic CPU canvas fallbacks.</li>
+              <li><b>Browser-Based Export:</b> High-resolution PNG/SVG images and ZIP multi-device packs generate directly in-browser.</li>
+              <li><b>Animated Export:</b> Live Wallpaper MP4/WebM export is a documented future capability boundary.</li>
             </ul>
           </section>
 

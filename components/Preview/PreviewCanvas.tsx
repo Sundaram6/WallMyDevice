@@ -40,7 +40,14 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
     setRenderError(null);
   }, [generatorId]);
 
+  const isMounted = useRef(true);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
   const renderIfReady = useCallback(() => {
+    if (!isMounted.current || typeof window === "undefined") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const s = useEditorStore.getState();
@@ -51,7 +58,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
     const generator = getGenerator(s.generatorId);
     const needsWebGL = generator?.kind === "shader";
 
-    setIsRendering(true);
+    if (isMounted.current && typeof window !== "undefined") setIsRendering(true);
 
     try {
       if (needsWebGL) {
@@ -117,7 +124,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
           applyGrain(domTarget, input.grainIntensity, input.seed + "|grain");
         }
         if (input.overlays) {
-          drawOverlays(domTarget, input.overlays, input.palette);
+          drawOverlays(domTarget, input.overlays, palette);
         }
       } else {
         const ctx2d = canvas.getContext("2d");
@@ -148,11 +155,11 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
         }
       }
 
-      setRenderError(null);
+      if (isMounted.current) setRenderError(null);
     } catch (err) {
-      setRenderError(buildRendererError(s.generatorId, "failed", err));
+      if (isMounted.current) setRenderError(buildRendererError(s.generatorId, "failed", err));
     } finally {
-      setIsRendering(false);
+      if (isMounted.current) setIsRendering(false);
     }
   }, [aspect, maxWidth, maxHeight]);
 
@@ -191,23 +198,23 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
   return (
     <div className="relative flex items-center justify-center overflow-hidden" style={{ width: w, height: h }}>
       {renderError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#FAF8F4] border border-[#D4CDBC] rounded-lg shadow-sm z-20">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-brand-surface border border-brand-border rounded-lg shadow-sm z-20">
           <div className="text-2xl mb-2">⚠️</div>
-          <p className="text-xs font-medium text-[#2B2A26] max-w-xs leading-relaxed">
+          <p className="text-xs font-medium text-brand-ink max-w-xs leading-relaxed">
             {renderError.userMessage}
           </p>
           <div className="mt-4 flex flex-wrap gap-2 justify-center">
             <button
               type="button"
               onClick={() => setGenerator("waveform")}
-              className="rounded-lg bg-[#2B2A26] px-3 py-1.5 text-xs text-white shadow-xs hover:bg-[#1a1917]"
+              className="rounded-lg bg-brand-ink px-3 py-1.5 text-xs text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
             >
               Switch to Waveform
             </button>
             <button
               type="button"
               onClick={() => setGenerator("geometric")}
-              className="rounded-lg border border-[#D4CDBC] bg-white px-3 py-1.5 text-xs text-[#5B584F] hover:bg-[#F3EFE6]"
+              className="rounded-lg border border-brand-border bg-brand-bg px-3 py-1.5 text-xs text-brand-muted hover:bg-brand-surface-2 transition-colors"
             >
               Switch to Geometric
             </button>

@@ -37,7 +37,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
+    <div className="min-h-screen bg-brand-bg text-brand-ink font-sans">
       {/* Top Bar */}
       <ArchiveTopbar
         currentTab={currentTab}
@@ -59,7 +59,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
 
       {/* Main Studio View vs Archive View */}
       {currentTab === "studio" ? (
-        <div className="relative flex h-[calc(100dvh-72px)] w-full overflow-hidden bg-[#F3EFE6]">
+        <div className="relative flex h-[calc(100dvh-72px)] w-full overflow-hidden bg-brand-surface">
           {childrenStudio}
         </div>
       ) : (
@@ -76,7 +76,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
           {/* Central Gallery Grid */}
           <main className="flex-1 min-w-0">
             {/* Category horizontal scroll bar on small screens */}
-            <div className="md:hidden relative border-b border-[#E4DFD3] bg-[#F3EFE6]">
+            <div className="md:hidden relative border-b border-brand-border bg-brand-surface">
               <div className="flex gap-2 overflow-x-auto p-3 no-scrollbar scroll-smooth">
                 {ARCHIVE_CATEGORIES.map((cat) => (
                   <button
@@ -85,8 +85,8 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
                     onClick={() => setActiveCategory(cat.id)}
                     className={`flex items-center min-h-[44px] rounded-full px-4 text-xs capitalize whitespace-nowrap border shrink-0 transition ${
                       activeCategory === cat.id
-                        ? "bg-[#2B2A26] text-white border-[#2B2A26] shadow-xs"
-                        : "border-[#D4CDBC] text-[#5B584F] bg-white hover:text-[#2B2A26]"
+                        ? "bg-brand-ink text-brand-bg border-brand-ink shadow-xs"
+                        : "border-brand-border text-brand-muted bg-brand-surface-2 hover:text-brand-ink"
                     }`}
                   >
                     <span>{cat.label}</span>
@@ -95,7 +95,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
                 ))}
               </div>
               {/* Trailing edge gradient fade hint */}
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#F3EFE6] to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-brand-surface to-transparent" />
             </div>
 
             <SwatchGrid
@@ -120,7 +120,7 @@ export function ArchiveShell({ currentTab, onTabChange, childrenStudio }: Props)
           <button
             type="button"
             onClick={() => setIsMobileSheetOpen(true)}
-            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-[#2B2A26] px-6 py-3 text-xs font-medium text-white shadow-xl hover:bg-[#1a1917]"
+            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-brand-ink px-6 py-3 text-xs font-medium text-brand-bg shadow-xl hover:bg-brand-accent transition-colors"
           >
             ✦ Generate Wallpaper
           </button>

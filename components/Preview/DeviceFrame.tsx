@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import type { FrameStyle } from "@/lib/devices/presets";
 import { findModel } from "@/lib/devices/phones";
+import { S25UltraFrame } from "./S25UltraFrame";
+import { IPadProFrame } from "./IPadProFrame";
+import { IPhoneProFrame } from "./IPhoneProFrame";
 
 type Props = {
   frame: FrameStyle;
@@ -19,7 +22,8 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
   } else if (deviceType === "tablet") {
     effectiveFrame = "ipad";
   } else if (deviceType === "laptop") {
-    effectiveFrame = "macbook";
+    // Graceful fallback for legacy URLs
+    effectiveFrame = "desktop-monitor";
   } else if (deviceType === "desktop") {
     effectiveFrame = frame === "ultrawide" ? "ultrawide" : "desktop-monitor";
   } else if (deviceType === "custom") {
@@ -32,10 +36,64 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
         <div
           data-aspect={aspect}
           style={{ aspectRatio: `${aspect} / 1` }}
-          className="relative overflow-hidden rounded-md bg-zinc-900 shadow-2xl"
+          className="relative overflow-hidden rounded-md bg-zinc-900 shadow-2xl ring-1 ring-white/10"
         >
           {children}
         </div>
+      </div>
+    );
+  }
+
+  // Dedicated photorealistic frame for iPhone selections
+  if (effectiveFrame === "iphone") {
+    return (
+      <div data-frame={effectiveFrame} className="flex items-center justify-center">
+        <IPhoneProFrame>
+          <div
+            data-aspect={aspect}
+            style={{ aspectRatio: `${aspect} / 1` }}
+            className="relative overflow-hidden bg-black"
+          >
+            {children}
+            <SafeZoneHint frame={effectiveFrame} />
+          </div>
+        </IPhoneProFrame>
+      </div>
+    );
+  }
+
+  // Dedicated S25 Ultra photorealistic frame for Android / Samsung phone selections
+  if (effectiveFrame === "android") {
+    return (
+      <div data-frame={effectiveFrame} className="flex items-center justify-center">
+        <S25UltraFrame>
+          <div
+            data-aspect={aspect}
+            style={{ aspectRatio: `${aspect} / 1` }}
+            className="relative overflow-hidden bg-black"
+          >
+            {children}
+            <SafeZoneHint frame={effectiveFrame} />
+          </div>
+        </S25UltraFrame>
+      </div>
+    );
+  }
+
+  // Use dedicated iPad Pro frame for Tablet selections
+  if (effectiveFrame === "ipad") {
+    return (
+      <div data-frame={effectiveFrame} className="flex items-center justify-center">
+        <IPadProFrame>
+          <div
+            data-aspect={aspect}
+            style={{ aspectRatio: `${aspect} / 1` }}
+            className="relative overflow-hidden bg-black"
+          >
+            {children}
+            <SafeZoneHint frame={effectiveFrame} />
+          </div>
+        </IPadProFrame>
       </div>
     );
   }
@@ -46,14 +104,15 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
         <div
           data-aspect={aspect}
           style={{ aspectRatio: `${aspect} / 1` }}
-          className="relative overflow-hidden bg-black"
+          className="relative overflow-hidden bg-black shadow-2xl"
         >
           {children}
-          {effectiveFrame === "iphone" ? <IPhoneChrome /> : null}
-          {effectiveFrame === "android" ? <AndroidChrome /> : null}
-          {effectiveFrame === "macbook" ? <MacBookChrome /> : null}
           {effectiveFrame === "desktop-monitor" ? <MonitorStand /> : null}
           <SafeZoneHint frame={effectiveFrame} />
+
+          {/* Glass Specular Overlay */}
+          <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent" />
+          <div className="pointer-events-none absolute inset-0 z-20 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]" />
         </div>
       </FrameShell>
     </div>
@@ -62,29 +121,19 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
 
 function FrameShell({ frame, children }: { frame: FrameStyle; children: ReactNode }) {
   const isMonitor = frame === "desktop-monitor" || frame === "ultrawide";
-  const isTablet = frame === "ipad";
   const bezel = isMonitor
-    ? "rounded-lg p-3 bg-zinc-800 ring-1 ring-zinc-700"
-    : isTablet
-      ? "rounded-3xl p-6 bg-zinc-900 ring-1 ring-zinc-800"
-      : "rounded-[2.5rem] p-3 bg-zinc-900 ring-1 ring-zinc-800";
+    ? "rounded-xl p-3 bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl"
+    : "rounded-[2.5rem] p-3 bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl";
   return <div className={bezel}>{children}</div>;
 }
 
 function IPhoneChrome() {
   return (
     <>
-      <div className="pointer-events-none absolute left-1/2 top-2 z-10 h-6 w-24 -translate-x-1/2 rounded-full bg-black" />
-      <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-10 h-1 w-24 -translate-x-1/2 rounded-full bg-zinc-700" />
-    </>
-  );
-}
-
-function MacBookChrome() {
-  return (
-    <>
-      <div className="pointer-events-none absolute left-1/2 top-1.5 z-10 h-5 w-20 -translate-x-1/2 rounded-b-lg bg-black" />
-      <div className="pointer-events-none absolute -bottom-2 left-1/2 z-10 h-2 w-3/4 -translate-x-1/2 rounded-b-2xl bg-zinc-800" />
+      <div className="pointer-events-none absolute left-1/2 top-2 z-30 h-5 w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-[#2A2B30] flex items-center justify-center">
+        <div className="w-2.5 h-2.5 rounded-full bg-[#08121E]" />
+      </div>
+      <div className="pointer-events-none absolute bottom-1.5 left-1/2 z-30 h-1 w-24 -translate-x-1/2 rounded-full bg-white/40 mix-blend-difference" />
     </>
   );
 }
@@ -92,22 +141,28 @@ function MacBookChrome() {
 function MonitorStand() {
   return (
     <>
-      <div className="pointer-events-none absolute -bottom-6 left-1/2 z-10 h-6 w-32 -translate-x-1/2 bg-zinc-700" />
-      <div className="pointer-events-none absolute -bottom-9 left-1/2 z-10 h-3 w-48 -translate-x-1/2 rounded-full bg-zinc-800" />
+      <div className="pointer-events-none absolute -bottom-6 left-1/2 z-10 h-6 w-32 -translate-x-1/2 bg-gradient-to-b from-zinc-700 to-zinc-900 border-x border-white/10" />
+      <div className="pointer-events-none absolute -bottom-9 left-1/2 z-10 h-3 w-48 -translate-x-1/2 rounded-full bg-gradient-to-b from-zinc-800 to-zinc-950 ring-1 ring-white/10 shadow-xl" />
     </>
   );
-}
-
-function AndroidChrome() {
-  return <div className="pointer-events-none absolute left-1/2 top-2 z-10 h-3 w-3 -translate-x-1/2 rounded-full bg-black" />;
 }
 
 function SafeZoneHint({ frame }: { frame: FrameStyle }) {
-  if (frame !== "iphone" && frame !== "android") return null;
+  if (frame !== "iphone" && frame !== "android" && frame !== "ipad") return null;
   return (
     <>
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[12%] border-b border-dashed border-white/20" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8%] border-t border-dashed border-white/20" />
+      {/* Top Status Bar UI Overlay Hint */}
+      <div className="pointer-events-none absolute top-0 inset-x-0 h-[10%] z-30 flex items-start justify-between px-5 pt-2 mix-blend-difference text-white/50 text-[10px] font-mono font-medium">
+        <span>9:41</span>
+        <div className="flex items-center gap-1.5 opacity-60">
+          <span>5G</span>
+          <span className="inline-block w-4 h-2 rounded-xs border border-white/60 relative"><span className="absolute inset-0.5 bg-white/80 rounded-2xs" /></span>
+        </div>
+      </div>
+
+      {/* Bottom Home Indicator Bar Overlay Hint */}
+      <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 z-30 w-1/3 h-1 bg-white/50 rounded-full mix-blend-difference" />
     </>
   );
 }
+

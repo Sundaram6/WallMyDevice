@@ -1,33 +1,65 @@
-import { useRef } from "react";
+"use client";
+
+import { useRef, useState } from "react";
 import { palettesForMode, type Palette } from "@/lib/palettes/data";
 import { extractPalette } from "@/lib/palettes/extract";
+import { generateHarmonyPalette, type HarmonyRule } from "@/lib/palettes/harmony";
+import { NAMED_CURATED_COLLECTIONS } from "@/lib/palettes/curated-collections";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ColorInput } from "@/components/ui/ColorInput";
-import { Button } from "@/components/ui/Button";
+
+type Tab = "presets" | "harmony" | "custom";
+
+const HARMONY_RULES: Array<{ id: HarmonyRule; label: string }> = [
+  { id: "analogous", label: "Analogous" },
+  { id: "complementary", label: "Complementary" },
+  { id: "triadic", label: "Triadic" },
+  { id: "split-complementary", label: "Split-Complementary" },
+  { id: "monochromatic", label: "Monochromatic" },
+  { id: "tetradic", label: "Tetradic" },
+];
 
 export function PalettePicker() {
   const palette = useEditorStore((s) => s.palette);
   const setPalette = useEditorStore((s) => s.setPalette);
+  const paletteLocked = useEditorStore((s) => s.paletteLocked);
+  const togglePaletteLock = useEditorStore((s) => s.togglePaletteLock);
+  const randomizePalette = useEditorStore((s) => s.randomizePalette);
   const mode = useEditorStore((s) => s.mode);
+
   const effectiveMode = mode === "auto" ? "dark" : mode;
-  const curated = palettesForMode(effectiveMode);
+  const legacyCurated = palettesForMode(effectiveMode);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  function pickPalette(p: Palette) {
-    setPalette(p.colors);
+  const [tab, setTab] = useState<Tab>("presets");
+  const [seedHue, setSeedHue] = useState(210);
+  const [harmonyRule, setHarmonyRule] = useState<HarmonyRule>("analogous");
+
+  // Detect which curated collection matches the active palette
+  const activePaletteId = NAMED_CURATED_COLLECTIONS.find(
+    (c) =>
+      c.colors.length === palette.length &&
+      c.colors.every((col, i) => col === palette[i])
+  )?.id;
+
+  function applyHarmony(hue: number, rule: HarmonyRule) {
+    setPalette(generateHarmonyPalette(hue, rule, 4));
   }
+
   function updateColor(i: number, v: string) {
     const next = [...palette];
     next[i] = v;
     setPalette(next);
   }
-  function addColor() {
-    if (palette.length >= 6) return;
-    setPalette([...palette, palette[palette.length - 1] ?? "#888888"]);
-  }
+
   function removeColor(i: number) {
     if (palette.length <= 2) return;
     setPalette(palette.filter((_, idx) => idx !== i));
+  }
+
+  function addColor() {
+    if (palette.length >= 8) return;
+    setPalette([...palette, palette[palette.length - 1] ?? "#888888"]);
   }
 
   async function onFile(file: File) {
@@ -45,74 +77,368 @@ export function PalettePicker() {
 
   return (
     <div className="space-y-3">
-      {/* Curated Presets */}
-      <div className="grid grid-cols-5 gap-1.5">
-        {curated.map((p) => (
+      {/* ── Toolbar ─────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        {/* Sub-tabs */}
+        <div className="flex gap-0.5" style={{ background: "#F5F1EB", borderRadius: 8, padding: 3 }}>
+          {(["presets", "harmony", "custom"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className="capitalize transition-all"
+              style={{
+                fontSize: 10,
+                fontFamily: "monospace",
+                padding: "3px 9px",
+                borderRadius: 6,
+                background: tab === t ? "#FFFFFF" : "transparent",
+                color: tab === t ? "#2B2A26" : "#8A8579",
+                fontWeight: tab === t ? 600 : 400,
+                boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+              }}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Lock + Shuffle */}
+        <div className="flex items-center gap-1.5">
           <button
-            key={p.id}
             type="button"
-            onClick={() => pickPalette(p)}
-            aria-label={`Use ${p.label} palette`}
-            title={p.label}
-            className="flex min-h-[44px] overflow-hidden rounded-md border border-zinc-700 focus:ring-2 focus:ring-[#C9552F]"
+            onClick={togglePaletteLock}
+            title={paletteLocked ? "Unlock palette" : "Lock palette"}
+            className="rounded-lg transition-all"
+            style={{
+              padding: "5px 7px",
+              fontSize: 12,
+              border: paletteLocked ? "1px solid #C9552F" : "1px solid #EDE8E0",
+              background: paletteLocked ? "rgba(201,85,47,0.08)" : "#FAF8F4",
+              color: paletteLocked ? "#C9552F" : "#8A8579",
+            }}
           >
-            {p.colors.map((c) => (
-              <span key={c} style={{ background: c }} className="flex-1" />
-            ))}
+            {paletteLocked ? "🔒" : "🔓"}
           </button>
+          <button
+            type="button"
+            onClick={randomizePalette}
+            className="rounded-lg transition-all"
+            style={{
+              padding: "4px 9px",
+              fontSize: 10,
+              fontFamily: "monospace",
+              border: "1px solid #EDE8E0",
+              background: "#FAF8F4",
+              color: "#5B584F",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F";
+              (e.currentTarget as HTMLButtonElement).style.color = "#C9552F";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
+              (e.currentTarget as HTMLButtonElement).style.color = "#5B584F";
+            }}
+          >
+            ✦ Shuffle
+          </button>
+        </div>
+      </div>
+
+      {/* Active palette strip */}
+      <div
+        className="flex w-full overflow-hidden rounded-lg"
+        style={{ height: 22, border: "1px solid #E4DFD3", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)" }}
+      >
+        {palette.map((color, i) => (
+          <span key={i} style={{ flex: 1, backgroundColor: color }} title={color} />
         ))}
       </div>
 
-      {/* Palette Colors Control List */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-[11px] font-mono text-zinc-400">
-          <span>Palette colors ({palette.length}/6)</span>
-          <span>{palette.length <= 2 ? "Min 2 colors required" : palette.length >= 6 ? "Max 6 colors reached" : ""}</span>
-        </div>
-        {palette.map((c, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="shrink-0 flex items-center justify-center min-h-[44px] min-w-[44px]">
-              <ColorInput value={c} onChange={(v) => updateColor(i, v)} ariaLabel={`Color ${i + 1}`} />
+      {/* ── PRESETS tab ─────────────────────────────────────────── */}
+      {tab === "presets" && (
+        <div
+          className="space-y-1 no-scrollbar overflow-y-auto"
+          style={{ maxHeight: 260 }}
+        >
+          {NAMED_CURATED_COLLECTIONS.map((c) => {
+            const isSelected = activePaletteId === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setPalette([...c.colors])}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all"
+                style={{
+                  border: isSelected ? "1.5px solid #C9552F" : "1.5px solid transparent",
+                  background: isSelected ? "rgba(201,85,47,0.05)" : "transparent",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    (e.currentTarget as HTMLButtonElement).style.background = "#F5F1EB";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  }
+                }}
+              >
+                {/* Color swatches */}
+                <div className="flex gap-0.5 shrink-0">
+                  {c.colors.slice(0, 5).map((col, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: 3,
+                        backgroundColor: col,
+                        border: "1px solid rgba(0,0,0,0.08)",
+                        display: "inline-block",
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Palette name */}
+                <span
+                  className="flex-1 truncate"
+                  style={{
+                    fontSize: 12,
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? "#C9552F" : "#2B2A26",
+                  }}
+                >
+                  {c.label}
+                </span>
+
+                {isSelected && (
+                  <span style={{ fontSize: 10, color: "#C9552F", fontFamily: "monospace" }}>✓</span>
+                )}
+              </button>
+            );
+          })}
+
+          {/* Legacy curated palettes */}
+          {legacyCurated.length > 0 && (
+            <div className="pt-3" style={{ borderTop: "1px solid #EDE8E0", marginTop: 8 }}>
+              <p
+                style={{
+                  fontSize: 9,
+                  fontFamily: "monospace",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "#A0968C",
+                  marginBottom: 8,
+                }}
+              >
+                Classic
+              </p>
+              <div className="grid grid-cols-5 gap-1.5">
+                {legacyCurated.map((p: Palette) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPalette([...p.colors])}
+                    title={p.label}
+                    className="flex overflow-hidden rounded-lg"
+                    style={{
+                      height: 32,
+                      border: "1.5px solid #EDE8E0",
+                    }}
+                  >
+                    {p.colors.map((c) => (
+                      <span key={c} style={{ flex: 1, backgroundColor: c }} />
+                    ))}
+                  </button>
+                ))}
+              </div>
             </div>
-            <input
-              type="text"
-              value={c}
-              onChange={(e) => updateColor(i, e.target.value)}
-              aria-label={`Color ${i + 1} hex`}
-              className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs text-zinc-100 min-h-[44px]"
-            />
+          )}
+        </div>
+      )}
+
+      {/* ── HARMONY tab ─────────────────────────────────────────── */}
+      {tab === "harmony" && (
+        <div
+          className="space-y-4 rounded-xl p-4"
+          style={{ background: "#FAF8F4", border: "1px solid #EDE8E0" }}
+        >
+          {/* Hue slider */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label style={{ fontSize: 10, fontFamily: "monospace", color: "#5B584F" }}>
+                Seed Hue ({seedHue}°)
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const h = Math.floor(Math.random() * 360);
+                  setSeedHue(h);
+                  applyHarmony(h, harmonyRule);
+                }}
+                style={{ fontSize: 10, fontFamily: "monospace", color: "#C9552F" }}
+                className="hover:underline"
+              >
+                ✦ Random
+              </button>
+            </div>
+            <div className="relative">
+              <input
+                type="range"
+                min={0}
+                max={360}
+                value={seedHue}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setSeedHue(v);
+                  applyHarmony(v, harmonyRule);
+                }}
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right,
+                    hsl(0,70%,55%), hsl(60,70%,55%), hsl(120,70%,55%),
+                    hsl(180,70%,55%), hsl(240,70%,55%), hsl(300,70%,55%), hsl(360,70%,55%))`,
+                }}
+              />
+            </div>
+            {/* Harmony color preview */}
+            <div
+              className="flex mt-2 overflow-hidden rounded-lg"
+              style={{ height: 18, border: "1px solid rgba(0,0,0,0.06)" }}
+            >
+              {generateHarmonyPalette(seedHue, harmonyRule, 4).map((c, i) => (
+                <span key={i} style={{ flex: 1, backgroundColor: c }} />
+              ))}
+            </div>
+          </div>
+
+          {/* Harmony rule */}
+          <div>
+            <label style={{ fontSize: 10, fontFamily: "monospace", color: "#5B584F", display: "block", marginBottom: 6 }}>
+              Harmony Rule
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {HARMONY_RULES.map((r) => (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => {
+                    setHarmonyRule(r.id);
+                    applyHarmony(seedHue, r.id);
+                  }}
+                  className="py-1.5 rounded-lg text-left px-2.5 transition-all"
+                  style={{
+                    fontSize: 10,
+                    border: harmonyRule === r.id ? "1.5px solid #C9552F" : "1.5px solid #EDE8E0",
+                    background: harmonyRule === r.id ? "rgba(201,85,47,0.07)" : "#FFFFFF",
+                    color: harmonyRule === r.id ? "#C9552F" : "#5B584F",
+                    fontWeight: harmonyRule === r.id ? 600 : 400,
+                  }}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CUSTOM tab ──────────────────────────────────────────── */}
+      {tab === "custom" && (
+        <div className="space-y-2.5">
+          <div className="flex justify-between" style={{ fontSize: 10, fontFamily: "monospace", color: "#A0968C" }}>
+            <span>{palette.length} colors</span>
+            <span>{palette.length >= 8 ? "Max 8" : palette.length <= 2 ? "Min 2" : ""}</span>
+          </div>
+
+          {palette.map((c, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="shrink-0" style={{ width: 36, height: 36 }}>
+                <ColorInput
+                  value={c}
+                  onChange={(v) => updateColor(i, v)}
+                  ariaLabel={`Color ${i + 1}`}
+                />
+              </div>
+              <input
+                type="text"
+                value={c}
+                onChange={(e) => updateColor(i, e.target.value)}
+                aria-label={`Color ${i + 1} hex`}
+                className="flex-1 rounded-lg font-mono focus:outline-none transition-all"
+                style={{
+                  fontSize: 11,
+                  padding: "8px 10px",
+                  border: "1.5px solid #EDE8E0",
+                  background: "#FFFFFF",
+                  color: "#2B2A26",
+                  height: 36,
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "#C9552F")}
+                onBlur={(e) => (e.target.style.borderColor = "#EDE8E0")}
+              />
+              <button
+                type="button"
+                disabled={palette.length <= 2}
+                onClick={() => removeColor(i)}
+                aria-label={`Remove color ${i + 1}`}
+                className="flex items-center justify-center rounded-lg transition-all disabled:opacity-25"
+                style={{
+                  width: 36,
+                  height: 36,
+                  fontSize: 12,
+                  border: "1.5px solid #EDE8E0",
+                  background: "#FAF8F4",
+                  color: "#8A8579",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#FCA5A5";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#DC2626";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#8A8579";
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <div className="flex gap-2 pt-1">
             <button
               type="button"
-              disabled={palette.length <= 2}
-              onClick={() => removeColor(i)}
-              aria-label={`Remove color ${i + 1}`}
-              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-zinc-800 text-sm font-medium text-zinc-400 hover:text-red-400 hover:border-red-500/40 disabled:opacity-30 transition"
+              disabled={palette.length >= 8}
+              onClick={addColor}
+              className="flex-1 rounded-xl py-2 text-xs transition-all disabled:opacity-30"
+              style={{ border: "1.5px solid #EDE8E0", background: "#FAF8F4", color: "#5B584F", fontSize: 11 }}
             >
-              ✕
+              + Add Color
+            </button>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="flex-1 rounded-xl py-2 text-xs transition-all"
+              style={{ border: "1.5px solid #EDE8E0", background: "#FAF8F4", color: "#5B584F", fontSize: 11 }}
+            >
+              ↑ From Image
             </button>
           </div>
-        ))}
-      </div>
-
-      {/* Add / Extract Buttons */}
-      <div className="flex gap-2">
-        <Button onClick={addColor} disabled={palette.length >= 6} className="min-h-[44px] flex-1">
-          + Add Color ({palette.length}/6)
-        </Button>
-        <Button onClick={() => fileRef.current?.click()} className="min-h-[44px] flex-1">
-          + From Image
-        </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) void onFile(f);
-          }}
-        />
-      </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void onFile(f);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
