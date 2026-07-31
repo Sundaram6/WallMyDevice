@@ -27,19 +27,19 @@ export function InlineStudio() {
   }, []);
 
   return (
-    <section id="studio-section" ref={containerRef} className="w-full bg-[#FAF8F4] py-16 px-4 sm:px-8 lg:px-12">
+    <section id="studio-section" ref={containerRef} className="w-full bg-[#0d0e12] text-white py-16 px-4 sm:px-8 lg:px-12 border-t border-white/10">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-[#E4DFD3] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-white/10 pb-4">
           <div>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[#C9552F]">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">
               ✦ LIVE STUDIO PREVIEW
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2B2A26] mt-1">
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-white mt-1">
               Compose your wallpaper.
             </h2>
           </div>
-          <p className="max-w-xs text-xs leading-relaxed text-[#5B584F] sm:text-right font-sans">
+          <p className="max-w-xs text-xs leading-relaxed text-zinc-400 sm:text-right font-sans">
             Choose a generator, drop a palette, pick a device. Every change is interactive — no waiting on servers.
           </p>
         </div>
@@ -48,7 +48,7 @@ export function InlineStudio() {
         {isVisible ? (
           <StudioCore layout="inline" />
         ) : (
-          <div className="h-[600px] w-full rounded-3xl border border-[#D4CDBC] bg-[#F3EFE6] flex items-center justify-center text-xs font-mono text-[#8A8579]">
+          <div className="h-[600px] w-full rounded-3xl border border-white/10 bg-[#141518] flex items-center justify-center text-xs font-mono text-zinc-500">
             Loading interactive studio…
           </div>
         )}
@@ -57,7 +57,7 @@ export function InlineStudio() {
         <div className="mt-6 flex justify-end">
           <Link
             href="/studio"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2B2A26] hover:text-[#C9552F] transition border-b border-[#2B2A26] hover:border-[#C9552F] pb-0.5"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:text-brand-accent transition border-b border-white/40 hover:border-brand-accent pb-0.5"
           >
             <span>Open Full-Screen Studio</span>
             <span>→</span>

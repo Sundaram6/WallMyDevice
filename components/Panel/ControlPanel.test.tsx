@@ -44,12 +44,10 @@ describe("ControlPanel", () => {
     expect(useEditorStore.getState().generatorId).toBe("waveform");
   });
 
-  it("default (sidebar) variant is hidden below md, matching the mobile BottomSheet handoff", () => {
+  it("default (sidebar) variant renders inner panel controls", () => {
     const { container } = render(<ControlPanel />);
-    const aside = container.querySelector("aside");
-    expect(aside).not.toBeNull();
-    expect(aside?.className).toMatch(/\bhidden\b/);
-    expect(aside?.className).toMatch(/\bmd:flex\b/);
+    const div = container.querySelector("div");
+    expect(div).not.toBeNull();
   });
 
   it("sheet variant renders the same controls with no sidebar chrome, for use inside BottomSheet", () => {

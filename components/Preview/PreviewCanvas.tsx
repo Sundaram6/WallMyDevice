@@ -51,8 +51,8 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const s = useEditorStore.getState();
-    const w = Math.min(maxWidth, Math.floor(maxHeight * aspect));
-    const h = Math.min(maxHeight, Math.floor(maxWidth / aspect));
+    const w = maxWidth;
+    const h = maxHeight;
 
     const input = buildRenderInput(s, { width: w, height: h });
     const generator = getGenerator(s.generatorId);
@@ -192,8 +192,8 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
     };
   }, [renderIfReady]);
 
-  const w = Math.min(maxWidth, Math.floor(maxHeight * aspect));
-  const h = Math.min(maxHeight, Math.floor(maxWidth / aspect));
+  const w = maxWidth;
+  const h = maxHeight;
 
   return (
     <div className="relative flex items-center justify-center overflow-hidden" style={{ width: w, height: h }}>

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { getGenerator } from "../lib/generators/registry";
 import { hashSeed } from "../lib/prng";
 import { ARCHIVE_PRESETS } from "../lib/presets/archive-presets";
+import { editorCore } from "../lib/engine/EditorCore";
 
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
@@ -76,6 +77,10 @@ export type EditorState = {
   setDeviceType: (t: EditorState["deviceType"]) => void;
   setPhoneSelection: (brand?: string, model?: string, display?: string) => void;
   setOrientation: (o: EditorState["orientation"]) => void;
+
+  reset: () => void;
+  undo: () => void;
+  redo: () => void;
 
   hydrate: (next: Partial<EditorState>) => void;
 };
@@ -178,10 +183,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setCustomSize: (w, h) => set({ customWidth: w, customHeight: h }),
   setAspectLock: (locked) => set({ aspectLock: locked }),
 
-  setGrain: (enabled, intensity) => set({ grainEnabled: enabled, grainIntensity: intensity }),
-  setBlur: (v) => set({ blurIntensity: v }),
+  setGrain: (enabled, intensity) => {
+    editorCore.history.pushSnapshot("Set Grain", get());
+    set({ grainEnabled: enabled, grainIntensity: intensity });
+  },
+  setBlur: (v) => {
+    editorCore.history.pushSnapshot("Set Blur", get());
+    set({ blurIntensity: v });
+  },
 
-  setOverlay: (key, value) => set({ [`overlay${capitalize(key)}`]: value } as Partial<EditorState>),
+  setOverlay: (key, value) => {
+    editorCore.history.pushSnapshot("Set Overlay", get());
+    set({ [`overlay${capitalize(key)}`]: value } as Partial<EditorState>);
+  },
   setOverlayText: (text) => set({ overlayTextValue: text }),
   setOverlayFont: (font) => set({ overlayFont: font }),
   setOverlaySize: (size) => set({ overlaySize: size }),
@@ -190,6 +204,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   // device/phone setters
   setDeviceType: (t) => {
+    editorCore.history.pushSnapshot("Set Device Type", get());
     const prev = get();
     if (t === "phone") {
       // restore last phone selection if present
@@ -205,9 +220,47 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
   },
   setPhoneSelection: (brand, model, display) => {
+    editorCore.history.pushSnapshot("Set Phone", get());
     set({ phoneBrand: brand, phoneModel: model, phoneDisplay: display });
   },
-  setOrientation: (o) => set({ orientation: o }),
+  setOrientation: (o) => {
+    editorCore.history.pushSnapshot("Set Orientation", get());
+    set({ orientation: o });
+  },
+
+  reset: () => {
+    const state = get();
+    editorCore.history.pushSnapshot("Reset Defaults", state);
+    const gId = state.generatorId;
+    const defaultParams = getDefaultParams(gId);
+    set({
+      params: { ...state.params, [gId]: defaultParams },
+      palette: ["#0f172a", "#f59e0b"],
+      seed: "k3p9x2a7",
+      grainEnabled: false,
+      grainIntensity: 0,
+      blurIntensity: 0,
+      overlayClock: false,
+      overlayDate: false,
+      overlayText: false,
+    });
+  },
+
+  undo: () => {
+    const currentState = get();
+    const prev = editorCore.history.undo(currentState);
+    if (prev) {
+      set(prev);
+    }
+  },
+
+  redo: () => {
+    const currentState = get();
+    const next = editorCore.history.redo(currentState);
+    if (next) {
+      set(next);
+    }
+  },
 
   hydrate: (next) => set(next as EditorState),
 }));

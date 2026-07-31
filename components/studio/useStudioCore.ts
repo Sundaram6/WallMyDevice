@@ -94,13 +94,16 @@ export function useStudioCore() {
   const [whatsNewBanner, setWhatsNewBanner] = useState<string | null>(null);
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
       useEditorStore.getState().setSystemColorScheme(mq.matches ? "dark" : "light");
     };
     apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
+    if (mq.addEventListener) {
+      mq.addEventListener("change", apply);
+      return () => mq.removeEventListener("change", apply);
+    }
   }, []);
 
   useEffect(() => {

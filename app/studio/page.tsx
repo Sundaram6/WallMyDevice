@@ -10,14 +10,14 @@ export default function StudioPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
+    <div className="h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans flex flex-col overflow-hidden">
       <ArchiveTopbar
         activeRoute="studio"
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         favoriteCount={0}
       />
-      <main className="w-full">
+      <main className="w-full flex-1 min-h-0">
         <StudioCore layout="full" />
       </main>
     </div>

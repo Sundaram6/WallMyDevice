@@ -11,9 +11,10 @@ type Props = {
   deviceType?: string;
   phoneModel?: string;
   children: ReactNode;
+  metrics?: any; // Will refine type later
 };
 
-export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }: Props) {
+export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children, metrics }: Props) {
   // Determine effective frame based on deviceType or preset frame
   let effectiveFrame: FrameStyle = frame;
   if (deviceType === "phone") {
@@ -34,9 +35,8 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
     return (
       <div data-frame={effectiveFrame} className="flex items-center justify-center">
         <div
-          data-aspect={aspect}
-          style={{ aspectRatio: `${aspect} / 1` }}
           className="relative overflow-hidden rounded-md bg-zinc-900 shadow-2xl ring-1 ring-white/10"
+          style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
         >
           {children}
         </div>
@@ -48,14 +48,13 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
   if (effectiveFrame === "iphone") {
     return (
       <div data-frame={effectiveFrame} className="flex items-center justify-center">
-        <IPhoneProFrame>
+        <IPhoneProFrame metrics={metrics}>
           <div
-            data-aspect={aspect}
-            style={{ aspectRatio: `${aspect} / 1` }}
             className="relative overflow-hidden bg-black"
+            style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
           >
             {children}
-            <SafeZoneHint frame={effectiveFrame} />
+            <SafeZoneHint frame={effectiveFrame} metrics={metrics} />
           </div>
         </IPhoneProFrame>
       </div>
@@ -66,14 +65,13 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
   if (effectiveFrame === "android") {
     return (
       <div data-frame={effectiveFrame} className="flex items-center justify-center">
-        <S25UltraFrame>
+        <S25UltraFrame metrics={metrics}>
           <div
-            data-aspect={aspect}
-            style={{ aspectRatio: `${aspect} / 1` }}
             className="relative overflow-hidden bg-black"
+            style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
           >
             {children}
-            <SafeZoneHint frame={effectiveFrame} />
+            <SafeZoneHint frame={effectiveFrame} metrics={metrics} />
           </div>
         </S25UltraFrame>
       </div>
@@ -84,14 +82,13 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
   if (effectiveFrame === "ipad") {
     return (
       <div data-frame={effectiveFrame} className="flex items-center justify-center">
-        <IPadProFrame>
+        <IPadProFrame metrics={metrics}>
           <div
-            data-aspect={aspect}
-            style={{ aspectRatio: `${aspect} / 1` }}
             className="relative overflow-hidden bg-black"
+            style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
           >
             {children}
-            <SafeZoneHint frame={effectiveFrame} />
+            <SafeZoneHint frame={effectiveFrame} metrics={metrics} />
           </div>
         </IPadProFrame>
       </div>
@@ -100,15 +97,14 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
 
   return (
     <div data-frame={effectiveFrame} className="flex items-center justify-center">
-      <FrameShell frame={effectiveFrame}>
+      <FrameShell frame={effectiveFrame} metrics={metrics}>
         <div
-          data-aspect={aspect}
-          style={{ aspectRatio: `${aspect} / 1` }}
           className="relative overflow-hidden bg-black shadow-2xl"
+          style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
         >
           {children}
           {effectiveFrame === "desktop-monitor" ? <MonitorStand /> : null}
-          <SafeZoneHint frame={effectiveFrame} />
+          <SafeZoneHint frame={effectiveFrame} metrics={metrics} />
 
           {/* Glass Specular Overlay */}
           <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-tr from-transparent via-white/[0.04] to-transparent" />
@@ -119,12 +115,23 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children }:
   );
 }
 
-function FrameShell({ frame, children }: { frame: FrameStyle; children: ReactNode }) {
+function FrameShell({ frame, children, metrics }: { frame: FrameStyle; children: ReactNode; metrics?: any }) {
   const isMonitor = frame === "desktop-monitor" || frame === "ultrawide";
   const bezel = isMonitor
-    ? "rounded-xl p-3 bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl"
-    : "rounded-[2.5rem] p-3 bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl";
-  return <div className={bezel}>{children}</div>;
+    ? "bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl"
+    : "bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl";
+  
+  return (
+    <div 
+      className={bezel}
+      style={{
+        padding: metrics ? metrics.frameThicknessLayout : (isMonitor ? 12 : 24),
+        borderRadius: metrics ? metrics.cornerRadiusLayout + metrics.frameThicknessLayout : (isMonitor ? 12 : 40)
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 function IPhoneChrome() {
@@ -147,7 +154,7 @@ function MonitorStand() {
   );
 }
 
-function SafeZoneHint({ frame }: { frame: FrameStyle }) {
+function SafeZoneHint({ frame, metrics }: { frame: FrameStyle; metrics?: any }) {
   if (frame !== "iphone" && frame !== "android" && frame !== "ipad") return null;
   return (
     <>
