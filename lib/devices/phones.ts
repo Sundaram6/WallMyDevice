@@ -1450,43 +1450,7 @@ export const PHONE_MODELS: PhoneModel[] = [
     sources: [{ name: "Realme Global", url: "https://www.realme.com" }],
     verifiedAt: "2026-07-23",
   },
-];
 
-
-// ─── Provider & Utilities ──────────────────────────────────────────────────────
-
-export interface DeviceCatalogueFeed {
-  lastUpdated: string;
-  source: string;
-  models: PhoneModel[];
-}
-
-/**
- * DeviceCatalogueProvider bundles the local catalogue and provides a
- * source-agnostic sync boundary for future server-side feeds.
- *
- * Server-side sync adapter interface (for future use):
- * ```ts
- * type ExternalFeedAdapter = {
- *   fetch(): Promise<DeviceCatalogueFeed>;
- *   validate(feed: DeviceCatalogueFeed): boolean;
- * };
- * ```
- * Pass an adapter to `syncExternalFeed` to merge validated remote data.
- */
-export class DeviceCatalogueProvider {
-  private feed: DeviceCatalogueFeed;
-
-  constructor(initialFeed?: Partial<DeviceCatalogueFeed>) {
-    this.feed = {
-      lastUpdated: initialFeed?.lastUpdated ?? "2026-07-23T20:00:00Z",
-      source: initialFeed?.source ?? "wallmydevice-bundled-v3",
-      models: this.validateAndDeduplicate(initialFeed?.models ?? PHONE_MODELS),
-    };
-  }
-
-  private validateAndDeduplicate(models: PhoneModel[]): PhoneModel[] {
-    const valid: PhoneModel[] = [
   {
     id: "samsung-galaxy-s24-ultra",
     brandId: "samsung",
@@ -3479,6 +3443,44 @@ export class DeviceCatalogueProvider {
     verifiedAt: "2026-08-01",
   },
 ];
+
+
+
+// ─── Provider & Utilities ──────────────────────────────────────────────────────
+
+export interface DeviceCatalogueFeed {
+  lastUpdated: string;
+  source: string;
+  models: PhoneModel[];
+}
+
+/**
+ * DeviceCatalogueProvider bundles the local catalogue and provides a
+ * source-agnostic sync boundary for future server-side feeds.
+ *
+ * Server-side sync adapter interface (for future use):
+ * ```ts
+ * type ExternalFeedAdapter = {
+ *   fetch(): Promise<DeviceCatalogueFeed>;
+ *   validate(feed: DeviceCatalogueFeed): boolean;
+ * };
+ * ```
+ * Pass an adapter to `syncExternalFeed` to merge validated remote data.
+ */
+export class DeviceCatalogueProvider {
+  private feed: DeviceCatalogueFeed;
+
+  constructor(initialFeed?: Partial<DeviceCatalogueFeed>) {
+    this.feed = {
+      lastUpdated: initialFeed?.lastUpdated ?? "2026-07-23T20:00:00Z",
+      source: initialFeed?.source ?? "wallmydevice-bundled-v3",
+      models: this.validateAndDeduplicate(initialFeed?.models ?? PHONE_MODELS),
+    };
+  }
+
+  private validateAndDeduplicate(models: PhoneModel[]): PhoneModel[] {
+    const valid: PhoneModel[] = [];
+
     const seen = new Set<string>();
 
     for (const m of models) {
