@@ -40,7 +40,7 @@ export const waveform: Generator<Params> = {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
-    const stepCount = Math.max(40, Math.floor(W / 8));
+    const stepCount = 150;
     const baseY = H * 0.65;
 
     for (let layer = 0; layer < params.layers; layer++) {

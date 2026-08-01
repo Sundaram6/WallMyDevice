@@ -44,16 +44,33 @@ export const grainTexture: Generator<Params> = {
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, width, height);
 
-    // Composite film grain noise
     const imgData = ctx.getImageData(0, 0, width, height);
     const data = imgData.data;
     const intensity = params.grainIntensity * 255;
+    const refScale = Math.max(width, height) / 500;
+    const step = Math.max(1, Math.floor(refScale));
 
-    for (let i = 0; i < data.length; i += 4) {
-      const noise = (rng() - 0.5) * intensity;
-      data[i] = Math.min(255, Math.max(0, data[i] + noise));
-      data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
-      data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+    // Generate noise values once per block row/col to avoid creating noise per sub-pixel, maintaining grain chunk size
+    const cols = Math.ceil(width / step);
+    const rows = Math.ceil(height / step);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const noise = (rng() - 0.5) * intensity;
+        const startY = r * step;
+        const startX = c * step;
+        const endY = Math.min(startY + step, height);
+        const endX = Math.min(startX + step, width);
+
+        for (let y = startY; y < endY; y++) {
+          for (let x = startX; x < endX; x++) {
+            const i = (y * width + x) * 4;
+            data[i] = Math.min(255, Math.max(0, data[i] + noise));
+            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
+            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+          }
+        }
+      }
     }
 
     ctx.putImageData(imgData, 0, 0);
