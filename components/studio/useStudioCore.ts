@@ -9,6 +9,88 @@ import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
 import { CURRENT_VERSION } from "@/lib/changelog/data";
 import type { AccessibilityMode } from "@/components/Preview/AccessibilityPreviewBar";
 
+function autoDetectDeviceAndModel() {
+  if (typeof window === "undefined") return null;
+
+  const ua = navigator.userAgent || "";
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const screenW = window.screen?.width || width;
+  const screenH = window.screen?.height || height;
+  const maxDim = Math.max(screenW, screenH);
+
+  const isMobileUA = /iPhone|Android|Mobile|iPod/i.test(ua);
+  const isTabletUA = /iPad|Tablet/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  if (isMobileUA && !isTabletUA) {
+    if (/iPhone/i.test(ua)) {
+      return {
+        deviceType: "phone" as const,
+        phoneBrand: "apple",
+        phoneModel: maxDim >= 926 ? "iphone-16-pro-max" : "iphone-16-pro",
+        resolutionId: "iphone-15-pro",
+        customWidth: 1206,
+        customHeight: 2622,
+        notice: "Auto-detected your iPhone display.",
+      };
+    }
+    if (/Samsung|Galaxy/i.test(ua)) {
+      return {
+        deviceType: "phone" as const,
+        phoneBrand: "samsung",
+        phoneModel: "s25-ultra",
+        resolutionId: "custom",
+        customWidth: 1440,
+        customHeight: 3120,
+        notice: "Auto-detected your Samsung Galaxy display.",
+      };
+    }
+    return {
+      deviceType: "phone" as const,
+      phoneBrand: "google",
+      phoneModel: "pixel-9-pro-xl",
+      resolutionId: "custom",
+      customWidth: 1344,
+      customHeight: 2992,
+      notice: "Auto-detected your mobile display.",
+    };
+  }
+
+  if (isTabletUA || (width >= 640 && width < 1024)) {
+    return {
+      deviceType: "tablet" as const,
+      phoneBrand: undefined,
+      phoneModel: undefined,
+      resolutionId: "ipad-pro-13",
+      customWidth: 2064,
+      customHeight: 2752,
+      notice: "Auto-detected your tablet display.",
+    };
+  }
+
+  if (maxDim >= 2560) {
+    return {
+      deviceType: "desktop" as const,
+      phoneBrand: undefined,
+      phoneModel: undefined,
+      resolutionId: "desktop-4k",
+      customWidth: 3840,
+      customHeight: 2160,
+      notice: "Auto-detected your 4K desktop display.",
+    };
+  }
+
+  return {
+    deviceType: "desktop" as const,
+    phoneBrand: undefined,
+    phoneModel: undefined,
+    resolutionId: "desktop-1080p",
+    customWidth: 1920,
+    customHeight: 1080,
+    notice: "Auto-detected your desktop display.",
+  };
+}
+
 function restoreFromLocalStorage() {
   if (typeof window === "undefined") return;
   const hash = window.location.hash;
@@ -130,26 +212,25 @@ export function useStudioCore() {
     restoreFromLocalStorage();
     loadHashRecipe();
 
+    // Default to light theme unless explicitly saved
     if (!hasSavedState) {
-      const width = window.innerWidth;
-      if (width < 640) {
+      useEditorStore.setState({ mode: "light" });
+      if (typeof document !== "undefined") {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+
+      // Auto-detect device model & screen dimensions
+      const detected = autoDetectDeviceAndModel();
+      if (detected) {
         useEditorStore.setState({
-          deviceType: "phone",
-          phoneBrand: "apple",
-          phoneModel: "iphone-16-pro",
-          resolutionId: "iphone-15-pro",
-          customWidth: 1206,
-          customHeight: 2622,
+          deviceType: detected.deviceType,
+          phoneBrand: detected.phoneBrand,
+          phoneModel: detected.phoneModel,
+          resolutionId: detected.resolutionId,
+          customWidth: detected.customWidth,
+          customHeight: detected.customHeight,
         });
-        setDeviceNotice("Started with a phone-sized canvas based on this screen.");
-      } else if (width >= 640 && width < 1024) {
-        useEditorStore.setState({
-          deviceType: "tablet",
-          resolutionId: "ipad-air-11",
-          customWidth: 1640,
-          customHeight: 2360,
-        });
-        setDeviceNotice("Started with a tablet-sized canvas based on this screen.");
+        setDeviceNotice(detected.notice);
       }
     }
 

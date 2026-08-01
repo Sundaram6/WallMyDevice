@@ -96,8 +96,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   params: { waveform: getDefaultParams("waveform") },
 
   palette: ["#0f172a", "#f59e0b"],
-  mode: "dark",
-  systemColorScheme: "dark",
+  mode: "light",
+  systemColorScheme: "light",
   seed: "k3p9x2a7",
 
   grainEnabled: false,

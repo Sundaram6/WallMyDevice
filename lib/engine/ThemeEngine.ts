@@ -8,22 +8,14 @@ export type SystemColorScheme = "light" | "dark";
 
 export class ThemeEngine {
   private static instance: ThemeEngine;
-  private currentMode: ThemeMode = "auto";
-  private systemScheme: SystemColorScheme = "dark";
+  private currentMode: ThemeMode = "light";
+  private systemScheme: SystemColorScheme = "light";
   private listeners: Set<(mode: ThemeMode, effectiveScheme: SystemColorScheme) => void> = new Set();
 
   private constructor() {
     if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
       const media = window.matchMedia("(prefers-color-scheme: dark)");
       this.systemScheme = media.matches ? "dark" : "light";
-      if (media.addEventListener) {
-        media.addEventListener("change", (e) => {
-          this.systemScheme = e.matches ? "dark" : "light";
-          if (this.currentMode === "auto") {
-            this.applyTheme();
-          }
-        });
-      }
     }
   }
 
