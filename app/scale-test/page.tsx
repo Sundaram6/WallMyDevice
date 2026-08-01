@@ -16,8 +16,8 @@ function renderToCanvas(
   height: number
 ) {
   const needsWebGL = generator.kind === "shader";
-  const palette = resolvePalette(preset.palette, "dark", false);
-  const rng = createRng(12345);
+  const palette = resolvePalette(preset.palette, "dark");
+  const rng = createRng("12345");
   const context = { blur: 0, grain: { enabled: false, intensity: 0 } };
 
   canvas.width = width;
@@ -51,7 +51,7 @@ function GeneratorRow({ gen }: { gen: any }) {
   useEffect(() => {
     if (!smallRef.current || !largeRef.current) return;
     
-    const preset = ARCHIVE_PRESETS.find((p) => p.generator === gen.id) || {
+    const preset = ARCHIVE_PRESETS.find((p) => p.generatorId === gen.id) || {
       params: gen.schema.defaults,
       palette: ["#111111", "#ff0000", "#0000ff"],
     };
