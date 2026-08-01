@@ -69,7 +69,8 @@ export const meshGradient: Generator<Params> = {
     ctx.restore();
 
     if (params.blurRadius > 0) {
-      ctx.filter = `blur(${Math.round(params.blurRadius * 40)}px)`;
+      const blurAmount = Math.round(params.blurRadius * minDim * 0.08);
+      ctx.filter = `blur(${blurAmount}px)`;
       ctx.drawImage(ctx.canvas, 0, 0);
       ctx.filter = "none";
     }

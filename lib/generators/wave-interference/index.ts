@@ -34,9 +34,11 @@ export const waveInterference: Generator<Params> = {
     const { ctx, width, height } = target;
     ctx.clearRect(0, 0, width, height);
 
-    const step = 4;
+    const maxDim = Math.max(width, height);
+    const step = Math.max(2, Math.floor(maxDim / 150));
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
+    const freq = params.frequency * (500 / Math.max(1, maxDim));
 
     const sources: Array<{ x: number; y: number }> = [];
     for (let s = 0; s < params.waveSources; s++) {
@@ -55,7 +57,7 @@ export const waveInterference: Generator<Params> = {
         let totalVal = 0;
         sources.forEach((src) => {
           const dist = Math.hypot(x - src.x, y - src.y);
-          totalVal += Math.sin(dist * params.frequency) * params.amplitude;
+          totalVal += Math.sin(dist * freq) * params.amplitude;
         });
 
         const norm = (totalVal / params.waveSources + 1) / 2;

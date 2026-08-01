@@ -34,7 +34,8 @@ export const marbleFluid: Generator<Params> = {
     const { ctx, width, height } = target;
     ctx.clearRect(0, 0, width, height);
 
-    const step = 4;
+    const refScale = Math.max(width, height) / 500;
+    const step = Math.max(2, 4 * refScale);
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
 

@@ -48,13 +48,14 @@ export const auroraFlow: Generator<Params> = {
       const color = bandColors[b % bandColors.length];
       const startY = height * (0.2 + (b / params.bandsCount) * 0.6);
       const amp = height * 0.15 * params.curvature;
-      const freq = (0.002 + rng() * 0.003);
+      const freq = (1.0 + rng() * 1.5) / Math.max(1, width);
       const phase = rng() * Math.PI * 2;
+      const step = Math.max(2, Math.floor(width / 100));
 
       ctx.beginPath();
       ctx.moveTo(0, height);
 
-      for (let x = 0; x <= width; x += 10) {
+      for (let x = 0; x <= width + step; x += step) {
         const y = startY + Math.sin(x * freq + phase) * amp + Math.cos(x * freq * 0.5) * amp * 0.5;
         ctx.lineTo(x, y);
       }
@@ -69,7 +70,7 @@ export const auroraFlow: Generator<Params> = {
 
       ctx.fillStyle = grad;
       ctx.shadowColor = color;
-      ctx.shadowBlur = 40 * params.glowIntensity;
+      ctx.shadowBlur = Math.max(width, height) * 0.05 * params.glowIntensity;
       ctx.fill();
     }
 

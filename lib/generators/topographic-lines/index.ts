@@ -39,9 +39,10 @@ export const topographicLines: Generator<Params> = {
     ctx.fillRect(0, 0, width, height);
 
     const lineColors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
-    ctx.lineWidth = params.lineThickness;
+    const refScale = Math.max(width, height) / 500;
+    ctx.lineWidth = params.lineThickness * refScale;
 
-    const step = 8;
+    const step = Math.max(2, 8 * refScale);
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
 
@@ -74,8 +75,9 @@ export const topographicLines: Generator<Params> = {
     const { width, height } = size;
     const bg = palette[0] || "#FAF8F4";
     const lineColors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+    const refScaleSvg = Math.max(width, height) / 500;
 
-    const step = 12;
+    const step = Math.max(2, 12 * refScaleSvg);
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
 
@@ -97,7 +99,7 @@ export const topographicLines: Generator<Params> = {
 
         if (contourLevel % 2 === 0) {
           const color = lineColors[contourLevel % lineColors.length];
-          rects += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="none" stroke="${color}" stroke-width="${params.lineThickness}" />`;
+          rects += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="none" stroke="${color}" stroke-width="${params.lineThickness * refScaleSvg}" />`;
         }
       }
     }

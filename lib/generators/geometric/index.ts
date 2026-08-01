@@ -83,7 +83,8 @@ export const geometric: Generator<Params> = {
     ctx.translate(W / 2, H / 2);
     ctx.rotate(angle);
     ctx.translate(-W / 2, -H / 2);
-    ctx.lineWidth = params.strokeWidth;
+    const strokeBase = Math.max(1, Math.min(W, H) / 500);
+    ctx.lineWidth = params.strokeWidth * strokeBase;
     ctx.lineJoin = "round";
 
     for (let row = 0; row < params.gridSize; row++) {
@@ -137,7 +138,8 @@ export const geometric: Generator<Params> = {
         const fill = palette[colorIdx] ?? accent;
         const fillAttr = params.fillMode === "stroke" ? "none" : fill;
         const strokeAttr = params.fillMode === "fill" ? "none" : fill;
-        shapes += `<g fill="${fillAttr}" stroke="${strokeAttr}" stroke-width="${params.strokeWidth}">${svgShape(x, y, sizePx, shape)}</g>`;
+        const strokeBase = Math.max(1, Math.min(size.width, size.height) / 500);
+        shapes += `<g fill="${fillAttr}" stroke="${strokeAttr}" stroke-width="${params.strokeWidth * strokeBase}">${svgShape(x, y, sizePx, shape)}</g>`;
       }
     }
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}"><rect width="${size.width}" height="${size.height}" fill="${bg}"/>${shapes}</svg>`;

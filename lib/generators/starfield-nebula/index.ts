@@ -67,10 +67,11 @@ export const starfieldNebula: Generator<Params> = {
     ctx.restore();
 
     // Render stars
+    const baseSize = Math.max(1, minDim / 400);
     for (let s = 0; s < params.starDensity; s++) {
       const sx = rng() * width;
       const sy = rng() * height;
-      const size = (0.5 + rng() * 2) * params.twinkleFactor;
+      const size = baseSize * (0.5 + rng() * 2) * params.twinkleFactor;
       const alpha = 0.3 + rng() * 0.7;
 
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
