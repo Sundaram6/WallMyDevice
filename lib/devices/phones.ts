@@ -21,7 +21,11 @@ export type PhoneBrandId =
   | "honor"
   | "sony"
   | "asus"
-  | "realme";
+  | "realme"
+  | "cmf"
+  | "lava"
+  | "infinix"
+  | "tecno";
 
 export type PhoneModel = {
   id: string;
@@ -53,6 +57,10 @@ export const PHONE_BRANDS: Array<{ id: PhoneBrandId; label: string }> = [
   { id: "sony", label: "Sony" },
   { id: "asus", label: "Asus" },
   { id: "realme", label: "Realme" },
+  { id: "cmf", label: "CMF" },
+  { id: "lava", label: "Lava" },
+  { id: "infinix", label: "Infinix" },
+  { id: "tecno", label: "Tecno" },
 ];
 
 export const PHONE_MODELS: PhoneModel[] = [
