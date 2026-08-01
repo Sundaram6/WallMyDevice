@@ -27,19 +27,31 @@ export function InlineStudio() {
   }, []);
 
   return (
-    <section id="studio-section" ref={containerRef} className="w-full bg-[#0d0e12] text-white py-16 px-4 sm:px-8 lg:px-12 border-t border-white/10">
+    <section
+      id="studio-section"
+      ref={containerRef}
+      className="w-full py-16 px-4 sm:px-8 lg:px-12 border-t transition-colors duration-200"
+      style={{
+        background: "var(--color-bg)",
+        color: "var(--color-ink)",
+        borderColor: "var(--color-border)",
+      }}
+    >
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-white/10 pb-4">
+        <div
+          className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b pb-4"
+          style={{ borderColor: "var(--color-border)" }}
+        >
           <div>
             <span className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">
               ✦ LIVE STUDIO PREVIEW
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-white mt-1">
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal mt-1">
               Compose your wallpaper.
             </h2>
           </div>
-          <p className="max-w-xs text-xs leading-relaxed text-zinc-400 sm:text-right font-sans">
+          <p className="max-w-xs text-xs leading-relaxed opacity-75 sm:text-right font-sans">
             Choose a generator, drop a palette, pick a device. Every change is interactive — no waiting on servers.
           </p>
         </div>
@@ -48,7 +60,13 @@ export function InlineStudio() {
         {isVisible ? (
           <StudioCore layout="inline" />
         ) : (
-          <div className="h-[600px] w-full rounded-3xl border border-white/10 bg-[#141518] flex items-center justify-center text-xs font-mono text-zinc-500">
+          <div
+            className="h-[600px] w-full rounded-3xl border flex items-center justify-center text-xs font-mono opacity-60"
+            style={{
+              background: "var(--color-surface)",
+              borderColor: "var(--color-border)",
+            }}
+          >
             Loading interactive studio…
           </div>
         )}
@@ -57,7 +75,8 @@ export function InlineStudio() {
         <div className="mt-6 flex justify-end">
           <Link
             href="/studio"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-white hover:text-brand-accent transition border-b border-white/40 hover:border-brand-accent pb-0.5"
+            className="inline-flex items-center gap-1.5 text-xs font-medium hover:text-brand-accent transition border-b pb-0.5"
+            style={{ borderColor: "var(--color-border)" }}
           >
             <span>Open Full-Screen Studio</span>
             <span>→</span>
