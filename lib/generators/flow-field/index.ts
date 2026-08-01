@@ -42,8 +42,9 @@ export const flowField: Generator<Params> = {
     ctx.fillRect(0, 0, width, height);
 
     const strokeColors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+    const refScale = Math.max(width, height) / 500;
 
-    ctx.lineWidth = params.lineThickness;
+    ctx.lineWidth = params.lineThickness * refScale;
     ctx.globalAlpha = 0.6;
 
     for (let p = 0; p < params.particlesCount; p++) {
@@ -56,9 +57,11 @@ export const flowField: Generator<Params> = {
       ctx.moveTo(x, y);
 
       for (let s = 0; s < params.stepCount; s++) {
-        const angle = (Math.sin(x * params.noiseScale) + Math.cos(y * params.noiseScale)) * Math.PI * 2;
-        x += Math.cos(angle) * 4;
-        y += Math.sin(angle) * 4;
+        const nx = x / refScale;
+        const ny = y / refScale;
+        const angle = (Math.sin(nx * params.noiseScale) + Math.cos(ny * params.noiseScale)) * Math.PI * 2;
+        x += Math.cos(angle) * 4 * refScale;
+        y += Math.sin(angle) * 4 * refScale;
         ctx.lineTo(x, y);
       }
 

@@ -41,7 +41,8 @@ export const voronoiMosaic: Generator<Params> = {
       });
     }
 
-    const step = 4;
+    const refScale = Math.max(width, height) / 500;
+    const step = Math.max(2, 4 * refScale);
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
     const borderColor = palette[0] || "#101820";
@@ -66,7 +67,7 @@ export const voronoiMosaic: Generator<Params> = {
           }
         }
 
-        if (params.borderThickness > 0 && minDist2 - minDist1 < params.borderThickness * 2) {
+        if (params.borderThickness > 0 && minDist2 - minDist1 < params.borderThickness * 2 * refScale) {
           ctx.fillStyle = borderColor;
         } else {
           ctx.fillStyle = closestPoint.color;

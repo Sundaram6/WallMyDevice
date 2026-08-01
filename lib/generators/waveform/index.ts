@@ -48,9 +48,10 @@ export const waveform: Generator<Params> = {
       const yOffset = baseY - layerProgress * H * 0.35;
       const amp = params.amplitude * H * (0.3 + layerProgress * 0.4);
       const colorIdx = Math.min(palette.length - 1, 1 + Math.floor(layerProgress * (palette.length - 2)));
+      const refScale = Math.max(W, H) / 500;
       ctx.strokeStyle = palette[colorIdx] ?? fg;
       ctx.fillStyle = palette[colorIdx] ?? fg;
-      ctx.lineWidth = params.lineThickness;
+      ctx.lineWidth = params.lineThickness * refScale;
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
       ctx.beginPath();
