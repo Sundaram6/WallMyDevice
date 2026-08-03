@@ -1,71 +1,158 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import { ensureRegistered, listGenerators } from "@/lib/generators";
 import { useEditorStore } from "@/store/useEditorStore";
+import { useGeneratorThumbnails } from "@/lib/render/useGeneratorThumbnails";
 
 export function GeneratorPicker() {
   ensureRegistered();
   const generators = listGenerators();
   const active = useEditorStore((s) => s.generatorId);
   const setGenerator = useEditorStore((s) => s.setGenerator);
+  const mode = useEditorStore((s) => s.mode);
+  const systemColorScheme = useEditorStore((s) => s.systemColorScheme);
+
+  // Resolve the effective display theme for thumbnail selection
+  const effectiveTheme: "light" | "dark" =
+    mode === "auto" ? systemColorScheme : mode === "dark" ? "dark" : "light";
+
+  const generatorIds = useMemo(() => generators.map((g) => g.id), [generators]);
+  const thumbnails = useGeneratorThumbnails(generatorIds);
+
+  // Preload alternate theme thumbnails when theme changes
+  useEffect(() => {}, [effectiveTheme]);
+
+  if (generators.length === 0) {
+    return (
+      <div
+        className="py-8 text-center"
+        style={{ fontSize: 11, fontFamily: "monospace", color: "var(--ink-500)" }}
+      >
+        No generators registered.
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 gap-2">
       {generators.map((g) => {
         const isActive = active === g.id;
+        const thumbs = thumbnails[g.id];
+        const thumbUrl = thumbs ? thumbs[effectiveTheme] : undefined;
+
         return (
           <button
             key={g.id}
+            id={`gen-picker-${g.id}`}
             type="button"
             onClick={() => setGenerator(g.id)}
             aria-pressed={isActive}
-            className={`relative p-3 text-left rounded-md transition-all duration-[--dur-fast] focus-visible:outline-none ${
-              isActive
-                ? "bg-paper-0 border-2 border-accent-500 shadow-2"
-                : "bg-paper-50 border border-paper-200 hover:bg-paper-0 hover:border-paper-300 hover:shadow-1"
-            }`}
+            aria-label={`Select ${g.label} generator`}
+            className="relative overflow-hidden rounded-lg transition-all duration-[--dur-fast] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-1 group"
+            style={{
+              height: 96,
+              border: isActive
+                ? "2px solid var(--accent-500)"
+                : "1.5px solid transparent",
+              boxShadow: isActive
+                ? "0 0 0 1px var(--accent-500)/30, 0 4px 16px rgba(0,0,0,0.4)"
+                : "0 2px 8px rgba(0,0,0,0.25)",
+            }}
           >
-            {/* Active dot indicator */}
-            {isActive && (
-              <span
-                className="absolute top-2.5 right-2.5 rounded-full bg-accent-500 w-2 h-2"
+            {/* Thumbnail background */}
+            {thumbUrl ? (
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                style={{ backgroundImage: `url(${thumbUrl})` }}
+              />
+            ) : (
+              /* Skeleton shimmer while rendering */
+              <div
+                aria-hidden="true"
+                className="absolute inset-0"
+                style={{
+                  background: isActive
+                    ? "linear-gradient(135deg, var(--accent-500)/20, var(--accent-500)/5)"
+                    : "linear-gradient(135deg, var(--paper-100), var(--paper-200))",
+                  animation: "gen-thumb-shimmer 1.8s ease-in-out infinite",
+                }}
               />
             )}
 
-            {/* Generator name */}
+            {/* Bottom gradient scrim — ensures text legibility on any image */}
             <div
-              className={`font-serif text-xs font-semibold mb-1 ${
-                isActive ? "text-accent-500" : "text-ink-900"
-              }`}
-            >
-              {g.label}
-            </div>
+              aria-hidden="true"
+              className="absolute inset-0 rounded-lg"
+              style={{
+                background:
+                  "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.08) 100%)",
+              }}
+            />
 
-            {/* Description */}
-            {g.description && (
-              <div className="font-sans text-[10px] text-ink-500 leading-relaxed line-clamp-2">
-                {g.description}
+            {/* Hover brightener overlay */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-[--dur-fast]"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            />
+
+            {/* Active ring highlight */}
+            {isActive && (
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-lg ring-2 ring-inset ring-accent-500/40"
+              />
+            )}
+
+            {/* Active dot indicator */}
+            {isActive && (
+              <span
+                className="absolute top-2 right-2 w-2 h-2 rounded-full bg-accent-500 shadow-[0_0_6px_2px_var(--accent-500)/60] z-10"
+                aria-hidden="true"
+              />
+            )}
+
+            {/* Text content */}
+            <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2 z-10">
+              {/* Generator name */}
+              <div
+                className="font-serif text-[11px] font-semibold leading-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] line-clamp-1"
+                style={{
+                  textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+                }}
+              >
+                {g.label}
               </div>
-            )}
 
-            {/* SVG badge */}
-            {g.supportsSvgExport && (
-              <span className="mt-1.5 inline-block font-mono text-[9px] text-success-500 bg-success-500/10 border border-success-500/20 rounded px-1.5 py-0.5">
-                SVG
-              </span>
-            )}
+              {/* Category + SVG badge row */}
+              <div className="flex items-center gap-1 mt-0.5">
+                {g.category && (
+                  <span
+                    className="font-sans text-[9px] text-white/70 leading-none"
+                    style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    {g.category}
+                  </span>
+                )}
+                {g.supportsSvgExport && (
+                  <span className="ml-auto inline-block font-mono text-[8px] text-emerald-300 bg-emerald-900/60 border border-emerald-500/30 rounded px-1 py-0.5 leading-none backdrop-blur-xs">
+                    SVG
+                  </span>
+                )}
+              </div>
+            </div>
           </button>
         );
       })}
 
-      {generators.length === 0 && (
-        <div
-          className="col-span-2 py-8 text-center"
-          style={{ fontSize: 11, fontFamily: "monospace", color: "var(--ink-500)" }}
-        >
-          No generators registered.
-        </div>
-      )}
+      <style>{`
+        @keyframes gen-thumb-shimmer {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+      `}</style>
     </div>
   );
 }
