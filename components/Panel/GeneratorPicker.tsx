@@ -13,6 +13,8 @@ export function GeneratorPicker() {
   const mode = useEditorStore((s) => s.mode);
   const systemColorScheme = useEditorStore((s) => s.systemColorScheme);
 
+  const remix = useEditorStore((s) => s.remix);
+
   // Resolve the effective display theme for thumbnail selection
   const effectiveTheme: "light" | "dark" =
     mode === "auto" ? systemColorScheme : mode === "dark" ? "dark" : "light";
@@ -35,7 +37,22 @@ export function GeneratorPicker() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between px-0.5 mb-0.5">
+        <span className="text-[10px] font-mono text-ink-500 uppercase tracking-wider">
+          Style Library
+        </span>
+        <button
+          type="button"
+          onClick={remix}
+          title="Remix active style with new seed & colors"
+          className="flex items-center gap-1 text-[11px] font-medium text-accent-500 hover:text-accent-600 transition-colors cursor-pointer"
+        >
+          <span>🔀 Remix Active</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
       {generators.map((g) => {
         const isActive = active === g.id;
         const thumbs = thumbnails[g.id];
@@ -153,6 +170,7 @@ export function GeneratorPicker() {
           50% { opacity: 0.6; }
         }
       `}</style>
+      </div>
     </div>
   );
 }

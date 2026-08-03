@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.1.0] - 2026-08-04
+
+### Added
+- **Zero-Flash URL State Sync**: Read `g` (generator), `s` (seed), `p` (dash-separated hex palette), and `d` (device frame) query params on load with zero flash.
+- **Real-Time Address Bar Sync**: Automatic `history.replaceState` updates on Studio param changes without page reloads.
+- **Edge OG Image Generator (`/api/og`)**: Fast social preview card route powered by Next.js `ImageResponse` with 1-year immutable CDN caching.
+- **Surprise Me & Remix CTAs**: Full random reroll ("Surprise Me") and generator-isolated seed + palette reroll ("Remix").
+- **Centralized Share & Toast Handler**: Unified `copyStudioLink` utility with clipboard fallback and `"✦ Wallpaper link copied to clipboard!"` toast feedback.
+
+### Fixed
+- Fixed Toast notification `onClose` ref lifecycle preventing premature closure on Studio re-renders.
+- Resolved search parameter hex palette decoding and fallback behavior.
+
+## [2.0.0] - 2026-08-03
+
+### Added
+- **18 Procedural Generators**: Added Aurora Flow, Bauhaus Blocks, Duotone Burst, Flow Field, Grain Texture, Halftone Dots, Low-Poly Terrain, Marble Fluid, Mesh Gradient, Metaballs, Starfield Nebula, Topographic Lines, Voronoi Mosaic, and Wave Interference.
+- **125 Archive Swatches & 17 Curated Categories**: Expanded print archive with auto-rendered thumbnails and modal previews.
+- **Photorealistic Device Frames**: Dedicated iPhone 16 Pro Max (Titanium + Dynamic Island), Samsung Galaxy S25 Ultra, iPad Pro 13", and 4K Desktop Display frames.
+- **Volumetric Backlight Underglow**: Adaptive 5×5 grid color-sampled backlight halo around device mockups.
+- **Thumbnail Auto-Render Generator Picker**: Live side-by-side light and dark mode thumbnail cards with scrim gradient overlays.
+
+### Fixed
+- Decoupled UI light/dark theme from canvas artwork rendering.
+- Fixed Export button download handler and batch ZIP exporter.
+- Scaled stroke and spatial parameters relative to target resolution for identical 500px preview vs 4K export rendering.
+
 ## [0.1.2] - 2026-07-22
 
 - Continuous Waveform smoothing.

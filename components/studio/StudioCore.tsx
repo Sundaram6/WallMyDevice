@@ -12,6 +12,7 @@ import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 import { DropZone } from "@/components/DropZone";
 import { CURRENT_VERSION } from "@/lib/changelog/data";
 import { useStudioCore } from "./useStudioCore";
+import { Toast } from "@/components/ui/Toast";
 
 export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) {
   const {
@@ -21,6 +22,8 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
     setWhatsNewBanner,
     deviceNotice,
     setDeviceNotice,
+    toastMessage,
+    setToastMessage,
   } = useStudioCore();
 
   const isInline = layout === "inline";
@@ -98,6 +101,9 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
             </BottomSheet>
           </div>
         )}
+
+        {/* Global Studio Toast Notification */}
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       </div>
     </DropZone>
   );

@@ -11,13 +11,13 @@ import type { FrameStyle } from "@/lib/devices/presets";
 import type { WebGLTarget } from "@/lib/generators/types";
 
 type Props = {
-  frame: FrameStyle;
+  frame?: FrameStyle;
   aspect: number;
   maxWidth: number;
   maxHeight: number;
 };
 
-export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
+export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [renderError, setRenderError] = useState<GenerationError | null>(null);
   const [isRendering, setIsRendering] = useState(false);

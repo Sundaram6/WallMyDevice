@@ -47,10 +47,4 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: 'cmd /c npm run dev',
-    url: (process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'),
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
 });

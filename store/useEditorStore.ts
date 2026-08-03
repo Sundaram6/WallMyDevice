@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { getGenerator } from "../lib/generators/registry";
+import { getGenerator, listGenerators } from "../lib/generators/registry";
 import { hashSeed } from "../lib/prng";
 import { ARCHIVE_PRESETS } from "../lib/presets/archive-presets";
 import { editorCore } from "../lib/engine/EditorCore";
+import { parseShareParams, syncStateToUrl } from "../lib/share/shareUrl";
 
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
@@ -49,6 +50,7 @@ export type EditorState = {
   toggleSeedLock: () => void;
   randomizePalette: () => void;
   surpriseMe: () => void;
+  remix: () => void;
 
   exportFormat: ExportFormat;
 
@@ -91,14 +93,17 @@ import { initializeBuiltInGenerators } from "../lib/generators/bootstrap";
 
 initializeBuiltInGenerators();
 
-export const useEditorStore = create<EditorState>((set, get) => ({
-  generatorId: "waveform",
-  params: { waveform: getDefaultParams("waveform") },
+const initialShareParams = typeof window !== "undefined" ? parseShareParams(window.location.search) : {};
+const initialGenId = initialShareParams.g || "waveform";
 
-  palette: ["#0f172a", "#f59e0b"],
+export const useEditorStore = create<EditorState>((set, get) => ({
+  generatorId: initialGenId,
+  params: { [initialGenId]: getDefaultParams(initialGenId) },
+
+  palette: initialShareParams.p || ["#0f172a", "#f59e0b"],
   mode: "light",
   systemColorScheme: "light",
-  seed: "k3p9x2a7",
+  seed: initialShareParams.s || "k3p9x2a7",
 
   grainEnabled: false,
   grainIntensity: 0,
@@ -110,7 +115,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   aspectLock: true,
 
   // device/phone defaults
-  deviceType: "desktop",
+  deviceType: (initialShareParams.d as any) || "desktop",
   phoneBrand: undefined,
   phoneModel: undefined,
   phoneDisplay: undefined,
@@ -154,6 +159,36 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
   },
   surpriseMe: () => {
+    const state = get();
+    const allGenerators = listGenerators();
+    const randomGen = allGenerators.length > 0
+      ? allGenerators[Math.floor(Math.random() * allGenerators.length)]
+      : null;
+    const targetGenId = randomGen ? randomGen.id : state.generatorId;
+
+    const updates: Partial<EditorState> = {};
+    if (targetGenId !== state.generatorId) {
+      updates.generatorId = targetGenId;
+      const params = state.params;
+      if (!params[targetGenId]) {
+        updates.params = { ...params, [targetGenId]: getDefaultParams(targetGenId) };
+      }
+    }
+
+    if (!state.seedLocked) {
+      updates.seed = hashSeed(String(Math.random() * 1e9));
+    }
+    if (!state.paletteLocked) {
+      const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
+      if (randomPreset) {
+        updates.palette = [...randomPreset.palette];
+      }
+    }
+    if (Object.keys(updates).length > 0) {
+      set(updates);
+    }
+  },
+  remix: () => {
     const state = get();
     const updates: Partial<EditorState> = {};
     if (!state.seedLocked) {
@@ -264,6 +299,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   hydrate: (next) => set(next as EditorState),
 }));
+
+if (typeof window !== "undefined") {
+  (window as any).__WMD_STORE__ = useEditorStore;
+  (window as any).useEditorStore = useEditorStore;
+  useEditorStore.subscribe((state) => {
+    syncStateToUrl(state);
+  });
+  syncStateToUrl(useEditorStore.getState());
+}
 
 function getDefaultParams(id: string): unknown {
   const g = getGenerator(id);

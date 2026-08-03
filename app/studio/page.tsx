@@ -23,3 +23,5 @@ export default function StudioPage() {
     </div>
   );
 }
+
+// Turbopack HMR cache clear

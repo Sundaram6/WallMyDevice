@@ -16,7 +16,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   const {
     deviceType,
     phoneModel,
-    preset,
     aspect,
   } = useStudioCore();
 
@@ -124,7 +123,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
         }}
       >
         <DeviceFrame
-          frame={preset.frame}
           aspect={aspect}
           deviceType={deviceType}
           phoneModel={phoneModel}
@@ -138,7 +136,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
             }}
           >
             <PreviewCanvas
-              frame={preset.frame}
               aspect={aspect}
               maxWidth={layoutWidth}
               maxHeight={layoutHeight}

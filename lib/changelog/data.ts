@@ -10,6 +10,26 @@ export type ChangelogRelease = {
 
 export const CHANGELOG_HISTORY: ChangelogRelease[] = [
   {
+    version: "v2.1.0",
+    releaseDate: "2026-08-04",
+    title: "Growth & Sharing: URL State Sync, Edge OG Cards, Remix & Surprise Me",
+    summary: "Instant shareable studio state URLs, fast Edge OG card preview generation, two-tier random discovery (Surprise Me & Remix), and unified copy link notifications.",
+    changes: [
+      "Zero-Flash URL State Sync: Parse and initialize Studio state from URL query parameters (g, s, p, d) synchronously on load with zero flash",
+      "Real-Time Address Bar Sync: Studio parameter changes automatically update URL via history.replaceState without page reload or history clutter",
+      "Edge OG Image Generation: Dedicated /api/og route rendering fast 1200x630 social cards with public 1-year immutable CDN caching",
+      "Surprise Me & Remix CTAs: Surprise Me for full random rerolls and Remix for fixed-generator seed and palette variation",
+      "Unified Share Handler: Centralized copyStudioLink helper with copy-to-clipboard fallback and on-brand toast feedback",
+    ],
+    fixes: [
+      "Fixed Toast notification ref lifecycle to prevent premature closure on Studio re-renders",
+      "Resolved search parameter hex palette decoding and fallback behavior",
+    ],
+    limitations: [
+      "Edge OG image preview uses fast CSS gradient approximation",
+    ],
+  },
+  {
     version: "v2.0.0",
     releaseDate: "2026-08-03",
     title: "WallMyDevice 2.0: Studio Redesign & Expanded Archive",

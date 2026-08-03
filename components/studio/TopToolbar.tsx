@@ -72,8 +72,22 @@ export function TopToolbar() {
       <div className="flex items-center gap-2">
         <button
           type="button"
+          onClick={() => {
+            import("@/lib/share/shareUrl").then((mod) => {
+              mod.copyStudioLink(useEditorStore.getState());
+            });
+          }}
+          title="Copy Shareable Link"
+          className="flex items-center gap-1.5 rounded-lg bg-paper-100 hover:bg-paper-200 border border-paper-300 px-3 py-1.5 text-xs font-medium text-ink-900 transition-all duration-[--dur-fast] active:scale-95 shadow-1 cursor-pointer"
+        >
+          <span>🔗 Share</span>
+        </button>
+
+        <button
+          type="button"
           onClick={surpriseMe}
-          className="flex items-center gap-1.5 rounded-lg bg-paper-100 hover:bg-paper-200 border border-paper-300 px-3 py-1.5 text-xs font-medium text-ink-900 transition-all duration-[--dur-fast] active:scale-95 shadow-1"
+          title="Full Reroll (Random Generator + Seed + Palette)"
+          className="flex items-center gap-1.5 rounded-lg bg-paper-100 hover:bg-paper-200 border border-paper-300 px-3 py-1.5 text-xs font-medium text-ink-900 transition-all duration-[--dur-fast] active:scale-95 shadow-1 cursor-pointer"
         >
           <span>✦ Surprise Me</span>
         </button>

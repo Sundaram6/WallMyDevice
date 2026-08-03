@@ -8,6 +8,8 @@ import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/l
 import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
 import { CURRENT_VERSION } from "@/lib/changelog/data";
 import type { AccessibilityMode } from "@/components/Preview/AccessibilityPreviewBar";
+import { parseShareParams, buildShareQueryString } from "@/lib/share/shareUrl";
+import { deviceEngine } from "@/lib/engine/DeviceEngine";
 
 function autoDetectDeviceAndModel() {
   if (typeof window === "undefined") return null;
@@ -170,6 +172,8 @@ export function useStudioCore() {
   const sheetCollapsed = useEditorStore((s) => s.sheetCollapsed);
   const setSheetCollapsed = useEditorStore((s) => s.setSheetCollapsed);
 
+  const aspect = customWidth && customHeight ? customWidth / customHeight : 16 / 9;
+
   const [accMode, setAccMode] = useState<AccessibilityMode>("normal");
   const [showContrastGrid, setShowContrastGrid] = useState(false);
   const [deviceNotice, setDeviceNotice] = useState<string | null>(null);
@@ -191,29 +195,45 @@ export function useStudioCore() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const params = new URLSearchParams(window.location.search);
-    const recipeParam = params.get("recipe");
+    (window as any).__WMD_STORE__ = useEditorStore;
+    (window as any).useEditorStore = useEditorStore;
+    (window as any).copyStudioLink = copyStudioLink;
 
-    if (recipeParam) {
-      const swatch = ARCHIVE_PRESETS.find((p) => p.id === recipeParam);
-      if (swatch) {
-        const store = useEditorStore.getState();
-        store.setGenerator(swatch.generatorId);
-        store.setPalette([...swatch.palette]);
-        store.setMode(swatch.mode);
-        store.setSeed(swatch.seed);
-        Object.entries(swatch.params).forEach(([key, val]) => {
-          store.updateParam(swatch.generatorId, key, val);
-        });
+    const shareParams = parseShareParams(window.location.search);
+    const hasUrlState = Boolean(shareParams.g || shareParams.s || shareParams.p);
+
+    if (hasUrlState) {
+      const store = useEditorStore.getState();
+      if (shareParams.g) store.setGenerator(shareParams.g);
+      if (shareParams.s) store.setSeed(shareParams.s);
+      if (shareParams.p) store.setPalette(shareParams.p);
+      if (shareParams.d) store.setDeviceType(shareParams.d as any);
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      const recipeParam = params.get("recipe");
+
+      if (recipeParam) {
+        const swatch = ARCHIVE_PRESETS.find((p) => p.id === recipeParam);
+        if (swatch) {
+          const store = useEditorStore.getState();
+          store.setGenerator(swatch.generatorId);
+          store.setPalette([...swatch.palette]);
+          store.setMode(swatch.mode);
+          store.setSeed(swatch.seed);
+          Object.entries(swatch.params).forEach(([key, val]) => {
+            store.updateParam(swatch.generatorId, key, val);
+          });
+        }
       }
+
+      restoreFromLocalStorage();
+      loadHashRecipe();
     }
 
     const hasSavedState = Boolean(loadLocalState());
-    restoreFromLocalStorage();
-    loadHashRecipe();
 
     // Default UI theme setup unless explicitly saved
-    if (!hasSavedState) {
+    if (!hasSavedState && !hasUrlState) {
       if (typeof document !== "undefined") {
         const savedTheme = localStorage.getItem("wmd-theme") || "dark";
         document.documentElement.setAttribute("data-theme", savedTheme);
@@ -247,6 +267,31 @@ export function useStudioCore() {
     return () => window.removeEventListener("hashchange", handleHash);
   }, []);
 
+  // URL state sync via history.replaceState
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const syncUrl = () => {
+      const state = useEditorStore.getState();
+      const query = buildShareQueryString(state);
+      const targetSearch = query ? `?${query}` : "";
+      if (window.location.search !== targetSearch) {
+        const newUrl = targetSearch
+          ? `${window.location.pathname}${targetSearch}${window.location.hash}`
+          : `${window.location.pathname}${window.location.hash}`;
+        try {
+          window.history.replaceState(window.history.state, "", newUrl);
+        } catch (_) {}
+      }
+    };
+
+    const unsub = useEditorStore.subscribe(syncUrl);
+    syncUrl();
+
+    return () => {
+      unsub();
+    };
+  }, []);
+
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | null = null;
     const flush = () => saveLocalState(snapshotLocalState());
@@ -260,8 +305,27 @@ export function useStudioCore() {
     };
   }, []);
 
-  const preset = findPreset(resolutionId) ?? DEVICE_PRESETS[0];
-  const aspect = customWidth / customHeight;
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  if (typeof window !== "undefined") {
+    (window as any).showToast = (msg: string) => setToastMessage(msg);
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleToast = (e: Event) => {
+      const custom = e as CustomEvent<{ message: string }>;
+      if (custom.detail?.message) {
+        setToastMessage(custom.detail.message);
+      }
+    };
+    window.addEventListener("wmd-toast", handleToast);
+    return () => window.removeEventListener("wmd-toast", handleToast);
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+  };
 
   return {
     generatorId,
@@ -270,7 +334,6 @@ export function useStudioCore() {
     customHeight,
     deviceType,
     phoneModel,
-    preset,
     aspect,
     sheetCollapsed,
     setSheetCollapsed,
@@ -282,5 +345,8 @@ export function useStudioCore() {
     setDeviceNotice,
     whatsNewBanner,
     setWhatsNewBanner,
+    toastMessage,
+    setToastMessage,
+    showToast,
   };
 }

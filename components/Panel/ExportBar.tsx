@@ -9,6 +9,7 @@ import type { Recipe } from "@/lib/recipe/validate";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
 import { buildInput, downloadBlob, triggerSingleExport } from "@/lib/export/actions";
 import { validateExportSize } from "@/lib/export/limits";
+import { copyStudioLink } from "@/lib/share/shareUrl";
 
 const FORMATS = ["PNG", "JPG", "WEBP", "SVG"] as const;
 type Format = "png" | "jpg" | "webp" | "svg";
@@ -98,13 +99,9 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
   }
 
   async function onCopyShareLink() {
-    try {
-      const hash = encodeHash(buildRecipe());
-      const url = `${location.origin}${location.pathname}${hash}`;
-      await navigator.clipboard.writeText(url);
-    } catch (_e) {
-      setError("Could not copy link. Recipe URL too long?");
-    }
+    await copyStudioLink(useEditorStore.getState(), (msg) => {
+      if (msg.includes("Failed")) setError(msg);
+    });
   }
 
   function toggleBatch(id: string) {

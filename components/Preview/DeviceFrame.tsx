@@ -6,7 +6,7 @@ import { IPadProFrame } from "./IPadProFrame";
 import { IPhoneProFrame } from "./IPhoneProFrame";
 
 type Props = {
-  frame: FrameStyle;
+  frame?: FrameStyle;
   aspect: number;
   deviceType?: string;
   phoneModel?: string;
@@ -14,7 +14,7 @@ type Props = {
   metrics?: any; // Will refine type later
 };
 
-export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children, metrics }: Props) {
+export function DeviceFrame({ frame = "iphone", aspect, deviceType, phoneModel, children, metrics }: Props) {
   // Determine effective frame based on deviceType or preset frame
   let effectiveFrame: FrameStyle = frame;
   if (deviceType === "phone") {
