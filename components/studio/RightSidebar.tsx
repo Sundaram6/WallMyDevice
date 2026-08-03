@@ -17,15 +17,14 @@ export function RightSidebar() {
 
   return (
     <aside
-      className="hidden md:flex h-full w-80 shrink-0 flex-col overflow-hidden text-xs z-10"
+      className="hidden md:flex h-full w-[350px] shrink-0 flex-col overflow-hidden text-xs z-10 shadow-1 border-l border-paper-200"
       style={{
-        background: "var(--color-bg)",
-        borderLeft: "1px solid var(--color-border)",
-        color: "var(--color-ink)",
+        background: "var(--paper-100)",
+        color: "var(--ink-900)",
       }}
     >
       {/* Navigation Header */}
-      <div className="flex border-b border-brand-border bg-brand-surface p-1 gap-1">
+      <div className="flex border-b border-paper-200 bg-paper-100 p-1 gap-1">
         {(
           [
             { id: "properties", label: "Params", icon: "⚙️" },
@@ -38,13 +37,13 @@ export function RightSidebar() {
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-1 items-center justify-center gap-1 rounded-md py-1.5 px-2 text-[11px] font-medium transition-all ${
+            className={`flex flex-1 min-w-0 items-center justify-center gap-1 rounded-md py-1.5 px-1.5 text-[10.5px] font-medium whitespace-nowrap transition-all duration-[--dur-fast] ${
               activeTab === tab.id
-                ? "bg-brand-bg text-brand-ink shadow-xs border border-brand-border font-semibold"
-                : "text-brand-muted hover:text-brand-ink"
+                ? "bg-ink-900 text-paper-0 shadow-1 font-semibold"
+                : "text-ink-700 hover:text-ink-900 hover:bg-paper-200"
             }`}
           >
-            <span>{tab.icon}</span>
+            <span className="shrink-0">{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}
@@ -104,7 +103,7 @@ export function RightSidebar() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h3 className="text-[10px] font-mono uppercase tracking-wider text-brand-faint">
+      <h3 className="text-[10px] font-mono font-medium uppercase tracking-wider text-ink-500">
         {title}
       </h3>
       <div className="space-y-3">{children}</div>

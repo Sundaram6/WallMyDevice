@@ -137,23 +137,23 @@ export function SwatchGrid({
     <section className="flex-1 p-4 sm:p-6 lg:p-11 pb-28 sm:pb-16">
       {/* First-time Onboarding Banner */}
       {showOnboarding && (
-        <div className="mb-6 rounded-2xl border border-brand-border bg-brand-surface p-5 shadow-xs relative">
+        <div className="mb-6 rounded-2xl border border-paper-300 bg-paper-100 p-5 shadow-1 relative">
           <button
             type="button"
             onClick={handleDismissOnboarding}
             aria-label="Dismiss introduction"
-            className="absolute top-3.5 right-3.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-surface-2 text-xs text-brand-muted hover:text-brand-ink border border-brand-border"
+            className="absolute top-3.5 right-3.5 flex h-7 w-7 items-center justify-center rounded-full bg-paper-200 text-xs text-ink-500 hover:text-ink-900 border border-paper-300 transition-colors duration-[--dur-fast]"
           >
             ✕
           </button>
           <div className="max-w-2xl">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-brand-accent">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-accent-500">
               Procedural Laboratory
             </span>
-            <h2 className="mt-1 font-serif text-lg font-medium text-brand-ink">
+            <h2 className="mt-1 font-serif text-lg font-medium text-ink-900">
               Print Swatch Archive.
             </h2>
-            <p className="mt-1.5 text-xs text-brand-muted leading-relaxed">
+            <p className="mt-1.5 text-xs text-ink-500 leading-relaxed">
               WallMyDevice renders geometric patterns, fluid gradients, and wave curves on your device canvas. Every print is powered by a unique seed — edit palettes, scale dimensions, or remix any artwork in real time. Rendering and exports happen 100% locally.
             </p>
             <div className="mt-4 flex items-center gap-3">
@@ -162,13 +162,13 @@ export function SwatchGrid({
                 onClick={() => {
                   if (onOpenStudio) onOpenStudio();
                 }}
-                className="rounded-xl bg-brand-ink px-4 py-2 text-xs font-medium text-brand-bg shadow-xs hover:bg-brand-accent transition-colors transition"
+                className="rounded-xl bg-ink-900 px-4 py-2 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-colors duration-[--dur-fast]"
               >
                 Create a Wallpaper ✦
               </button>
               <Link
                 href="/about"
-                className="rounded-xl border border-brand-border bg-brand-surface-2 px-4 py-2 text-xs font-medium text-brand-muted hover:text-brand-ink hover:bg-brand-bg transition"
+                className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-2 text-xs font-medium text-ink-500 hover:text-ink-900 hover:bg-paper-100 transition-colors duration-[--dur-fast]"
               >
                 How It Works →
               </Link>
@@ -179,24 +179,24 @@ export function SwatchGrid({
 
       {/* Header bar */}
       <div className="mb-4 sm:mb-6 flex items-center justify-between">
-        <div className="text-xs text-brand-muted">
-          Showing <b className="font-medium text-brand-ink">{visibleSwatches.length}</b> of{" "}
-          <b className="font-medium text-brand-ink">{filteredSwatches.length}</b> prints
+        <div className="text-xs text-ink-500">
+          Showing <b className="font-medium text-ink-900">{visibleSwatches.length}</b> of{" "}
+          <b className="font-medium text-ink-900">{filteredSwatches.length}</b> prints
         </div>
-        <div className="flex items-center gap-2 text-xs text-brand-muted">
+        <div className="flex items-center gap-2 text-xs text-ink-500">
           <span>Sort by:</span>
           <div className="relative">
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as any)}
-              className="appearance-none bg-brand-surface-2 border border-brand-border rounded-lg pl-3 pr-8 py-1.5 font-medium text-brand-ink focus:outline-none focus:ring-2 focus:ring-brand-accent transition-shadow cursor-pointer hover:border-brand-ink/30"
+              className="appearance-none bg-paper-100 border border-paper-300 rounded-lg pl-3 pr-8 py-1.5 font-medium text-ink-900 focus:outline-none focus:ring-2 focus:ring-accent-500 transition-shadow cursor-pointer hover:border-ink-900/30"
             >
               <option value="newest">Newest First</option>
               <option value="curated">Curated Rank</option>
               <option value="name">Alphabetical</option>
               <option value="mostFavourited">Most Favourited</option>
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-brand-muted">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-ink-500">
               <svg className="h-3 w-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
               </svg>
@@ -221,7 +221,7 @@ export function SwatchGrid({
       </div>
 
       {filteredSwatches.length === 0 && (
-        <div className="py-20 text-center text-sm text-brand-muted">
+        <div className="py-20 text-center text-sm text-ink-500">
           No prints found matching your filters.
         </div>
       )}
@@ -233,7 +233,7 @@ export function SwatchGrid({
             type="button"
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-brand-border bg-brand-surface-2 px-7 py-3 text-xs font-medium text-brand-muted shadow-xs transition hover:bg-brand-surface hover:text-brand-ink disabled:opacity-50"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-paper-300 bg-paper-100 px-7 py-3 text-xs font-medium text-ink-500 shadow-1 transition hover:bg-paper-200 hover:text-ink-900 disabled:opacity-50 duration-[--dur-fast]"
           >
             {isLoadingMore ? "Loading prints..." : "Load more prints ⌄"}
           </button>

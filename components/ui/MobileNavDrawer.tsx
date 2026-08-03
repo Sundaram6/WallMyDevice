@@ -41,12 +41,12 @@ export function MobileNavDrawer({ isOpen, onClose, links }: Props) {
       />
 
       {/* Sheet Content */}
-      <div className="relative z-10 w-full bg-[#FAF8F4] border-b border-[#E4DFD3] p-6 shadow-2xl flex flex-col gap-6 animate-in slide-in-from-top duration-300">
+      <div className="relative z-10 w-full bg-paper-50 border-b border-paper-200 p-6 shadow-2xl flex flex-col gap-6 animate-in slide-in-from-top duration-300">
         <div className="flex items-center justify-between">
           <Link
             href="/"
             onClick={onClose}
-            className="font-serif text-xl font-medium tracking-tight text-[#2B2A26]"
+            className="font-serif text-xl font-medium tracking-tight text-ink-900"
           >
             WallMyDevice
           </Link>
@@ -54,7 +54,7 @@ export function MobileNavDrawer({ isOpen, onClose, links }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#D4CDBC] bg-white text-[#2B2A26] hover:bg-[#F3EFE6] transition"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-paper-300 bg-white text-ink-900 hover:bg-paper-100 transition"
           >
             ✕
           </button>
@@ -73,8 +73,8 @@ export function MobileNavDrawer({ isOpen, onClose, links }: Props) {
                   }}
                   className={`flex min-h-[48px] items-center justify-between rounded-xl px-4 text-sm font-medium transition text-left ${
                     link.highlight
-                      ? "bg-[#2B2A26] text-white shadow-xs"
-                      : "bg-[#F3EFE6] text-[#2B2A26] hover:bg-[#E4DFD3]"
+                      ? "bg-ink-900 text-white shadow-xs"
+                      : "bg-paper-100 text-ink-900 hover:bg-paper-200"
                   }`}
                 >
                   <span>{link.label}</span>
@@ -90,8 +90,8 @@ export function MobileNavDrawer({ isOpen, onClose, links }: Props) {
                 onClick={onClose}
                 className={`flex min-h-[48px] items-center justify-between rounded-xl px-4 text-sm font-medium transition ${
                   link.highlight
-                    ? "bg-[#2B2A26] text-white shadow-xs"
-                    : "bg-[#F3EFE6] text-[#2B2A26] hover:bg-[#E4DFD3]"
+                    ? "bg-ink-900 text-white shadow-xs"
+                    : "bg-paper-100 text-ink-900 hover:bg-paper-200"
                 }`}
               >
                 <span>{link.label}</span>
@@ -101,7 +101,7 @@ export function MobileNavDrawer({ isOpen, onClose, links }: Props) {
           })}
         </nav>
 
-        <div className="pt-2 border-t border-[#E4DFD3] flex items-center justify-between text-xs text-[#8A8579] font-mono">
+        <div className="pt-2 border-t border-paper-200 flex items-center justify-between text-xs text-ink-500 font-mono">
           <span>Generative Print House</span>
           <span>© 2026</span>
         </div>

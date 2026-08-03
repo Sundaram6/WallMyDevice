@@ -18,7 +18,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-brand-bg text-brand-ink selection:bg-brand-accent/20">
+    <div className="relative min-h-screen bg-paper-50 text-ink-900 selection:bg-accent-500/20">
       {/* Navigation Bar with Shimmer CTA & ThemeToggle */}
       <LandingNav onOpenStudioClick={scrollToStudio} />
 
@@ -58,42 +58,42 @@ export default function HomePage() {
       </main>
 
       {/* Refined Multi-Column Editorial Footer */}
-      <footer className="border-t border-brand-border bg-brand-bg pt-16 pb-12 px-6 sm:px-10 lg:px-16 text-brand-faint">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-brand-border">
+      <footer className="border-t border-paper-300 bg-paper-50 pt-16 pb-12 px-6 sm:px-10 lg:px-16 text-ink-500">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-paper-300">
           {/* Column 1: Brand & Tagline */}
           <div className="md:col-span-5 space-y-4">
-            <div className="flex items-center gap-2 font-serif text-xl text-brand-ink font-medium">
+            <div className="flex items-center gap-2 font-serif text-xl text-ink-900 font-medium">
               <span>WallMyDevice</span>
-              <span className="text-brand-accent italic font-serif">✦</span>
+              <span className="text-accent-500 italic font-serif">✦</span>
             </div>
-            <p className="text-xs text-brand-muted max-w-sm leading-relaxed">
+            <p className="text-xs text-ink-500 max-w-sm leading-relaxed">
               A generative print studio crafting native-resolution wallpapers for phones, tablets, and desktop displays entirely in your browser.
             </p>
-            <div className="font-mono text-[10.5px] text-brand-faint uppercase tracking-widest pt-2">
+            <div className="font-mono text-[10.5px] text-ink-500 uppercase tracking-widest pt-2">
               VOL. 08 · 90+ CURATED SEEDS
             </div>
           </div>
 
           {/* Column 2: Studio Navigation */}
           <div className="md:col-span-3 space-y-3 text-xs">
-            <h4 className="font-mono text-[10px] uppercase tracking-widest text-brand-ink font-semibold">STUDIO</h4>
-            <ul className="space-y-2 text-brand-muted">
-              <li><button type="button" onClick={scrollToStudio} className="hover:text-brand-ink transition">Generator Studio ✦</button></li>
-              <li><Link href="/archive" className="hover:text-brand-ink transition">Print Archive</Link></li>
-              <li><Link href="/collections" className="hover:text-brand-ink transition">Curated Collections</Link></li>
-              <li><Link href="/inspiration" className="hover:text-brand-ink transition">Design Inspiration</Link></li>
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-ink-900 font-semibold">STUDIO</h4>
+            <ul className="space-y-2 text-ink-500">
+              <li><button type="button" onClick={scrollToStudio} className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Generator Studio ✦</button></li>
+              <li><Link href="/archive" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Print Archive</Link></li>
+              <li><Link href="/collections" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Curated Collections</Link></li>
+              <li><Link href="/inspiration" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Design Inspiration</Link></li>
             </ul>
           </div>
 
           {/* Column 3: Resources & Product */}
           <div className="md:col-span-4 space-y-3 text-xs">
-            <h4 className="font-mono text-[10px] uppercase tracking-widest text-brand-ink font-semibold">ABOUT & UPDATES</h4>
-            <ul className="space-y-2 text-brand-muted">
-              <li><Link href="/changelog" className="hover:text-brand-ink transition">Changelog & Version History</Link></li>
-              <li><Link href="/about" className="hover:text-brand-ink transition">About WallMyDevice</Link></li>
-              <li><Link href="/favourites" className="hover:text-brand-ink transition">My Saved Wallpapers</Link></li>
+            <h4 className="font-mono text-[10px] uppercase tracking-widest text-ink-900 font-semibold">ABOUT & UPDATES</h4>
+            <ul className="space-y-2 text-ink-500">
+              <li><Link href="/changelog" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Changelog & Version History</Link></li>
+              <li><Link href="/about" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">About WallMyDevice</Link></li>
+              <li><Link href="/favourites" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">My Saved Wallpapers</Link></li>
             </ul>
-            <div className="pt-2 text-[11px] text-brand-muted">
+            <div className="pt-2 text-[11px] text-ink-500">
               <span>Made for digital devices & physical spaces.</span>
             </div>
           </div>
@@ -102,12 +102,12 @@ export default function HomePage() {
         {/* Footer Sub-Bar */}
         <div className="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <p>© {new Date().getFullYear()} WallMyDevice Studio. All rights reserved.</p>
-          <div className="flex gap-6 text-brand-muted">
-            <span className="hover:text-brand-ink transition cursor-pointer">Privacy</span>
+          <div className="flex gap-6 text-ink-500">
+            <span className="hover:text-ink-900 transition-colors duration-[--dur-fast] cursor-pointer">Privacy</span>
             <span>·</span>
-            <span className="hover:text-brand-ink transition cursor-pointer">Terms</span>
+            <span className="hover:text-ink-900 transition-colors duration-[--dur-fast] cursor-pointer">Terms</span>
             <span>·</span>
-            <span className="hover:text-brand-ink transition cursor-pointer">GitHub</span>
+            <span className="hover:text-ink-900 transition-colors duration-[--dur-fast] cursor-pointer">GitHub</span>
           </div>
         </div>
       </footer>

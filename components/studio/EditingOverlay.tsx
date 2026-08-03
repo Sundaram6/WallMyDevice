@@ -40,7 +40,7 @@ export function EditingOverlay({
       {/* ── Interactive Selection Box & Handles ─────────────────────────── */}
       {selected && (
         <div
-          className="absolute pointer-events-auto border-2 border-brand-accent rounded-sm transition-transform cursor-move"
+          className="absolute pointer-events-auto border-2 border-accent-500 rounded-sm transition-transform cursor-move"
           style={{
             left: boxX,
             top: boxY,
@@ -55,14 +55,14 @@ export function EditingOverlay({
           }}
         >
           {/* Corner Resize Handles */}
-          <div className="absolute -top-1.5 -left-1.5 h-3 w-3 rounded-xs border border-white bg-brand-accent shadow-xs cursor-nwse-resize" />
-          <div className="absolute -top-1.5 -right-1.5 h-3 w-3 rounded-xs border border-white bg-brand-accent shadow-xs cursor-nesw-resize" />
-          <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 rounded-xs border border-white bg-brand-accent shadow-xs cursor-nesw-resize" />
-          <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 rounded-xs border border-white bg-brand-accent shadow-xs cursor-nwse-resize" />
+          <div className="absolute -top-1.5 -left-1.5 h-3 w-3 rounded-xs border border-white bg-accent-500 shadow-1 cursor-nwse-resize" />
+          <div className="absolute -top-1.5 -right-1.5 h-3 w-3 rounded-xs border border-white bg-accent-500 shadow-1 cursor-nesw-resize" />
+          <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 rounded-xs border border-white bg-accent-500 shadow-1 cursor-nesw-resize" />
+          <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 rounded-xs border border-white bg-accent-500 shadow-1 cursor-nwse-resize" />
 
           {/* Rotation Handle */}
           <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center">
-            <div className="h-4 w-px bg-brand-accent" />
+            <div className="h-4 w-px bg-accent-500" />
             <button
               type="button"
               onClick={(e) => {
@@ -70,7 +70,7 @@ export function EditingOverlay({
                 setRotation((r) => (r + 45) % 360);
               }}
               title="Rotate 45°"
-              className="h-4 w-4 rounded-full border border-white bg-brand-accent text-[8px] text-white flex items-center justify-center shadow-xs hover:scale-110 transition-transform cursor-grab"
+              className="h-4 w-4 rounded-full border border-white bg-accent-500 text-[8px] text-white flex items-center justify-center shadow-1 hover:scale-110 transition-transform cursor-grab"
             >
               ↻
             </button>

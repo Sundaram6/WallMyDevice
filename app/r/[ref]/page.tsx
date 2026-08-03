@@ -67,12 +67,12 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
   const title = curated?.name || (decodedRecipe ? `Custom ${decodedRecipe.generator}` : "Shared Recipe");
   const seed = curated?.seed || decodedRecipe?.seed || "seed";
   const generatorId = curated?.generatorId || decodedRecipe?.generator || "waveform";
-  const palette = curated?.palette || decodedRecipe?.palette || ["#2B2A26", "#FAF8F4"];
+  const palette = curated?.palette || decodedRecipe?.palette || ["var(--ink-900)", "var(--paper-50)"];
 
   const preset = findPreset("iphone-15-pro") ?? DEVICE_PRESETS[0];
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-ink font-sans flex flex-col">
+    <div className="min-h-screen bg-paper-50 text-ink-900 font-sans flex flex-col">
       <ArchiveTopbar
         currentTab={tab}
         onTabChange={(t) => {
@@ -86,26 +86,26 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
 
       <main className="flex-1 flex items-center justify-center p-6 py-12">
         {decodeError ? (
-          <div className="w-full max-w-md rounded-2xl border border-brand-border bg-brand-surface p-8 text-center shadow-xs">
+          <div className="w-full max-w-md rounded-2xl border border-paper-300 bg-paper-100 p-8 text-center shadow-1">
             <div className="text-3xl mb-3">⚠️</div>
-            <h1 className="font-serif text-xl font-medium text-brand-ink">Recipe Link Not Found</h1>
-            <p className="mt-2 text-xs text-brand-muted leading-relaxed">
+            <h1 className="font-serif text-xl font-medium text-ink-900">Recipe Link Not Found</h1>
+            <p className="mt-2 text-xs text-ink-500 leading-relaxed">
               This shared wallpaper link is invalid, corrupted or expired. Please verify the URL or explore our curated archive.
             </p>
             <Link
               href="/"
-              className="mt-6 inline-block rounded-xl bg-brand-ink px-5 py-3 text-xs font-medium text-brand-bg hover:bg-brand-accent transition-colors"
+              className="mt-6 inline-block rounded-xl bg-ink-900 px-5 py-3 text-xs font-medium text-paper-0 hover:bg-accent-500 transition-colors duration-[--dur-fast]"
             >
               Explore Archive →
             </Link>
           </div>
         ) : (
-          <div className="w-full max-w-xl rounded-2xl border border-brand-border bg-brand-surface p-8 shadow-xs flex flex-col items-center">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-brand-accent mb-1">
+          <div className="w-full max-w-xl rounded-2xl border border-paper-300 bg-paper-100 p-8 shadow-1 flex flex-col items-center">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-accent-500 mb-1">
               Shareable Recipe
             </span>
-            <h1 className="font-serif text-2xl font-medium text-brand-ink text-center mb-2">{title}</h1>
-            <div className="flex gap-2 text-xs text-brand-muted font-mono mb-6">
+            <h1 className="font-serif text-2xl font-medium text-ink-900 text-center mb-2">{title}</h1>
+            <div className="flex gap-2 text-xs text-ink-500 font-mono mb-6">
               <span>{getGeneratorDisplayName(generatorId)}</span>
               <span>·</span>
               <span>Seed: {seed}</span>
@@ -123,13 +123,13 @@ export default function SharePage({ params }: { params: Promise<{ ref: string }>
               <button
                 type="button"
                 onClick={handleRemix}
-                className="flex-1 rounded-xl bg-brand-ink py-3 text-xs font-medium text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
+                className="flex-1 rounded-xl bg-ink-900 py-3 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-colors duration-[--dur-fast]"
               >
                 ✦ Remix in Studio
               </button>
               <Link
                 href="/"
-                className="rounded-xl border border-brand-border bg-brand-surface-2 px-4 py-3 text-xs font-medium text-brand-ink hover:bg-brand-border transition-colors"
+                className="rounded-xl border border-paper-300 bg-paper-200 px-4 py-3 text-xs font-medium text-ink-900 hover:bg-paper-300 transition-colors duration-[--dur-fast]"
               >
                 Archive
               </Link>

@@ -127,7 +127,7 @@ export function S25UltraHero() {
 
         {/* Photorealistic S25 Ultra Rear Camera Module (Floating Accent Badge peek) */}
         <div className="absolute -top-3 -right-3 z-30 flex items-center gap-1.5 bg-[#1B1C20]/90 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full shadow-xl">
-          <div className="w-2 h-2 rounded-full bg-[#C9552F] animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
           <span className="font-mono text-[9.5px] uppercase tracking-wider text-white/90">
             S25 Ultra Titanium Black
           </span>

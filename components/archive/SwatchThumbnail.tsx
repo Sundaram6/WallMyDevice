@@ -107,7 +107,7 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320, isHovered =
     try {
       renderToTarget(target, input);
     } catch {
-      ctx.fillStyle = swatch.palette[0] || "#FAF8F4";
+      ctx.fillStyle = swatch.palette[0] || "var(--paper-50)";
       ctx.fillRect(0, 0, width, height);
     }
   }, [isInView, swatch, activeSeed, width, height]);
@@ -115,7 +115,7 @@ export function SwatchThumbnail({ swatch, width = 240, height = 320, isHovered =
   const placeholderBg =
     swatch.palette.length >= 2
       ? `linear-gradient(135deg, ${swatch.palette[0]} 0%, ${swatch.palette[1]} 100%)`
-      : swatch.palette[0] || "#FAF8F4";
+      : swatch.palette[0] || "var(--paper-50)";
 
   return (
     <div ref={containerRef} className="h-full w-full relative">

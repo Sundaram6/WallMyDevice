@@ -6,33 +6,42 @@ WallMyDevice is a client-side wallpaper generator that lets you create unique, h
 
 ## Features
 
-- **4 Wallpaper Generators**: Waveform, Geometric, Typography, Fluid-Gradient
+- **18 Procedural Wallpaper Generators**: Aurora Flow, Bauhaus Blocks, Duotone Burst, Flow Field, Fluid Gradient, Geometric, Grain Texture, Halftone Dots, Low-Poly Terrain, Marble Fluid, Mesh Gradient, Metaballs, Starfield Nebula, Topographic Lines, Typography, Voronoi Mosaic, Wave Interference, Waveform
+- **125 Archive Presets & 17 Curated Categories**: Rich, non-repetitive print swatch archive with real canvas swatches and modal preview cards
+- **Photorealistic Device Frames**: iPhone 16 Pro, Samsung Galaxy S25 Ultra, iPad Pro 13", 4K Desktop, Ultrawide, and Custom aspect bounds
+- **Dynamic Volumetric Underglow**: Adaptive 5×5 grid color-sampled backlight halo around device mockups for every generator
 - **Deterministic Seed System**: Same seed = same wallpaper every time
 - **Recipe System**: Import/Export configurations as JSON or URL hash
 - **Drag & Drop Import**: Drop recipe files directly onto the app
 - **Export Formats**: PNG, JPG, WEBP, SVG
 - **Batch Export**: Download multiple wallpapers as ZIP
-- **Custom Resolutions**: From 320px to 7680px
-- **Device Frame Presets**: 10 device frames for preview
-- **Mobile Support**: Responsive layout with bottom sheet
+- **Custom Resolutions**: From 320px to 7680px (up to 50MP)
+- **Accessibility & Contrast Auditing**: Built-in vision deficiency filters & legibility grid overlay
 - **Keyboard Shortcuts**: Speed up your workflow
 - **Effects**: Grain and blur overlays
 - **Text Overlays**: Clock, date, and custom text
-- **Color Palettes**: Curated palettes or extract from photos
+- **Color Palettes**: Curated palettes, HSL lightness sorting, or extract from photos
 
 ## Generators
 
-### Waveform
-Generate abstract wave patterns with customizable frequency, amplitude, and color gradients.
-
-### Geometric
-Create tessellated geometric shapes with adjustable complexity and color schemes.
-
-### Typography
-Design text-based wallpapers with font, size, layout, and color options.
-
-### Fluid-Gradient
-Produce smooth, flowing gradients with organic movement (requires WebGL).
+1. **Aurora Flow**: Animated-style flowing aurora color ribbons & plasma field
+2. **Bauhaus Blocks**: Constructivist flat-color geometric circles, squares & diagonal compositions (SVG supported)
+3. **Duotone Burst**: Radial sunburst gradient with ray sharpness & center offset controls
+4. **Flow Field**: Noise-driven particle trail vector flow lines
+5. **Fluid Gradient**: Smooth multi-point radial gradients with composited noise (WebGL with 2D Canvas fallback)
+6. **Geometric**: Grid pattern of repeated geometric primitives (SVG supported)
+7. **Grain Texture**: Fine analog film noise composited over gradient fills
+8. **Halftone Dots**: Screenprint halftone dot grid driven by luminance
+9. **Low-Poly Terrain**: Faceted triangulated mesh landscape grid
+10. **Marble Fluid**: Domain-warped fluid marble paint texture
+11. **Mesh Gradient**: Multi-point smooth gradient mesh with soft color blending
+12. **Metaballs**: Soft fluid metaball blobs merging via implicit fields
+13. **Starfield Nebula**: Particle stars over soft gradient nebula cloud base
+14. **Topographic Lines**: Elevation contour map lines generated from noise (SVG supported)
+15. **Typography**: Minimalist statement text and typographic layouts (SVG supported)
+16. **Voronoi Mosaic**: Cellular tessellation mosaic with border styling
+17. **Wave Interference**: Overlapping ripple wave fields creating moiré patterns
+18. **Waveform**: Layered sine waves and terrain contours (SVG supported)
 
 ## Supported Formats
 

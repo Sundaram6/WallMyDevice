@@ -55,26 +55,26 @@ export function HeroSection({ onOpenStudioClick }: Props) {
   const devices = useCountUp(5, 1200);
 
   return (
-    <section className="relative w-full bg-brand-bg text-brand-ink pt-16 pb-24 px-6 sm:px-10 lg:px-16 overflow-hidden border-b border-brand-border">
+    <section className="relative w-full bg-paper-50 text-ink-900 pt-16 pb-24 px-6 sm:px-10 lg:px-16 overflow-hidden border-b border-paper-300">
       {/* Background Noise & Ambient Animated Glow Orbs */}
-      <div className="absolute inset-0 bg-[radial-gradient(var(--color-ink)_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.04] pointer-events-none" />
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-accent/20 rounded-full blur-[120px] pointer-events-none animate-float-slow" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-accent/10 rounded-full blur-[140px] pointer-events-none animate-float-reverse" />
+      <div className="absolute inset-0 bg-[radial-gradient(var(--ink-900)_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.04] pointer-events-none" />
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-accent-500/20 rounded-full blur-[120px] pointer-events-none animate-float-slow" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-[140px] pointer-events-none animate-float-reverse" />
 
       <div className="relative mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
         {/* Left Column: Copy & CTAs */}
         <div className="lg:col-span-7 flex flex-col items-start space-y-6">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-brand-accent border-b border-brand-accent/40 pb-0.5">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-accent-500 border-b border-accent-500/40 pb-0.5">
             ✦ PRINTABLE WALLPAPER STUDIO
           </span>
 
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] text-brand-ink tracking-tight">
+          <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-normal leading-[1.08] text-ink-900 tracking-tight">
             Wallpapers,<br />
-            <span className="italic font-serif text-brand-accent">rendered</span> for<br />
+            <span className="italic font-serif text-accent-500">rendered</span> for<br />
             your device.
           </h1>
 
-          <p className="max-w-lg text-sm sm:text-base leading-relaxed text-brand-muted font-sans">
+          <p className="max-w-lg text-sm sm:text-base leading-relaxed text-ink-500 font-sans">
             A generative print house. Every wallpaper is a seed, a palette and a curve — customizable in real-time, exported at native resolution, entirely in your browser.
           </p>
 
@@ -82,37 +82,37 @@ export function HeroSection({ onOpenStudioClick }: Props) {
             <button
               type="button"
               onClick={onOpenStudioClick}
-              className="rounded-full bg-brand-accent px-6 py-3.5 text-xs font-medium text-white shadow-lg hover:bg-brand-accent-hover transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 rounded-pill px-6 py-3.5 text-xs font-medium font-sans bg-accent-500 text-paper-0 hover:bg-accent-500/90 shadow-1 hover:shadow-2 transition-all duration-[--dur-fast] active:scale-[0.99]"
             >
               Open the Studio ✦
             </button>
             <Link
               href="/archive"
-              className="rounded-full border border-brand-border bg-brand-surface px-6 py-3.5 text-xs font-medium text-brand-ink hover:bg-brand-surface-2 transition shadow-2xs"
+              className="inline-flex items-center justify-center gap-2 rounded-pill border border-paper-300 bg-paper-50 px-6 py-3.5 text-xs font-medium font-sans text-ink-900 hover:bg-paper-100 shadow-1 transition-all duration-[--dur-fast]"
             >
               Browse Archive →
             </Link>
           </div>
 
           {/* Stats Bar with Count-Up Animation */}
-          <div className="pt-8 border-t border-brand-border w-full grid grid-cols-3 gap-4 max-w-md text-left">
+          <div className="pt-8 border-t border-paper-300 w-full grid grid-cols-3 gap-4 max-w-md text-left">
             <div ref={generators.ref}>
-              <div className="font-serif text-2xl font-medium text-brand-ink tabular-nums">
+              <div className="font-serif text-2xl font-medium text-ink-900 tabular-nums">
                 {generators.count}
               </div>
-              <div className="font-mono text-[10px] uppercase tracking-wider text-brand-faint">GENERATORS</div>
+              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">GENERATORS</div>
             </div>
             <div ref={collections.ref}>
-              <div className="font-serif text-2xl font-medium text-brand-ink tabular-nums">
+              <div className="font-serif text-2xl font-medium text-ink-900 tabular-nums">
                 {collections.count}
               </div>
-              <div className="font-mono text-[10px] uppercase tracking-wider text-brand-faint">COLLECTIONS</div>
+              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">COLLECTIONS</div>
             </div>
             <div ref={devices.ref}>
-              <div className="font-serif text-2xl font-medium text-brand-ink tabular-nums">
+              <div className="font-serif text-2xl font-medium text-ink-900 tabular-nums">
                 {devices.count}
               </div>
-              <div className="font-mono text-[10px] uppercase tracking-wider text-brand-faint">DEVICE TYPES</div>
+              <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">DEVICE TYPES</div>
             </div>
           </div>
         </div>

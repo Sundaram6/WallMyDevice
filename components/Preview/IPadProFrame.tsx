@@ -18,10 +18,14 @@ export function IPadProFrame({ children, metrics }: Props) {
 
   return (
     <div className="relative group flex items-center justify-center">
-      {/* Volumetric Underglow */}
+      {/* Volumetric Underglow driven by --glow-color */}
       <div 
-        className="absolute -inset-4 bg-gradient-to-tr from-brand-accent/15 via-purple-900/10 to-blue-900/10 blur-2xl opacity-60 group-hover:opacity-80 transition-opacity pointer-events-none" 
-        style={{ borderRadius: outerRadius + 12 }}
+        className="absolute -inset-6 blur-2xl opacity-75 group-hover:opacity-100 transition-all duration-[--dur-slow] pointer-events-none" 
+        style={{ 
+          borderRadius: outerRadius + 12,
+          backgroundColor: "var(--glow-color, rgba(217, 84, 31, 0.3))",
+          boxShadow: "var(--shadow-glow)",
+        }}
       />
 
       {/* Space Black iPad Chassis (Ultra-thin 4px bezel, Face ID pill, Apple Pencil ledge) */}

@@ -10,7 +10,7 @@ export default function StudioPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <div className="h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans flex flex-col overflow-hidden">
+    <div className="h-screen bg-paper-50 text-ink-900 font-sans flex flex-col overflow-hidden">
       <ArchiveTopbar
         activeRoute="studio"
         searchQuery={searchQuery}

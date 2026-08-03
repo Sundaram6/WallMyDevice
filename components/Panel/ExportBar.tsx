@@ -7,7 +7,7 @@ import { buildFilename } from "@/lib/export/filename";
 import { encodeRecipe, encodeHash } from "@/lib/recipe/encode";
 import type { Recipe } from "@/lib/recipe/validate";
 import { DEVICE_PRESETS } from "@/lib/devices/presets";
-import { buildInput, downloadBlob } from "@/lib/export/actions";
+import { buildInput, downloadBlob, triggerSingleExport } from "@/lib/export/actions";
 import { validateExportSize } from "@/lib/export/limits";
 
 const FORMATS = ["PNG", "JPG", "WEBP", "SVG"] as const;
@@ -121,10 +121,10 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
   const btnBase: React.CSSProperties = {
     fontSize: 11,
     fontWeight: 500,
-    border: "1.5px solid #EDE8E0",
+    border: "1.5px solid var(--paper-200)",
     borderRadius: 12,
-    background: "#FAF8F4",
-    color: "#5B584F",
+    background: "var(--paper-50)",
+    color: "var(--ink-700)",
     padding: "7px 12px",
     cursor: "pointer",
     transition: "all 0.15s ease",
@@ -136,7 +136,7 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
       {/* Format pills */}
       <div
         className="flex rounded-xl p-1"
-        style={{ background: "#F5F1EB", border: "1.5px solid #EDE8E0" }}
+        style={{ background: "var(--paper-50)", border: "1.5px solid var(--paper-200)" }}
       >
         {FORMATS.filter((f) => f !== "SVG" || canSvg).map((f) => {
           const isActive = exportFormat === f.toLowerCase() as Format;
@@ -150,8 +150,8 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
                 fontSize: 10,
                 fontWeight: isActive ? 700 : 400,
                 fontFamily: "monospace",
-                background: isActive ? "#FFFFFF" : "transparent",
-                color: isActive ? "#C9552F" : "#8A8579",
+                background: isActive ? "var(--paper-0)" : "transparent",
+                color: isActive ? "var(--accent-500)" : "var(--ink-500)",
                 boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
               }}
             >
@@ -163,20 +163,27 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
 
       {/* Primary download button */}
       <button
+        id="export-btn-primary"
         type="button"
-        onClick={onDownload}
-        className="w-full flex items-center justify-center gap-2 rounded-xl py-3 transition-all font-semibold"
+        onClick={async () => {
+          try {
+            await triggerSingleExport();
+          } catch (e) {
+            setError(e instanceof Error ? e.message : "Export failed");
+          }
+        }}
+        className="w-full flex items-center justify-center gap-2 rounded-xl py-3 transition-all font-semibold cursor-pointer"
         style={{
           fontSize: 13,
-          background: "#C9552F",
-          color: "#FFFFFF",
+          background: "var(--accent-500)",
+          color: "var(--paper-0)",
           border: "none",
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = "#A8441F";
+          (e.currentTarget as HTMLButtonElement).style.background = "var(--accent-600)";
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.background = "#C9552F";
+          (e.currentTarget as HTMLButtonElement).style.background = "var(--accent-500)";
         }}
       >
         <span>↓</span>
@@ -190,8 +197,8 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
             type="button"
             onClick={() => setBatchOpen((o) => !o)}
             style={btnBase}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-700)"; }}
           >
             Batch
           </button>
@@ -199,8 +206,8 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
             type="button"
             onClick={onRecipeJson}
             style={btnBase}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-700)"; }}
           >
             Recipe
           </button>
@@ -208,8 +215,8 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
             type="button"
             onClick={onCopyShareLink}
             style={btnBase}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F"; (e.currentTarget as HTMLButtonElement).style.color = "#C9552F"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0"; (e.currentTarget as HTMLButtonElement).style.color = "#5B584F"; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-700)"; }}
           >
             Share ↗
           </button>
@@ -228,7 +235,7 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
               key={label}
               type="button"
               onClick={action}
-              style={{ fontSize: 10, fontFamily: "monospace", color: "#A0968C", background: "none", border: "none", cursor: "pointer" }}
+              style={{ fontSize: 10, fontFamily: "monospace", color: "var(--ink-400)", background: "none", border: "none", cursor: "pointer" }}
               className="hover:underline transition-opacity hover:opacity-70"
             >
               {label}
@@ -241,25 +248,25 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
       {batchOpen && (
         <div
           className="space-y-2 rounded-xl p-3"
-          style={{ border: "1.5px solid #EDE8E0", background: "#FFFFFF" }}
+          style={{ border: "1.5px solid var(--paper-200)", background: "var(--paper-0)" }}
         >
-          <p style={{ fontSize: 9, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: "#A0968C", marginBottom: 6 }}>
+          <p style={{ fontSize: 9, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--ink-400)", marginBottom: 6 }}>
             Target Devices
           </p>
           {DEVICE_PRESETS.filter((p) => p.id !== "custom").map((p) => (
             <label
               key={p.id}
               className="flex items-center gap-2 cursor-pointer select-none"
-              style={{ fontSize: 11, color: "#2B2A26" }}
+              style={{ fontSize: 11, color: "var(--ink-900)" }}
             >
               <input
                 type="checkbox"
                 checked={batchSelection.includes(p.id)}
                 onChange={() => toggleBatch(p.id)}
-                style={{ accentColor: "#C9552F" }}
+                style={{ accentColor: "var(--accent-500)" }}
               />
               <span>{p.label}</span>
-              <span style={{ fontSize: 9, fontFamily: "monospace", color: "#A0968C" }}>
+              <span style={{ fontSize: 9, fontFamily: "monospace", color: "var(--ink-400)" }}>
                 {p.w}×{p.h}
               </span>
             </label>
@@ -269,17 +276,17 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
             onClick={onBatch}
             disabled={batchSelection.length === 0 || progress !== null}
             className="w-full rounded-xl py-2 mt-1 font-semibold transition-all disabled:opacity-40"
-            style={{ fontSize: 12, background: "#C9552F", color: "#FFFFFF", border: "none" }}
+            style={{ fontSize: 12, background: "var(--accent-500)", color: "var(--paper-0)", border: "none" }}
           >
             {progress
               ? `Generating ${progress.done}/${progress.total}…`
               : "Generate All Selected"}
           </button>
           {progress && (
-            <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "#EDE8E0" }}>
+            <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--paper-100)" }}>
               <div
                 className="h-full transition-all duration-300"
-                style={{ width: `${(progress.done / progress.total) * 100}%`, background: "#C9552F" }}
+                style={{ width: `${(progress.done / progress.total) * 100}%`, background: "var(--accent-500)" }}
               />
             </div>
           )}
@@ -287,7 +294,7 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
       )}
 
       {error && (
-        <p style={{ fontSize: 10, fontFamily: "monospace", color: "#DC2626" }}>{error}</p>
+        <p style={{ fontSize: 10, fontFamily: "monospace", color: "var(--danger-500)" }}>{error}</p>
       )}
     </div>
   );

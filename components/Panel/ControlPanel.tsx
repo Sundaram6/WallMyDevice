@@ -31,7 +31,7 @@ function PanelSection({
   badge?: string;
 }) {
   return (
-    <div style={{ borderBottom: "1px solid #EDE8E0" }}>
+    <div style={{ borderBottom: "1px solid var(--paper-200)" }}>
       <button
         type="button"
         onClick={onToggle}
@@ -45,7 +45,7 @@ function PanelSection({
               fontFamily: "monospace",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
-              color: "#A0968C",
+              color: "var(--ink-400)",
               fontWeight: 500,
             }}
           >
@@ -56,7 +56,7 @@ function PanelSection({
               style={{
                 fontSize: 8,
                 fontFamily: "monospace",
-                color: "#C9552F",
+                color: "var(--accent-500)",
                 background: "rgba(201,85,47,0.08)",
                 borderRadius: 4,
                 padding: "1px 5px",
@@ -69,7 +69,7 @@ function PanelSection({
         </div>
         <span
           style={{
-            color: "#C4BAA8",
+            color: "var(--paper-300)",
             fontSize: 10,
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
@@ -112,14 +112,14 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="px-6 pt-7 pb-5 shrink-0" style={{ borderBottom: "1px solid #EDE8E0" }}>
+      <div className="px-6 pt-7 pb-5 shrink-0" style={{ borderBottom: "1px solid var(--paper-200)" }}>
         <p
           style={{
             fontSize: 9,
             fontFamily: "monospace",
             textTransform: "uppercase",
             letterSpacing: "0.12em",
-            color: "#C9552F",
+            color: "var(--accent-500)",
             marginBottom: 10,
             fontWeight: 500,
           }}
@@ -132,14 +132,14 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
             fontSize: 22,
             fontWeight: 500,
             fontStyle: "italic",
-            color: "#2B2A26",
+            color: "var(--ink-900)",
             lineHeight: 1.25,
             marginBottom: 8,
           }}
         >
           Compose your<br />wallpaper.
         </h1>
-        <p style={{ fontSize: 11, color: "#8A8579", lineHeight: 1.55 }}>
+        <p style={{ fontSize: 11, color: "var(--ink-500)", lineHeight: 1.55 }}>
           Choose a generator, pick a palette, select a device. Every change re-renders live.
         </p>
       </div>
@@ -184,14 +184,14 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
         </PanelSection>
 
         {/* SEED — always visible */}
-        <div className="px-6 py-4" style={{ borderBottom: "1px solid #EDE8E0" }}>
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--paper-200)" }}>
           <p
             style={{
               fontSize: 9,
               fontFamily: "monospace",
               textTransform: "uppercase",
               letterSpacing: "0.1em",
-              color: "#A0968C",
+              color: "var(--ink-400)",
               marginBottom: 8,
             }}
           >
@@ -200,20 +200,20 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
           <SeedBar />
           <label
             className="flex items-center gap-2 mt-2.5 cursor-pointer select-none"
-            style={{ fontSize: 11, color: "#5B584F" }}
+            style={{ fontSize: 11, color: "var(--ink-700)" }}
           >
             <input
               type="checkbox"
               checked={safeZone}
               onChange={(e) => setSafeZone(e.target.checked)}
-              style={{ accentColor: "#C9552F" }}
+              style={{ accentColor: "var(--accent-500)" }}
             />
             Safe-zone overlay
           </label>
         </div>
 
         {/* SURPRISE ME */}
-        <div className="px-6 py-4" style={{ borderBottom: "1px solid #EDE8E0" }}>
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--paper-200)" }}>
           <button
             type="button"
             onClick={surpriseMe}
@@ -221,19 +221,19 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
             style={{
               fontSize: 12,
               fontWeight: 500,
-              color: "#2B2A26",
-              border: "1px solid #E4DFD3",
-              background: "#FAF8F4",
+              color: "var(--ink-900)",
+              border: "1px solid var(--paper-300)",
+              background: "var(--paper-50)",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F";
-              (e.currentTarget as HTMLButtonElement).style.color = "#C9552F";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)";
               (e.currentTarget as HTMLButtonElement).style.background = "rgba(201,85,47,0.04)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#E4DFD3";
-              (e.currentTarget as HTMLButtonElement).style.color = "#2B2A26";
-              (e.currentTarget as HTMLButtonElement).style.background = "#FAF8F4";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-200)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-900)";
+              (e.currentTarget as HTMLButtonElement).style.background = "var(--paper-50)";
             }}
           >
             <span>✦ Surprise Me</span>
@@ -241,11 +241,11 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
               style={{
                 fontSize: 9,
                 fontFamily: "monospace",
-                color: "#A0968C",
-                border: "1px solid #E4DFD3",
+                color: "var(--ink-400)",
+                border: "1px solid var(--paper-300)",
                 borderRadius: 4,
                 padding: "1px 5px",
-                background: "#F5F1EB",
+                background: "var(--paper-50)",
               }}
             >
               ⌘K
@@ -258,8 +258,8 @@ export function ControlPanel({ variant = "sidebar" }: { variant?: "sidebar" | "s
       <div
         className="shrink-0 px-6 py-4"
         style={{
-          borderTop: "1px solid #EDE8E0",
-          background: "#FFFFFF",
+          borderTop: "1px solid var(--paper-200)",
+          background: "var(--paper-0)",
         }}
       >
         <ExportBar compact />
@@ -280,11 +280,11 @@ function MobilePanel() {
   const surpriseMe = useEditorStore((s) => s.surpriseMe);
 
   return (
-    <div className="flex flex-col gap-4 pb-8" style={{ color: "#2B2A26" }}>
+    <div className="flex flex-col gap-4 pb-8" style={{ color: "var(--ink-900)" }}>
       {/* 3-tab selector */}
       <div
         className="flex rounded-xl p-1 text-xs"
-        style={{ background: "#F5F1EB", border: "1px solid #E4DFD3" }}
+        style={{ background: "var(--paper-50)", border: "1px solid var(--paper-300)" }}
       >
         {(["style", "device", "export"] as const).map((t) => (
           <button
@@ -294,8 +294,8 @@ function MobilePanel() {
             className="flex-1 rounded-lg py-2 capitalize font-medium transition-all"
             style={{
               fontSize: 11,
-              background: tab === t ? "#FFFFFF" : "transparent",
-              color: tab === t ? "#2B2A26" : "#8A8579",
+              background: tab === t ? "var(--paper-0)" : "transparent",
+              color: tab === t ? "var(--ink-900)" : "var(--ink-500)",
               boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
             }}
           >
@@ -315,7 +315,7 @@ function MobilePanel() {
             type="button"
             onClick={surpriseMe}
             className="w-full rounded-xl py-3 text-sm font-medium transition-all"
-            style={{ border: "1px solid #E4DFD3", background: "#FAF8F4", color: "#2B2A26" }}
+            style={{ border: "1px solid var(--paper-300)", background: "var(--paper-50)", color: "var(--ink-900)" }}
           >
             ✦ Surprise Me
           </button>

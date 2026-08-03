@@ -59,25 +59,25 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
   };
 
   return (
-    <section className="w-full bg-brand-bg py-20 px-4 sm:px-8 lg:px-12 border-t border-brand-border">
+    <section className="w-full bg-paper-50 py-20 px-4 sm:px-8 lg:px-12 border-t border-paper-300">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-brand-border pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-paper-300 pb-6">
           <div>
             <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-accent animate-pulse" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-brand-accent">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-accent-500">
                 CURATED PRINT ARCHIVE
               </span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-brand-ink mt-1.5">
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-ink-900 mt-1.5">
               A rotating catalogue of hand-crafted seeds.
             </h2>
           </div>
-          <div className="flex items-center gap-2 font-mono text-[11px] text-brand-muted uppercase tracking-wider bg-brand-surface px-3.5 py-1.5 rounded-xl border border-brand-border">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-ink-500 uppercase tracking-wider bg-paper-100 px-3.5 py-1.5 rounded-xl border border-paper-300">
             <span>SHOWING {filteredPresets.length} OF {ARCHIVE_PRESETS.length}</span>
             <span>·</span>
-            <span className="text-brand-accent font-semibold">VOL. 08</span>
+            <span className="text-accent-500 font-semibold">VOL. 08</span>
           </div>
         </div>
 
@@ -88,10 +88,10 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`rounded-pill px-4 py-1.5 text-xs font-medium transition-all duration-[--dur-fast] ${
                 selectedCategory === cat
-                  ? "bg-brand-accent text-white shadow-xs"
-                  : "bg-brand-surface text-brand-muted hover:text-brand-ink hover:bg-brand-surface-2 border border-brand-border"
+                  ? "bg-ink-900 text-paper-0 shadow-1 font-semibold"
+                  : "bg-paper-100 text-ink-700 hover:text-ink-900 hover:bg-paper-200 border border-paper-200"
               }`}
             >
               {cat}
@@ -108,7 +108,7 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
               <article
                 key={swatch.id}
                 onClick={() => handleSelectSwatch(swatch)}
-                className="group cursor-pointer rounded-3xl border border-brand-border bg-brand-surface p-4 transition-all duration-300 hover:border-brand-accent/60 shadow-xs hover:shadow-xl hover:-translate-y-1.5 flex flex-col justify-between"
+                className="group cursor-pointer rounded-3xl border border-paper-300 bg-paper-100 p-4 transition-all duration-[--dur-fast] hover:border-accent-500/60 shadow-1 hover:shadow-2 hover:-translate-y-1.5 flex flex-col justify-between"
               >
                 {/* Thumbnail Container */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-black ring-1 ring-white/10 shadow-inner">
@@ -119,9 +119,9 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
                     type="button"
                     onClick={(e) => handleToggleFav(e, swatch.id)}
                     aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
-                    className={`absolute top-3 left-3 rounded-full p-2 backdrop-blur-md border transition-all duration-300 shadow-md ${
+                    className={`absolute top-3 left-3 rounded-full p-2 backdrop-blur-md border transition-all duration-[--dur-fast] shadow-md ${
                       isFav
-                        ? "bg-brand-accent text-white border-brand-accent scale-110"
+                        ? "bg-accent-500 text-white border-accent-500 scale-110"
                         : "bg-black/40 text-white/70 border-white/10 hover:text-white hover:bg-black/60"
                     }`}
                   >
@@ -131,9 +131,9 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
                   </button>
 
                   {/* Floating Glassmorphism Remix Badge */}
-                  <div className="absolute top-3 right-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1 font-mono text-[10px] text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105 shadow-md flex items-center gap-1">
+                  <div className="absolute top-3 right-3 rounded-full bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1 font-mono text-[10px] text-white opacity-0 group-hover:opacity-100 transition-all duration-[--dur-fast] transform group-hover:scale-105 shadow-md flex items-center gap-1">
                     <span>Remix</span>
-                    <span className="text-brand-accent">✦</span>
+                    <span className="text-accent-500">✦</span>
                   </div>
 
                   {/* Seed Badge (Left Bottom) */}
@@ -142,7 +142,7 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
                   </div>
 
                   {swatch.isNew && (
-                    <div className="absolute bottom-3 right-3 rounded-full bg-brand-accent px-2.5 py-0.5 font-mono text-[9px] font-semibold text-white shadow-md">
+                    <div className="absolute bottom-3 right-3 rounded-full bg-accent-500 px-2.5 py-0.5 font-mono text-[9px] font-semibold text-white shadow-md">
                       NEW
                     </div>
                   )}
@@ -151,18 +151,18 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
                 {/* Card Meta */}
                 <div className="mt-4 flex items-start justify-between gap-2 px-1">
                   <div>
-                    <h3 className="font-serif text-base font-medium text-brand-ink group-hover:text-brand-accent transition-colors">
+                    <h3 className="font-serif text-base font-medium text-ink-900 group-hover:text-accent-500 transition-colors duration-[--dur-fast]">
                       {swatch.name}
                     </h3>
-                    <p className="font-mono text-[10.5px] text-brand-muted mt-0.5 flex items-center gap-1.5">
+                    <p className="font-mono text-[10.5px] text-ink-500 mt-0.5 flex items-center gap-1.5">
                       <span>{swatch.category}</span>
                       <span>·</span>
-                      <span className="text-brand-ink/70 font-medium">{swatch.volume}</span>
+                      <span className="text-ink-900/70 font-medium">{swatch.volume}</span>
                     </p>
                   </div>
 
                   {/* Palette Chips (Rounded Rectangles) */}
-                  <div className="flex gap-1 pt-1 bg-brand-bg p-1 rounded-lg border border-brand-border shadow-2xs">
+                  <div className="flex gap-1 pt-1 bg-paper-50 p-1 rounded-lg border border-paper-300 shadow-inner">
                     {swatch.palette.slice(0, 4).map((color, i) => (
                       <div
                         key={i}
@@ -182,7 +182,7 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
         <div className="mt-14 text-center">
           <Link
             href="/archive"
-            className="inline-flex items-center gap-2 rounded-full bg-brand-ink px-8 py-4 text-xs font-medium text-brand-bg shadow-md hover:bg-brand-accent transition-all duration-300 transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-full bg-ink-900 px-8 py-4 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-all duration-[--dur-fast] transform hover:-translate-y-0.5"
           >
             <span>Explore All {ARCHIVE_PRESETS.length} Prints in Archive</span>
             <span>→</span>

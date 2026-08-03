@@ -30,7 +30,7 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
       <div
         className={`relative flex flex-col w-full font-sans overflow-hidden ${
           isInline
-            ? "h-[680px] rounded-3xl border border-brand-border"
+            ? "h-[680px] rounded-3xl border border-paper-300"
             : "h-full"
         }`}
         style={{ background: "var(--color-bg)", color: "var(--color-ink)" }}
@@ -44,7 +44,7 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
         {(whatsNewBanner || deviceNotice) && (
           <div className="shrink-0 flex flex-col gap-1 px-4 pt-2 z-30">
             {whatsNewBanner && (
-              <div className="flex items-center justify-between gap-2 rounded-lg border border-brand-accent/30 bg-brand-accent/10 px-3 py-1.5 text-[11px] font-mono text-brand-accent">
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-accent-500/30 bg-accent-500/10 px-3 py-1.5 text-[11px] font-mono text-accent-500">
                 <span>✦ New in {CURRENT_VERSION}: {whatsNewBanner}</span>
                 <div className="flex items-center gap-2">
                   <Link href="/changelog" className="underline hover:opacity-70">Changelog</Link>
@@ -63,7 +63,7 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
               </div>
             )}
             {deviceNotice && (
-              <div className="flex items-center justify-between gap-2 rounded-lg border border-brand-border bg-brand-surface px-3 py-1.5 text-[11px] font-mono text-brand-muted">
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-paper-300 bg-paper-100 px-3 py-1.5 text-[11px] font-mono text-ink-500">
                 <span>📱 {deviceNotice}</span>
                 <button type="button" onClick={() => setDeviceNotice(null)} aria-label="Dismiss" className="opacity-50 hover:opacity-100">✕</button>
               </div>

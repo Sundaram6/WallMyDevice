@@ -24,12 +24,12 @@ export function RecipeLoader() {
         {open ? "Close Recipe Import" : "Load recipe"}
       </Button>
       {open ? (
-        <div className="mt-2 space-y-2 rounded-xl border border-[#E4DFD3] bg-white p-3 shadow-xs">
+        <div className="mt-2 space-y-2 rounded-xl border border-paper-200 bg-paper-100 p-3 shadow-xs">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste a WallMyDevice recipe JSON here..."
-            className="h-32 w-full rounded-lg border border-[#D4CDBC] bg-[#FAF8F4] p-2 text-xs font-mono text-[#2B2A26] focus:border-[#C9552F] focus:outline-none"
+            className="h-32 w-full rounded-lg border border-paper-300 bg-paper-50 p-2 text-xs font-mono text-ink-900 focus:border-accent-500 focus:outline-none"
           />
           <div className="flex gap-2">
             <Button variant="primary" className="flex-1" onClick={onLoad}>Load</Button>

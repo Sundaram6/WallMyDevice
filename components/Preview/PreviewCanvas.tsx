@@ -57,6 +57,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
     const input = buildRenderInput(s, { width: w, height: h });
     const generator = getGenerator(s.generatorId);
     const needsWebGL = generator?.kind === "shader";
+    const activePalette = resolvePalette(input.palette, input.mode, input.autoMode);
 
     if (isMounted.current && typeof window !== "undefined") setIsRendering(true);
 
@@ -95,7 +96,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
         }
 
         const webglTarget: WebGLTarget = { kind: "webgl", canvas: off.canvas, ctx: off.gl, width: w, height: h, dpr: 1 };
-        const palette = resolvePalette(input.palette, input.mode, input.autoMode);
+        const palette = activePalette;
         const rng = createRng(input.seed);
         const context = { blur: input.blurIntensity, grain: { enabled: input.grainEnabled, intensity: input.grainIntensity } };
 
@@ -135,13 +136,13 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
         canvas.width = w;
         canvas.height = h;
 
-        const palette = resolvePalette(input.palette, input.mode, input.autoMode);
+        const palette = activePalette;
         const rng = createRng(input.seed);
         const context = { blur: input.blurIntensity, grain: { enabled: input.grainEnabled, intensity: input.grainIntensity } };
         const domTarget = { kind: "canvas2d" as const, canvas, ctx: ctx2d, width: w, height: h, dpr: 1 };
 
         ctx2d.save();
-        ctx2d.fillStyle = palette[0] ?? "#000000";
+        ctx2d.fillStyle = palette[0] ?? "black";
         ctx2d.fillRect(0, 0, w, h);
         ctx2d.restore();
 
@@ -154,6 +155,68 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
           drawOverlays(domTarget, input.overlays, input.palette);
         }
       }
+
+      // Dynamic Glow Sampling: Calculate dominant vibrant color from 5x5 canvas grid + activePalette fallback
+      try {
+        const ctx2d = canvas.getContext("2d");
+        if (ctx2d && w > 0 && h > 0) {
+          const samples: { r: number; g: number; b: number; sat: number; lum: number }[] = [];
+          const grid = 5;
+          for (let r = 1; r < grid; r++) {
+            for (let c = 1; c < grid; c++) {
+              const x = Math.floor((c * w) / grid);
+              const y = Math.floor((r * h) / grid);
+              try {
+                const px = ctx2d.getImageData(x, y, 1, 1).data;
+                const red = px[0], green = px[1], blue = px[2];
+                const max = Math.max(red, green, blue);
+                const min = Math.min(red, green, blue);
+                const lum = (max + min) / 510;
+                const sat = max === min ? 0 : (max - min) / (1 - Math.abs(2 * lum - 1)) / 255;
+                samples.push({ r: red, g: green, b: blue, sat, lum });
+              } catch {}
+            }
+          }
+
+          // Sort by highest saturation and non-black brightness (>0.08)
+          const sorted = samples
+            .filter(s => s.lum > 0.08)
+            .sort((a, b) => (b.sat * 0.75 + b.lum * 0.25) - (a.sat * 0.75 + a.lum * 0.25));
+
+          let red = 201, green = 85, blue = 47;
+
+          if (sorted.length > 0 && sorted[0]) {
+            red = sorted[0].r;
+            green = sorted[0].g;
+            blue = sorted[0].b;
+          } else if (activePalette && activePalette.length > 0) {
+            const colorHex = activePalette[activePalette.length - 1] ?? activePalette[1] ?? activePalette[0];
+            if (colorHex && colorHex.startsWith("#")) {
+              const hex = colorHex.replace("#", "");
+              if (hex.length === 6) {
+                red = parseInt(hex.substring(0, 2), 16);
+                green = parseInt(hex.substring(2, 4), 16);
+                blue = parseInt(hex.substring(4, 6), 16);
+              }
+            }
+          }
+
+          // Boost luminance & saturation if extracted color is too dark to register on dark backdrop
+          const max = Math.max(red, green, blue);
+          const min = Math.min(red, green, blue);
+          let lum = (max + min) / 510;
+          if (lum < 0.35) {
+            const factor = 0.42 / Math.max(0.05, lum);
+            red = Math.min(255, Math.round(red * factor + 35));
+            green = Math.min(255, Math.round(green * factor + 35));
+            blue = Math.min(255, Math.round(blue * factor + 35));
+          }
+
+          if (typeof document !== "undefined") {
+            document.documentElement.style.setProperty("--glow-color", `rgb(${red}, ${green}, ${blue})`);
+          }
+        }
+      } catch {}
 
       if (isMounted.current) setRenderError(null);
     } catch (err) {
@@ -198,23 +261,23 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
   return (
     <div className="relative flex items-center justify-center overflow-hidden" style={{ width: w, height: h }}>
       {renderError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-brand-surface border border-brand-border rounded-lg shadow-sm z-20">
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-paper-100 border border-paper-300 rounded-lg shadow-1 z-20">
           <div className="text-2xl mb-2">⚠️</div>
-          <p className="text-xs font-medium text-brand-ink max-w-xs leading-relaxed">
+          <p className="text-xs font-medium text-ink-900 max-w-xs leading-relaxed">
             {renderError.userMessage}
           </p>
           <div className="mt-4 flex flex-wrap gap-2 justify-center">
             <button
               type="button"
               onClick={() => setGenerator("waveform")}
-              className="rounded-lg bg-brand-ink px-3 py-1.5 text-xs text-brand-bg shadow-xs hover:bg-brand-accent transition-colors"
+              className="rounded-lg bg-ink-900 px-3 py-1.5 text-xs text-paper-0 shadow-1 hover:bg-accent-500 transition-colors duration-[--dur-fast]"
             >
               Switch to Waveform
             </button>
             <button
               type="button"
               onClick={() => setGenerator("geometric")}
-              className="rounded-lg border border-brand-border bg-brand-bg px-3 py-1.5 text-xs text-brand-muted hover:bg-brand-surface-2 transition-colors"
+              className="rounded-lg border border-paper-300 bg-paper-50 px-3 py-1.5 text-xs text-ink-500 hover:bg-paper-200 transition-colors duration-[--dur-fast]"
             >
               Switch to Geometric
             </button>
@@ -226,7 +289,7 @@ export function PreviewCanvas({ frame, aspect, maxWidth, maxHeight }: Props) {
         ref={canvasRef}
         width={w}
         height={h}
-        className={`h-full w-full object-contain ${renderError ? "hidden" : "block"}`}
+        className={`h-full w-full object-contain transition-opacity duration-[--dur-canvas] ease-[--ease-out] ${renderError ? "opacity-0 hidden" : "opacity-100 block"}`}
       />
 
       {isRendering && !renderError && (

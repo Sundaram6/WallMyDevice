@@ -59,7 +59,7 @@ export function PalettePicker() {
 
   function addColor() {
     if (palette.length >= 8) return;
-    setPalette([...palette, palette[palette.length - 1] ?? "#888888"]);
+    setPalette([...palette, palette[palette.length - 1] ?? "var(--ink-400)"]);
   }
 
   async function onFile(file: File) {
@@ -80,7 +80,7 @@ export function PalettePicker() {
       {/* ── Toolbar ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         {/* Sub-tabs */}
-        <div className="flex gap-0.5" style={{ background: "#F5F1EB", borderRadius: 8, padding: 3 }}>
+        <div className="flex gap-0.5" style={{ background: "var(--paper-50)", borderRadius: 8, padding: 3 }}>
           {(["presets", "harmony", "custom"] as const).map((t) => (
             <button
               key={t}
@@ -92,8 +92,8 @@ export function PalettePicker() {
                 fontFamily: "monospace",
                 padding: "3px 9px",
                 borderRadius: 6,
-                background: tab === t ? "#FFFFFF" : "transparent",
-                color: tab === t ? "#2B2A26" : "#8A8579",
+                background: tab === t ? "var(--paper-0)" : "transparent",
+                color: tab === t ? "var(--ink-900)" : "var(--ink-500)",
                 fontWeight: tab === t ? 600 : 400,
                 boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
               }}
@@ -113,9 +113,9 @@ export function PalettePicker() {
             style={{
               padding: "5px 7px",
               fontSize: 12,
-              border: paletteLocked ? "1px solid #C9552F" : "1px solid #EDE8E0",
-              background: paletteLocked ? "rgba(201,85,47,0.08)" : "#FAF8F4",
-              color: paletteLocked ? "#C9552F" : "#8A8579",
+              border: paletteLocked ? "1px solid var(--accent-500)" : "1px solid var(--paper-200)",
+              background: paletteLocked ? "rgba(201,85,47,0.08)" : "var(--paper-50)",
+              color: paletteLocked ? "var(--accent-500)" : "var(--ink-500)",
             }}
           >
             {paletteLocked ? "🔒" : "🔓"}
@@ -128,17 +128,17 @@ export function PalettePicker() {
               padding: "4px 9px",
               fontSize: 10,
               fontFamily: "monospace",
-              border: "1px solid #EDE8E0",
-              background: "#FAF8F4",
-              color: "#5B584F",
+              border: "1px solid var(--paper-200)",
+              background: "var(--paper-50)",
+              color: "var(--ink-700)",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F";
-              (e.currentTarget as HTMLButtonElement).style.color = "#C9552F";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
-              (e.currentTarget as HTMLButtonElement).style.color = "#5B584F";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)";
+              (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-700)";
             }}
           >
             ✦ Shuffle
@@ -149,7 +149,7 @@ export function PalettePicker() {
       {/* Active palette strip */}
       <div
         className="flex w-full overflow-hidden rounded-lg"
-        style={{ height: 22, border: "1px solid #E4DFD3", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)" }}
+        style={{ height: 22, border: "1px solid var(--paper-300)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)" }}
       >
         {palette.map((color, i) => (
           <span key={i} style={{ flex: 1, backgroundColor: color }} title={color} />
@@ -171,12 +171,12 @@ export function PalettePicker() {
                 onClick={() => setPalette([...c.colors])}
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all"
                 style={{
-                  border: isSelected ? "1.5px solid #C9552F" : "1.5px solid transparent",
+                  border: isSelected ? "1.5px solid var(--accent-500)" : "1.5px solid transparent",
                   background: isSelected ? "rgba(201,85,47,0.05)" : "transparent",
                 }}
                 onMouseEnter={(e) => {
                   if (!isSelected) {
-                    (e.currentTarget as HTMLButtonElement).style.background = "#F5F1EB";
+                    (e.currentTarget as HTMLButtonElement).style.background = "var(--paper-50)";
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -208,14 +208,14 @@ export function PalettePicker() {
                   style={{
                     fontSize: 12,
                     fontWeight: isSelected ? 600 : 400,
-                    color: isSelected ? "#C9552F" : "#2B2A26",
+                    color: isSelected ? "var(--accent-500)" : "var(--ink-900)",
                   }}
                 >
                   {c.label}
                 </span>
 
                 {isSelected && (
-                  <span style={{ fontSize: 10, color: "#C9552F", fontFamily: "monospace" }}>✓</span>
+                  <span style={{ fontSize: 10, color: "var(--accent-500)", fontFamily: "monospace" }}>✓</span>
                 )}
               </button>
             );
@@ -223,14 +223,14 @@ export function PalettePicker() {
 
           {/* Legacy curated palettes */}
           {legacyCurated.length > 0 && (
-            <div className="pt-3" style={{ borderTop: "1px solid #EDE8E0", marginTop: 8 }}>
+            <div className="pt-3" style={{ borderTop: "1px solid var(--paper-200)", marginTop: 8 }}>
               <p
                 style={{
                   fontSize: 9,
                   fontFamily: "monospace",
                   textTransform: "uppercase",
                   letterSpacing: "0.1em",
-                  color: "#A0968C",
+                  color: "var(--ink-400)",
                   marginBottom: 8,
                 }}
               >
@@ -246,7 +246,7 @@ export function PalettePicker() {
                     className="flex overflow-hidden rounded-lg"
                     style={{
                       height: 32,
-                      border: "1.5px solid #EDE8E0",
+                      border: "1.5px solid var(--paper-200)",
                     }}
                   >
                     {p.colors.map((c) => (
@@ -264,12 +264,12 @@ export function PalettePicker() {
       {tab === "harmony" && (
         <div
           className="space-y-4 rounded-xl p-4"
-          style={{ background: "#FAF8F4", border: "1px solid #EDE8E0" }}
+          style={{ background: "var(--paper-50)", border: "1px solid var(--paper-200)" }}
         >
           {/* Hue slider */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label style={{ fontSize: 10, fontFamily: "monospace", color: "#5B584F" }}>
+              <label style={{ fontSize: 10, fontFamily: "monospace", color: "var(--ink-700)" }}>
                 Seed Hue ({seedHue}°)
               </label>
               <button
@@ -279,7 +279,7 @@ export function PalettePicker() {
                   setSeedHue(h);
                   applyHarmony(h, harmonyRule);
                 }}
-                style={{ fontSize: 10, fontFamily: "monospace", color: "#C9552F" }}
+                style={{ fontSize: 10, fontFamily: "monospace", color: "var(--accent-500)" }}
                 className="hover:underline"
               >
                 ✦ Random
@@ -317,7 +317,7 @@ export function PalettePicker() {
 
           {/* Harmony rule */}
           <div>
-            <label style={{ fontSize: 10, fontFamily: "monospace", color: "#5B584F", display: "block", marginBottom: 6 }}>
+            <label style={{ fontSize: 10, fontFamily: "monospace", color: "var(--ink-700)", display: "block", marginBottom: 6 }}>
               Harmony Rule
             </label>
             <div className="grid grid-cols-2 gap-1.5">
@@ -332,9 +332,9 @@ export function PalettePicker() {
                   className="py-1.5 rounded-lg text-left px-2.5 transition-all"
                   style={{
                     fontSize: 10,
-                    border: harmonyRule === r.id ? "1.5px solid #C9552F" : "1.5px solid #EDE8E0",
-                    background: harmonyRule === r.id ? "rgba(201,85,47,0.07)" : "#FFFFFF",
-                    color: harmonyRule === r.id ? "#C9552F" : "#5B584F",
+                    border: harmonyRule === r.id ? "1.5px solid var(--accent-500)" : "1.5px solid var(--paper-200)",
+                    background: harmonyRule === r.id ? "rgba(201,85,47,0.07)" : "var(--paper-0)",
+                    color: harmonyRule === r.id ? "var(--accent-500)" : "var(--ink-700)",
                     fontWeight: harmonyRule === r.id ? 600 : 400,
                   }}
                 >
@@ -349,7 +349,7 @@ export function PalettePicker() {
       {/* ── CUSTOM tab ──────────────────────────────────────────── */}
       {tab === "custom" && (
         <div className="space-y-2.5">
-          <div className="flex justify-between" style={{ fontSize: 10, fontFamily: "monospace", color: "#A0968C" }}>
+          <div className="flex justify-between" style={{ fontSize: 10, fontFamily: "monospace", color: "var(--ink-400)" }}>
             <span>{palette.length} colors</span>
             <span>{palette.length >= 8 ? "Max 8" : palette.length <= 2 ? "Min 2" : ""}</span>
           </div>
@@ -372,13 +372,13 @@ export function PalettePicker() {
                 style={{
                   fontSize: 11,
                   padding: "8px 10px",
-                  border: "1.5px solid #EDE8E0",
-                  background: "#FFFFFF",
-                  color: "#2B2A26",
+                  border: "1.5px solid var(--paper-200)",
+                  background: "var(--paper-0)",
+                  color: "var(--ink-900)",
                   height: 36,
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#C9552F")}
-                onBlur={(e) => (e.target.style.borderColor = "#EDE8E0")}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent-500)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--paper-100)")}
               />
               <button
                 type="button"
@@ -390,17 +390,17 @@ export function PalettePicker() {
                   width: 36,
                   height: 36,
                   fontSize: 12,
-                  border: "1.5px solid #EDE8E0",
-                  background: "#FAF8F4",
-                  color: "#8A8579",
+                  border: "1.5px solid var(--paper-200)",
+                  background: "var(--paper-50)",
+                  color: "var(--ink-500)",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#FCA5A5";
-                  (e.currentTarget as HTMLButtonElement).style.color = "#DC2626";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-100)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--danger-500)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
-                  (e.currentTarget as HTMLButtonElement).style.color = "#8A8579";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-500)";
                 }}
               >
                 ✕
@@ -414,7 +414,7 @@ export function PalettePicker() {
               disabled={palette.length >= 8}
               onClick={addColor}
               className="flex-1 rounded-xl py-2 text-xs transition-all disabled:opacity-30"
-              style={{ border: "1.5px solid #EDE8E0", background: "#FAF8F4", color: "#5B584F", fontSize: 11 }}
+              style={{ border: "1.5px solid var(--paper-200)", background: "var(--paper-50)", color: "var(--ink-700)", fontSize: 11 }}
             >
               + Add Color
             </button>
@@ -422,7 +422,7 @@ export function PalettePicker() {
               type="button"
               onClick={() => fileRef.current?.click()}
               className="flex-1 rounded-xl py-2 text-xs transition-all"
-              style={{ border: "1.5px solid #EDE8E0", background: "#FAF8F4", color: "#5B584F", fontSize: 11 }}
+              style={{ border: "1.5px solid var(--paper-200)", background: "var(--paper-50)", color: "var(--ink-700)", fontSize: 11 }}
             >
               ↑ From Image
             </button>

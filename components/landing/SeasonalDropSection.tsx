@@ -37,43 +37,43 @@ export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => voi
   };
 
   return (
-    <section className="w-full bg-brand-surface py-16 px-4 sm:px-8 lg:px-12 border-t border-brand-border">
+    <section className="w-full bg-paper-100 py-16 px-4 sm:px-8 lg:px-12 border-t border-paper-300">
       <div className="mx-auto max-w-7xl">
         {/* Banner Header */}
-        <div className="rounded-3xl border border-brand-border bg-gradient-to-r from-brand-bg via-brand-surface-2 to-brand-bg p-6 sm:p-10 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+        <div className="rounded-3xl border border-paper-300 bg-gradient-to-r from-paper-50 via-paper-200 to-paper-50 p-6 sm:p-10 shadow-1 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-accent/10 border border-brand-accent/30 px-3.5 py-1 text-xs font-mono text-brand-accent font-medium">
-              <span className="w-2 h-2 rounded-full bg-brand-accent animate-ping" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent-500/10 border border-accent-500/30 px-3.5 py-1 text-xs font-mono text-accent-500 font-medium">
+              <span className="w-2 h-2 rounded-full bg-accent-500 animate-ping" />
               <span>LIMITED SEASONAL DROP · VOL. 08</span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-brand-ink">
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal text-ink-900">
               The Winter Solstice Collection.
             </h2>
-            <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+            <p className="text-xs sm:text-sm text-ink-500 leading-relaxed">
               4 exclusive hand-tuned generative algorithms released for a limited time. Curated palette curves designed specifically for modern AMOLED displays.
             </p>
           </div>
 
           {/* Countdown Clock */}
-          <div className="flex items-center gap-3 bg-brand-bg p-4 rounded-2xl border border-brand-border shadow-inner">
+          <div className="flex items-center gap-3 bg-paper-50 p-4 rounded-2xl border border-paper-300 shadow-inner">
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.days).padStart(2, "0")}</div>
-              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">DAYS</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.days).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">DAYS</div>
             </div>
-            <span className="text-brand-faint text-lg font-mono">:</span>
+            <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.hours).padStart(2, "0")}</div>
-              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">HRS</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.hours).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">HRS</div>
             </div>
-            <span className="text-brand-faint text-lg font-mono">:</span>
+            <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-ink">{String(timeLeft.minutes).padStart(2, "0")}</div>
-              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-faint">MINS</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.minutes).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">MINS</div>
             </div>
-            <span className="text-brand-faint text-lg font-mono">:</span>
+            <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-brand-accent">{String(timeLeft.seconds).padStart(2, "0")}</div>
-              <div className="font-mono text-[9px] uppercase tracking-wider text-brand-accent font-semibold">SECS</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-accent-500">{String(timeLeft.seconds).padStart(2, "0")}</div>
+              <div className="font-mono text-[9px] uppercase tracking-wider text-accent-500 font-semibold">SECS</div>
             </div>
           </div>
         </div>
@@ -84,22 +84,22 @@ export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => voi
             <div
               key={swatch.id}
               onClick={() => handleApplyPreset(swatch)}
-              className="group cursor-pointer rounded-2xl border border-brand-border bg-brand-bg p-3 transition-all duration-300 hover:border-brand-accent hover:-translate-y-1 shadow-xs"
+              className="group cursor-pointer rounded-2xl border border-paper-300 bg-paper-50 p-3 transition-all duration-[--dur-fast] hover:border-accent-500 hover:-translate-y-1 shadow-1"
             >
               <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-black">
                 <SwatchThumbnail swatch={swatch} width={240} height={320} />
-                <div className="absolute top-2 right-2 rounded-full bg-brand-accent px-2 py-0.5 font-mono text-[8.5px] font-semibold text-white shadow-md">
+                <div className="absolute top-2 right-2 rounded-full bg-accent-500 px-2 py-0.5 font-mono text-[8.5px] font-semibold text-white shadow-md">
                   DROP
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <div>
-                  <div className="font-serif text-xs font-medium text-brand-ink group-hover:text-brand-accent transition-colors">
+                  <div className="font-serif text-xs font-medium text-ink-900 group-hover:text-accent-500 transition-colors duration-[--dur-fast]">
                     {swatch.name}
                   </div>
-                  <div className="font-mono text-[9.5px] text-brand-faint mt-0.5">#{swatch.seed}</div>
+                  <div className="font-mono text-[9.5px] text-ink-500 mt-0.5">#{swatch.seed}</div>
                 </div>
-                <div className="text-brand-accent text-xs opacity-0 group-hover:opacity-100 transition-opacity">✦</div>
+                <div className="text-accent-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-[--dur-fast]">✦</div>
               </div>
             </div>
           ))}

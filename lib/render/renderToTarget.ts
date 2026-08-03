@@ -51,7 +51,9 @@ export function buildRenderInput(
 ): RenderInput {
   return {
     generatorId: state.generatorId,
-    params: (state.params[state.generatorId] ?? {}) as unknown,
+    params: (state.params && typeof state.params === "object" && state.generatorId in state.params
+      ? (state.params as Record<string, unknown>)[state.generatorId]
+      : state.params) ?? {},
     palette: state.palette,
     mode: state.mode,
     autoMode: state.systemColorScheme ?? "dark",
@@ -93,7 +95,13 @@ export function renderToTarget(target: RenderTarget, input: RenderInput): void {
     }
   }
 
-  generator.render(target, input.params, input.seed, palette, rng, context);
+  const defaults = (generator.schema as any)?.defaults ?? {};
+  const finalParams = {
+    ...defaults,
+    ...(typeof input.params === "object" && input.params ? input.params : {}),
+  };
+
+  generator.render(target, finalParams, input.seed, palette, rng, context);
 
   if (input.grainEnabled && input.grainIntensity > 0) {
     applyGrain(target, input.grainIntensity, input.seed + "|grain");

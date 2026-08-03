@@ -82,13 +82,33 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   // Clamp max scale so it doesn't blow up on massive monitors
   scaleFactor = Math.min(scaleFactor, 2.0);
 
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    // Subtle 3D tilt max 4 degrees
+    setTilt({ rx: -dy * 4, ry: dx * 4 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rx: 0, ry: 0 });
+  };
+
   return (
     <main
       ref={containerRef}
+      data-theme="stage"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className="relative flex flex-1 w-full h-full items-center justify-center overflow-hidden select-none"
       style={{
-        backgroundColor: "var(--color-surface)",
-        backgroundImage: "radial-gradient(circle, rgba(180,168,148,0.4) 1px, transparent 1px)",
+        backgroundColor: "var(--stage-950)",
+        backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
         backgroundSize: "24px 24px",
       }}
     >
@@ -96,10 +116,12 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
       {!isInline && showTools && <ContextualToolbar />}
 
       {/* Centered Non-Scrolling Preview Target Container */}
-      {/* Presentation Scale applied here via CSS Transform */}
+      {/* Presentation Scale & 3D Parallax Tilt applied via CSS Transform */}
       <div 
-        className="relative z-10 flex items-center justify-center origin-center"
-        style={{ transform: `scale(${scaleFactor})` }}
+        className="relative z-10 flex items-center justify-center origin-center transition-transform duration-[--dur-normal] ease-[--ease-out]"
+        style={{
+          transform: `scale(${scaleFactor}) perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+        }}
       >
         <DeviceFrame
           frame={preset.frame}

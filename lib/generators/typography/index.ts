@@ -50,18 +50,33 @@ export const typography: Generator<Params> = {
     ctx.fillStyle = palette[0] ?? "#000000";
     ctx.fillRect(0, 0, W, H);
 
-    const fontSize = Math.round(H * params.size);
+    let fontSize = Math.round(H * params.size);
     ctx.fillStyle = palette[palette.length - 1] ?? "#ffffff";
     ctx.textAlign = params.alignment;
     ctx.textBaseline = "middle";
+
+    const chars = [...params.text];
+    const calcWidth = (fSize: number) => {
+      ctx.font = `${params.weight} ${fSize}px ${params.font}, system-ui, sans-serif`;
+      if (params.letterSpacing !== 0) {
+        return chars.reduce((acc, c) => acc + ctx.measureText(c).width + fSize * params.letterSpacing, 0) - fSize * params.letterSpacing;
+      }
+      return ctx.measureText(params.text).width;
+    };
+
+    const maxAllowedW = W * 0.88; // Ensure 6% padding on left & right margins
+    const initialW = calcWidth(fontSize);
+    if (initialW > maxAllowedW && initialW > 0) {
+      fontSize = Math.max(10, Math.floor(fontSize * (maxAllowedW / initialW)));
+    }
+
     ctx.font = `${params.weight} ${fontSize}px ${params.font}, system-ui, sans-serif`;
 
-    const xMap = { left: W * 0.08, center: W / 2, right: W * 0.92 };
+    const xMap = { left: W * 0.06, center: W / 2, right: W * 0.94 };
     const x = xMap[params.alignment];
     const y = H / 2;
 
     if (params.letterSpacing !== 0) {
-      const chars = [...params.text];
       const totalW = chars.reduce((acc, c) => acc + ctx.measureText(c).width + fontSize * params.letterSpacing, 0) - fontSize * params.letterSpacing;
       let startX = x;
       if (params.alignment === "center") startX = x - totalW / 2;

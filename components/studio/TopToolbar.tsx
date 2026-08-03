@@ -14,31 +14,30 @@ export function TopToolbar() {
 
   return (
     <header
-      className="flex h-12 w-full shrink-0 items-center justify-between px-4 text-xs select-none z-20"
+      className="flex h-12 w-full shrink-0 items-center justify-between px-4 text-xs select-none z-20 shadow-1 border-b border-paper-200"
       style={{
-        background: "var(--color-bg)",
-        borderBottom: "1px solid var(--color-border)",
-        color: "var(--color-ink)",
+        background: "var(--paper-50)",
+        color: "var(--ink-900)",
       }}
     >
       {/* ── Left: App Brand & History ────────────────────────────────────── */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 font-serif font-semibold tracking-tight text-sm">
-          <span className="text-brand-accent">✦</span>
+        <div className="flex items-center gap-2 font-serif font-semibold tracking-tight text-sm text-ink-900">
+          <span className="text-accent-500">✦</span>
           <span>WallMyDevice</span>
-          <span className="rounded bg-brand-surface px-1.5 py-0.5 font-mono text-[9.5px] text-brand-muted border border-brand-border">
+          <span className="rounded bg-paper-100 px-1.5 py-0.5 font-mono text-[9.5px] text-ink-500 border border-paper-300">
             v2.0
           </span>
         </div>
 
-        <div className="h-4 w-px bg-brand-border mx-1" />
+        <div className="h-4 w-px bg-paper-300 mx-1" />
 
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={undo}
             title="Undo (⌘Z)"
-            className="rounded p-1.5 hover:bg-brand-surface border border-transparent hover:border-brand-border transition-colors text-xs"
+            className="rounded p-1.5 hover:bg-paper-100 border border-transparent hover:border-paper-300 transition-colors text-xs text-ink-700 hover:text-ink-900"
           >
             ↩ Back
           </button>
@@ -46,7 +45,7 @@ export function TopToolbar() {
             type="button"
             onClick={redo}
             title="Redo (⌘⇧Z)"
-            className="rounded p-1.5 hover:bg-brand-surface border border-transparent hover:border-brand-border transition-colors text-xs"
+            className="rounded p-1.5 hover:bg-paper-100 border border-transparent hover:border-paper-300 transition-colors text-xs text-ink-700 hover:text-ink-900"
           >
             ↪ Forward
           </button>
@@ -62,9 +61,9 @@ export function TopToolbar() {
       </div>
 
       {/* ── Center: Search & Active Preset / Generator Tag ────────────────── */}
-      <div className="hidden sm:flex items-center gap-2 rounded-lg bg-brand-surface border border-brand-border px-3 py-1 text-brand-muted font-mono text-[11px]">
+      <div className="hidden sm:flex items-center gap-2 rounded-lg bg-paper-100 border border-paper-300 px-3 py-1 text-ink-500 font-mono text-[11px]">
         <span>🔍 Search tools, devices, presets…</span>
-        <kbd className="rounded bg-brand-bg px-1 py-0.5 text-[9px] text-brand-faint border border-brand-border">
+        <kbd className="rounded bg-paper-50 px-1 py-0.5 text-[9px] text-ink-500 border border-paper-300">
           ⌘K
         </kbd>
       </div>
@@ -74,7 +73,7 @@ export function TopToolbar() {
         <button
           type="button"
           onClick={surpriseMe}
-          className="flex items-center gap-1.5 rounded-lg bg-brand-surface hover:bg-brand-surface-2 border border-brand-border px-3 py-1.5 text-xs font-medium text-brand-ink transition-all active:scale-95"
+          className="flex items-center gap-1.5 rounded-lg bg-paper-100 hover:bg-paper-200 border border-paper-300 px-3 py-1.5 text-xs font-medium text-ink-900 transition-all duration-[--dur-fast] active:scale-95 shadow-1"
         >
           <span>✦ Surprise Me</span>
         </button>
@@ -82,23 +81,27 @@ export function TopToolbar() {
         <button
           type="button"
           onClick={() => {
-            const nextMode = mode === "dark" ? "light" : "dark";
-            setMode(nextMode);
-            editorCore.theme.setMode(nextMode);
+            const currentTheme = (typeof document !== "undefined" && document.documentElement.getAttribute("data-theme")) || "dark";
+            const nextTheme = currentTheme === "dark" ? "light" : "dark";
+            if (typeof document !== "undefined") {
+              document.documentElement.setAttribute("data-theme", nextTheme);
+              try { localStorage.setItem("wmd-theme", nextTheme); } catch {}
+            }
           }}
-          title="Toggle Theme Mode"
-          className="rounded-lg p-2 hover:bg-brand-surface border border-brand-border transition-colors"
+          title="Toggle UI Chrome Theme (Light/Dark)"
+          className="rounded-lg p-2 hover:bg-paper-100 border border-paper-300 transition-colors duration-[--dur-fast] text-ink-900"
         >
-          {mode === "dark" ? "☀️" : "🌙"}
+          <span>🌙</span>
         </button>
 
         <button
           type="button"
           onClick={() => {
-            const el = document.getElementById("export-btn-primary");
-            if (el) el.click();
+            import("@/lib/export/actions").then((mod) => {
+              mod.triggerSingleExport();
+            });
           }}
-          className="rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white px-3.5 py-1.5 text-xs font-medium shadow-xs transition-all active:scale-95"
+          className="rounded-lg bg-accent-500 hover:bg-accent-600 text-white px-3.5 py-1.5 text-xs font-medium shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
         >
           Export
         </button>

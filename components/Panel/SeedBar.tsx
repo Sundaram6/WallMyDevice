@@ -16,8 +16,8 @@ export function SeedBar() {
         aria-label="Seed"
         className={`flex-1 rounded-lg border px-3 py-2 text-xs font-mono min-h-[44px] focus:outline-none transition ${
           seedLocked
-            ? "border-[#C9552F]/60 bg-[#C9552F]/10 text-[#C9552F]"
-            : "border-[#D4CDBC] bg-white text-[#2B2A26] focus:border-[#C9552F]"
+            ? "border-accent-500/60 bg-accent-500/10 text-accent-500"
+            : "border-paper-300 bg-paper-0 text-ink-900 focus:border-accent-500"
         }`}
       />
       <button
@@ -27,8 +27,8 @@ export function SeedBar() {
         title={seedLocked ? "Seed is locked" : "Lock seed against randomization"}
         className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border text-xs transition ${
           seedLocked
-            ? "border-[#C9552F] bg-[#C9552F]/20 text-[#C9552F]"
-            : "border-[#D4CDBC] bg-white text-[#5B584F] hover:bg-[#F3EFE6] hover:text-[#2B2A26]"
+            ? "border-accent-500 bg-accent-500/20 text-accent-500"
+            : "border-paper-300 bg-paper-50 text-ink-700 hover:bg-paper-100 hover:text-ink-900"
         }`}
       >
         {seedLocked ? (
@@ -46,7 +46,7 @@ export function SeedBar() {
         aria-label="Randomize seed"
         onClick={randomizeSeed}
         title="Generate new seed"
-        className="flex min-h-[44px] px-3 items-center justify-center gap-1.5 rounded-lg border border-[#D4CDBC] bg-white text-xs font-mono text-[#2B2A26] hover:bg-[#F3EFE6] transition"
+        className="flex min-h-[44px] px-3 items-center justify-center gap-1.5 rounded-lg border border-paper-300 bg-paper-50 text-xs font-mono text-ink-900 hover:bg-paper-100 transition"
       >
         <span>✦</span>
         <span>Seed</span>

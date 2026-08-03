@@ -111,19 +111,19 @@ export function GenerateBottomSheet({ isOpen, onClose, onOpenStudio }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Generate Wallpaper Panel"
-        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl border-t border-brand-border bg-brand-bg p-4 sm:p-6 shadow-2xl transition-transform"
+        className="fixed bottom-0 left-0 right-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl border-t border-paper-300 bg-paper-50 p-4 sm:p-6 shadow-2xl transition-transform"
       >
         {/* Drag handle */}
-        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-[#D4CDBC]" />
+        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-paper-300" />
 
         {/* Single Heading */}
-        <div className="flex items-center justify-between border-b border-brand-border pb-3 mb-3">
-          <h2 className="font-serif text-lg font-medium text-brand-ink">Generate Wallpaper</h2>
+        <div className="flex items-center justify-between border-b border-paper-300 pb-3 mb-3">
+          <h2 className="font-serif text-lg font-medium text-ink-900">Generate Wallpaper</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close generator panel"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-surface text-sm text-brand-muted hover:text-brand-ink"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-paper-100 text-sm text-ink-500 hover:text-ink-900 transition-colors duration-[--dur-fast]"
           >
             ✕
           </button>

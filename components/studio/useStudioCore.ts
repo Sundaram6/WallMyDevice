@@ -212,11 +212,11 @@ export function useStudioCore() {
     restoreFromLocalStorage();
     loadHashRecipe();
 
-    // Default to light theme unless explicitly saved
+    // Default UI theme setup unless explicitly saved
     if (!hasSavedState) {
-      useEditorStore.setState({ mode: "light" });
       if (typeof document !== "undefined") {
-        document.documentElement.setAttribute("data-theme", "light");
+        const savedTheme = localStorage.getItem("wmd-theme") || "dark";
+        document.documentElement.setAttribute("data-theme", savedTheme);
       }
 
       // Auto-detect device model & screen dimensions

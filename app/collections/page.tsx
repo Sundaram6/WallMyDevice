@@ -51,7 +51,7 @@ export default function CollectionsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
+    <div className="min-h-screen bg-paper-50 text-ink-900 font-sans">
       <ArchiveTopbar
         activeRoute="collections"
         currentTab={tab}
@@ -67,8 +67,8 @@ export default function CollectionsPage() {
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-serif text-3xl font-medium text-[#2B2A26]">Curated Collections</h1>
-          <p className="mt-2 text-sm text-[#5B584F]">
+          <h1 className="font-serif text-3xl font-medium text-ink-900">Curated Collections</h1>
+          <p className="mt-2 text-sm text-ink-700">
             Themed series that group archive recipes by mood, colour story, or visual language. Pick a collection and open any wallpaper in Studio.
           </p>
         </div>
@@ -83,10 +83,10 @@ export default function CollectionsPage() {
             const isOpen = expanded === col.id;
 
             return (
-              <article key={col.id} className="rounded-2xl border border-[#E4DFD3] bg-white shadow-sm overflow-hidden flex flex-col">
+              <article key={col.id} className="rounded-2xl border border-paper-200 bg-paper-100 shadow-sm overflow-hidden flex flex-col">
                 {/* Real Rendered Cover */}
                 <div
-                  className="relative h-44 w-full bg-[#F3EFE6] overflow-hidden cursor-pointer"
+                  className="relative h-44 w-full bg-paper-100 overflow-hidden cursor-pointer"
                   onClick={() => setExpanded(isOpen ? null : col.id)}
                 >
                   <SwatchThumbnail swatch={coverSwatch} width={300} height={200} />
@@ -98,18 +98,18 @@ export default function CollectionsPage() {
                 {/* Info */}
                 <div className="p-4">
                   <h2
-                    className="font-serif text-lg font-medium text-[#2B2A26] cursor-pointer hover:text-[#C9552F]"
+                    className="font-serif text-lg font-medium text-ink-900 cursor-pointer hover:text-accent-500"
                     onClick={() => setExpanded(isOpen ? null : col.id)}
                   >
                     {col.title}
                   </h2>
-                  <p className="mt-1 text-xs text-[#5B584F] leading-relaxed line-clamp-2">{col.description}</p>
+                  <p className="mt-1 text-xs text-ink-700 leading-relaxed line-clamp-2">{col.description}</p>
                   <PaletteStrip presets={items} />
 
                   <button
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : col.id)}
-                    className="mt-3 text-xs font-medium text-[#C9552F] hover:underline"
+                    className="mt-3 text-xs font-medium text-accent-500 hover:underline"
                   >
                     {isOpen ? "Hide prints ↑" : `Browse ${items.length} prints →`}
                   </button>
@@ -117,12 +117,12 @@ export default function CollectionsPage() {
 
                 {/* Expanded item list */}
                 {isOpen && (
-                  <div className="border-t border-[#E4DFD3] divide-y divide-[#F3EFE6] bg-[#FAF8F4]">
+                  <div className="border-t border-paper-200 divide-y divide-[var(--paper-100)] bg-paper-50">
                     {items.map((swatch) => (
                       <button
                         key={swatch.id}
                         type="button"
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#F0EBE2] transition group"
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-paper-200 transition-colors duration-[--dur-fast] group"
                         onClick={() => loadIntoStudio(swatch)}
                       >
                         {/* Mini palette */}
@@ -132,12 +132,12 @@ export default function CollectionsPage() {
                           ))}
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xs font-medium text-[#2B2A26] group-hover:text-[#C9552F] truncate">
+                          <div className="text-xs font-medium text-ink-900 group-hover:text-accent-500 truncate">
                             {swatch.name}
                           </div>
-                          <div className="text-[10px] text-[#8A8579]">{swatch.category}</div>
+                          <div className="text-[10px] text-ink-500">{swatch.category}</div>
                         </div>
-                        <span className="ml-auto text-[10px] text-[#C9552F] opacity-0 group-hover:opacity-100">Open →</span>
+                        <span className="ml-auto text-[10px] text-accent-500 opacity-0 group-hover:opacity-100">Open →</span>
                       </button>
                     ))}
                   </div>
@@ -148,7 +148,7 @@ export default function CollectionsPage() {
         </div>
 
         {filteredCollections.length === 0 && (
-          <div className="py-20 text-center text-sm text-[#8A8579]">
+          <div className="py-20 text-center text-sm text-ink-500">
             No collections match your search.
           </div>
         )}

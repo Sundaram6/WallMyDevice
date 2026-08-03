@@ -141,6 +141,44 @@ export const fluidGradient: Generator<Params> = {
     { key: "saturation", label: "Saturation", type: "slider", min: 0, max: 2, step: 0.01 },
   ],
   render(target, params, seed, palette, _rng, _context: GlobalContext) {
+    if (target.kind === "canvas2d") {
+      const ctx = target.ctx as CanvasRenderingContext2D;
+      const { width: W, height: H } = target;
+      ctx.clearRect(0, 0, W, H);
+
+      const bg = palette[0] ?? "#000000";
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      const colors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+      const minDim = Math.min(W, H);
+      const rng = createRng(seed);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+
+      const blobCount = Math.max(1, params.blobCount ?? 3);
+      for (let i = 0; i < blobCount; i++) {
+        const color = colors[i % colors.length];
+        const cx = (0.15 + rng() * 0.7) * W;
+        const cy = (0.15 + rng() * 0.7) * H;
+        const radius = minDim * (0.35 + rng() * 0.45) * Math.max(0.5, params.distortion ?? 1);
+
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+        grad.addColorStop(0, color);
+        grad.addColorStop(0.5, color);
+        grad.addColorStop(1, "transparent");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+      return;
+    }
+
     const { renderer, program, mesh } = ensureSetup(target);
     const gl = target.ctx as WebGLRenderingContext;
     const fallback = palette[0] ?? "#000000";

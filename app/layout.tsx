@@ -18,7 +18,7 @@ const inter = Inter({
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-mono',
+  variable: '--font-jetbrains-mono',
   display: 'swap',
 });
 
@@ -47,14 +47,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FAF8F4' },
-    { media: '(prefers-color-scheme: dark)', color: '#0A0A0D' },
+    { media: '(prefers-color-scheme: dark)', color: '#111115' },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased bg-brand-bg text-brand-ink transition-colors duration-250">
+      <body className="font-sans antialiased bg-paper-50 text-ink-900 transition-colors duration-[--dur-normal]">
         <ThemeProvider>
           <ErrorBoundary>{children}</ErrorBoundary>
         </ThemeProvider>

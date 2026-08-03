@@ -17,9 +17,9 @@ export function ParamsForm() {
         if (c.type === "slider" && c.min !== undefined && c.max !== undefined && c.step !== undefined && typeof value === "number") {
           return (
             <label key={String(c.key)} className="block">
-              <div className="mb-1 flex items-center justify-between text-xs text-[#2B2A26]">
+              <div className="mb-1 flex items-center justify-between text-xs text-ink-900">
                 <span className="font-medium text-xs">{c.label}</span>
-                <span className="tabular-nums font-mono text-[11px] text-[#8A8579]">{Number(value).toFixed(c.step < 1 ? 2 : 0)}</span>
+                <span className="tabular-nums font-mono text-[11px] text-ink-500">{Number(value).toFixed(c.step < 1 ? 2 : 0)}</span>
               </div>
               <Slider
                 value={value}
@@ -34,7 +34,7 @@ export function ParamsForm() {
         }
         if (c.type === "toggle" && typeof value === "boolean") {
           return (
-            <label key={String(c.key)} className="flex items-center justify-between text-xs text-[#2B2A26]">
+            <label key={String(c.key)} className="flex items-center justify-between text-xs text-ink-900">
               <span className="font-medium">{c.label}</span>
               <Toggle
                 checked={value}
@@ -47,12 +47,12 @@ export function ParamsForm() {
         if (c.type === "select" && c.options && typeof value === "string") {
           return (
             <label key={String(c.key)} className="block">
-              <div className="mb-1 text-xs font-medium text-[#2B2A26]">{c.label}</div>
+              <div className="mb-1 text-xs font-medium text-ink-900">{c.label}</div>
               <select
                 value={value}
                 aria-label={c.label}
                 onChange={(e) => updateParam(generatorId, String(c.key), e.target.value)}
-                className="w-full rounded-lg border border-[#D4CDBC] bg-white px-2.5 py-1.5 text-xs text-[#2B2A26] focus:border-[#C9552F] focus:outline-none"
+                className="w-full rounded-lg border border-paper-300 bg-paper-0 px-2.5 py-1.5 text-xs text-ink-900 focus:border-accent-500 focus:outline-none"
               >
                 {c.options.map((opt) => (
                   <option key={opt.value} value={opt.value}>

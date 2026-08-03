@@ -18,12 +18,12 @@ export function AccessibilityPreviewBar({
   onContrastGridToggle,
 }: Props) {
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-[#D4CDBC] bg-[#F3EFE6] p-3 text-xs text-[#2B2A26]">
+    <div className="flex flex-col gap-2 rounded-xl border border-paper-300 bg-paper-100 p-3 text-xs text-ink-900">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10.5px] uppercase tracking-wider text-[#C9552F] flex items-center gap-1">
+        <span className="font-mono text-[10.5px] uppercase tracking-wider text-accent-500 flex items-center gap-1">
           👁 Vision & Contrast Simulation
         </span>
-        <span className="font-mono text-[9.5px] text-[#8A8579]">Preview only · Does not alter export</span>
+        <span className="font-mono text-[9.5px] text-ink-500">Preview only · Does not alter export</span>
       </div>
 
       <div className="flex flex-wrap gap-1.5 items-center">
@@ -40,8 +40,8 @@ export function AccessibilityPreviewBar({
             onClick={() => onModeChange(m.id as AccessibilityMode)}
             className={`min-h-[36px] px-2.5 rounded-lg text-xs font-medium border transition ${
               mode === m.id
-                ? "bg-[#2B2A26] text-white border-[#2B2A26]"
-                : "bg-white text-[#5B584F] border-[#D4CDBC] hover:bg-[#FAF8F4]"
+                ? "bg-ink-900 text-paper-0 border-ink-900"
+                : "bg-paper-50 text-ink-700 border-paper-300 hover:bg-paper-200 hover:text-ink-900"
             }`}
           >
             {m.label}
@@ -53,8 +53,8 @@ export function AccessibilityPreviewBar({
           onClick={() => onContrastGridToggle(!showContrastGrid)}
           className={`min-h-[36px] px-3 rounded-lg text-xs font-medium border transition ${
             showContrastGrid
-              ? "bg-[#C9552F] text-white border-[#C9552F]"
-              : "bg-white text-[#5B584F] border-[#D4CDBC] hover:bg-[#FAF8F4]"
+              ? "bg-accent-500 text-white border-accent-500"
+              : "bg-paper-50 text-ink-700 border-paper-300 hover:bg-paper-200 hover:text-ink-900"
           }`}
         >
           {showContrastGrid ? "✓ Contrast Overlay Active" : "+ Test Contrast Overlay"}

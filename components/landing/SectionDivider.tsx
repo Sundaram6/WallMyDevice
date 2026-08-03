@@ -11,12 +11,12 @@ export function SectionDivider({ label = "✦", sublabel, className = "" }: Prop
     <div className={`relative w-full py-8 flex items-center justify-center ${className}`}>
       {/* Horizontal Line */}
       <div className="absolute inset-0 flex items-center px-6 sm:px-12">
-        <div className="w-full border-t border-[#E4DFD3]/70" />
+        <div className="w-full border-t border-paper-200/70" />
       </div>
 
       {/* Center Editorial Pill */}
-      <div className="relative z-10 flex items-center gap-2 bg-[#FAF8F4] px-4 text-[#8A8579] font-mono text-[10px] uppercase tracking-widest">
-        <span className="text-[#C9552F] font-serif italic text-sm">{label}</span>
+      <div className="relative z-10 flex items-center gap-2 bg-paper-50 px-4 text-ink-500 font-mono text-[10px] uppercase tracking-widest">
+        <span className="text-accent-500 font-serif italic text-sm">{label}</span>
         {sublabel && (
           <>
             <span>·</span>

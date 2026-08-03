@@ -20,7 +20,7 @@ function FavouriteCard({ id, onRemove }: { id: string; onRemove: () => void }) {
   const router = useRouter();
   if (!swatch) return null;
   return (
-    <div className="group flex items-center gap-3 rounded-xl border border-[#E4DFD3] bg-white p-3 shadow-xs">
+    <div className="group flex items-center gap-3 rounded-xl border border-paper-200 bg-white p-3 shadow-xs">
       <div
         className="h-10 w-10 shrink-0 rounded-lg border border-black/10"
         style={{
@@ -28,21 +28,21 @@ function FavouriteCard({ id, onRemove }: { id: string; onRemove: () => void }) {
         }}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium text-[#2B2A26]">{swatch.name}</p>
-        <p className="text-[10px] text-[#8A8579]">{swatch.category}</p>
+        <p className="truncate text-xs font-medium text-ink-900">{swatch.name}</p>
+        <p className="text-[10px] text-ink-500">{swatch.category}</p>
       </div>
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="text-[10px] text-[#C9552F] hover:underline"
+          className="text-[10px] text-accent-500 hover:underline"
         >
           Open
         </button>
         <button
           type="button"
           onClick={onRemove}
-          className="text-[10px] text-[#8A8579] hover:text-red-500"
+          className="text-[10px] text-ink-500 hover:text-red-500"
         >
           ✕
         </button>
@@ -88,7 +88,7 @@ export default function ProfilePage() {
   const initials = userDisplayName.slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4] text-[#2B2A26] font-sans">
+    <div className="min-h-screen bg-paper-50 text-ink-900 font-sans">
       <ArchiveTopbar
         currentTab={tab}
         onTabChange={(t) => {
@@ -103,15 +103,15 @@ export default function ProfilePage() {
       <main className="flex min-h-[calc(100vh-72px)] items-start justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="w-full max-w-3xl space-y-6">
           {/* Profile Header */}
-          <div className="rounded-2xl border border-[#E4DFD3] bg-white p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-paper-200 bg-white p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#2B2A26] font-mono text-xl text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ink-900 font-mono text-xl text-white">
                 {initials}
               </div>
               <div>
-                <h1 className="font-serif text-xl font-medium text-[#2B2A26]">{userDisplayName}</h1>
-                <p className="text-xs text-[#8A8579]">Local profile · Saved on this device</p>
-                <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] text-[#5B584F]">
+                <h1 className="font-serif text-xl font-medium text-ink-900">{userDisplayName}</h1>
+                <p className="text-xs text-ink-500">Local profile · Saved on this device</p>
+                <div className="mt-1.5 flex flex-wrap gap-2 text-[11px] text-ink-700">
                   <span>{lib?.favourites.length ?? 0} favourites</span>
                   <span>·</span>
                   <span>{lib?.recentlyGenerated.length ?? 0} generated</span>
@@ -126,12 +126,12 @@ export default function ProfilePage() {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Set display name"
-                className="rounded-xl border border-[#D4CDBC] bg-[#FAF8F4] px-3 py-2 text-xs text-[#2B2A26] focus:border-[#C9552F] focus:outline-none"
+                className="rounded-xl border border-paper-300 bg-paper-50 px-3 py-2 text-xs text-ink-900 focus:border-accent-500 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={handleSaveName}
-                className="rounded-xl bg-[#2B2A26] px-3.5 py-2 text-xs font-medium text-white hover:bg-[#1a1917]"
+                className="rounded-xl bg-ink-900 px-3.5 py-2 text-xs font-medium text-white hover:bg-accent-500 transition-colors duration-[--dur-fast]"
               >
                 Save
               </button>
@@ -139,7 +139,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Section Tabs */}
-          <div className="flex overflow-x-auto gap-1 rounded-xl border border-[#E4DFD3] bg-white p-1 shadow-xs no-scrollbar">
+          <div className="flex overflow-x-auto gap-1 rounded-xl border border-paper-200 bg-white p-1 shadow-xs no-scrollbar">
             {[
               { id: "favourites", label: `♥ Favourites (${lib?.favourites.length ?? 0})` },
               { id: "recentGenerated", label: `✦ Generated (${lib?.recentlyGenerated.length ?? 0})` },
@@ -151,7 +151,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => setActiveTab(t.id as any)}
                 className={`flex-1 min-w-[120px] rounded-lg py-2 px-3 text-xs font-medium whitespace-nowrap transition ${
-                  activeTab === t.id ? "bg-[#2B2A26] text-white shadow-xs" : "text-[#5B584F] hover:text-[#2B2A26]"
+                  activeTab === t.id ? "bg-ink-900 text-white shadow-xs" : "text-ink-700 hover:text-ink-900"
                 }`}
               >
                 {t.label}
@@ -163,15 +163,15 @@ export default function ProfilePage() {
           {activeTab === "favourites" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-base font-medium text-[#2B2A26]">Saved Favourites</h2>
-                <Link href="/" className="text-xs text-[#C9552F] hover:underline">
+                <h2 className="font-serif text-base font-medium text-ink-900">Saved Favourites</h2>
+                <Link href="/" className="text-xs text-accent-500 hover:underline">
                   Browse archive to add →
                 </Link>
               </div>
               {!lib?.favourites || lib.favourites.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#D4CDBC] bg-white py-12 text-center">
-                  <p className="text-sm text-[#8A8579]">No favourites saved on this device yet.</p>
-                  <p className="mt-1 text-xs text-[#8A8579]">Click ♡ on any archive wallpaper to save it here.</p>
+                <div className="rounded-xl border border-dashed border-paper-300 bg-white py-12 text-center">
+                  <p className="text-sm text-ink-500">No favourites saved on this device yet.</p>
+                  <p className="mt-1 text-xs text-ink-500">Click ♡ on any archive wallpaper to save it here.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -186,19 +186,19 @@ export default function ProfilePage() {
           {/* Recently Generated View */}
           {activeTab === "recentGenerated" && (
             <div className="space-y-3">
-              <h2 className="font-serif text-base font-medium text-[#2B2A26]">Recently Generated Recipes</h2>
+              <h2 className="font-serif text-base font-medium text-ink-900">Recently Generated Recipes</h2>
               {!lib?.recentlyGenerated || lib.recentlyGenerated.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#D4CDBC] bg-white py-12 text-center">
-                  <p className="text-sm text-[#8A8579]">No generated wallpapers recorded yet.</p>
-                  <p className="mt-1 text-xs text-[#8A8579]">Click Generate Wallpaper in the Studio to create patterns.</p>
+                <div className="rounded-xl border border-dashed border-paper-300 bg-white py-12 text-center">
+                  <p className="text-sm text-ink-500">No generated wallpapers recorded yet.</p>
+                  <p className="mt-1 text-xs text-ink-500">Click Generate Wallpaper in the Studio to create patterns.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {lib.recentlyGenerated.map((r, idx) => (
-                    <div key={idx} className="rounded-xl border border-[#E4DFD3] bg-white p-3 shadow-xs flex items-center justify-between">
+                    <div key={idx} className="rounded-xl border border-paper-200 bg-white p-3 shadow-xs flex items-center justify-between">
                       <div>
-                        <p className="text-xs font-medium text-[#2B2A26]">{r.name}</p>
-                        <p className="text-[10px] text-[#8A8579]">
+                        <p className="text-xs font-medium text-ink-900">{r.name}</p>
+                        <p className="text-[10px] text-ink-500">
                           {r.generatorId} · seed: {r.seed}
                         </p>
                       </div>
@@ -217,10 +217,10 @@ export default function ProfilePage() {
           {/* Recently Viewed View */}
           {activeTab === "recentViewed" && (
             <div className="space-y-3">
-              <h2 className="font-serif text-base font-medium text-[#2B2A26]">Recently Viewed Wallpapers</h2>
+              <h2 className="font-serif text-base font-medium text-ink-900">Recently Viewed Wallpapers</h2>
               {!lib?.recentlyViewed || lib.recentlyViewed.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#D4CDBC] bg-white py-12 text-center">
-                  <p className="text-sm text-[#8A8579]">No recently viewed prints.</p>
+                <div className="rounded-xl border border-dashed border-paper-300 bg-white py-12 text-center">
+                  <p className="text-sm text-ink-500">No recently viewed prints.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -236,7 +236,7 @@ export default function ProfilePage() {
           {activeTab === "wishlists" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-base font-medium text-[#2B2A26]">My Wishlists</h2>
+                <h2 className="font-serif text-base font-medium text-ink-900">My Wishlists</h2>
               </div>
               <div className="flex gap-2">
                 <input
@@ -246,34 +246,34 @@ export default function ProfilePage() {
                   onKeyDown={(e) => e.key === "Enter" && handleCreateWishlist()}
                   placeholder="New wishlist name…"
                   maxLength={40}
-                  className="flex-1 rounded-xl border border-[#D4CDBC] bg-white px-4 py-2.5 text-xs text-[#2B2A26] placeholder-[#8A8579] focus:border-[#C9552F] focus:outline-none"
+                  className="flex-1 rounded-xl border border-paper-300 bg-white px-4 py-2.5 text-xs text-ink-900 placeholder-[var(--ink-500)] focus:border-accent-500 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleCreateWishlist}
                   disabled={!newWishlistName.trim()}
-                  className="rounded-xl bg-[#2B2A26] px-4 py-2.5 text-xs font-medium text-white hover:bg-[#1a1917] disabled:opacity-40 transition"
+                  className="rounded-xl bg-ink-900 px-4 py-2.5 text-xs font-medium text-white hover:bg-accent-500 disabled:opacity-40 transition-colors duration-[--dur-fast]"
                 >
                   + Create
                 </button>
               </div>
 
               {!lib?.wishlists || lib.wishlists.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#D4CDBC] bg-white py-12 text-center">
-                  <p className="text-sm text-[#8A8579]">No wishlists created yet.</p>
+                <div className="rounded-xl border border-dashed border-paper-300 bg-white py-12 text-center">
+                  <p className="text-sm text-ink-500">No wishlists created yet.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
                   {lib.wishlists.map((wl) => (
-                    <div key={wl.id} className="rounded-xl border border-[#E4DFD3] bg-white p-4 shadow-xs flex items-center justify-between">
+                    <div key={wl.id} className="rounded-xl border border-paper-200 bg-white p-4 shadow-xs flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium text-sm text-[#2B2A26]">{wl.name}</h3>
-                        <p className="text-[10px] text-[#8A8579]">{wl.itemIds.length} items</p>
+                        <h3 className="font-medium text-sm text-ink-900">{wl.name}</h3>
+                        <p className="text-[10px] text-ink-500">{wl.itemIds.length} items</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => deleteWishlist(wl.id)}
-                        className="text-xs text-[#8A8579] hover:text-red-500"
+                        className="text-xs text-ink-500 hover:text-red-500"
                       >
                         Delete
                       </button>

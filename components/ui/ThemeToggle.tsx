@@ -12,7 +12,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-brand-border bg-brand-surface text-brand-ink transition-all hover:bg-brand-surface-2 hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-brand-accent ${className}`}
+      className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-paper-300 bg-paper-100 text-ink-900 transition-all duration-[--dur-fast] hover:bg-paper-200 hover:scale-105 active:scale-95 focus-visible:ring-2 focus-visible:ring-accent-500 ${className}`}
     >
       {theme === "dark" ? (
         // Sun icon for switching to light mode

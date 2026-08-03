@@ -7,9 +7,9 @@ import { TABLET_BRANDS, TABLET_MODELS } from "@/lib/devices/tablets";
 const INPUT_CLS = {
   base: "w-full rounded-xl px-3 py-2 text-xs font-mono focus:outline-none transition-all",
   style: {
-    border: "1.5px solid #EDE8E0",
-    background: "#FFFFFF",
-    color: "#2B2A26",
+    border: "1.5px solid var(--paper-200)",
+    background: "var(--paper-0)",
+    color: "var(--ink-900)",
     fontSize: 11,
   } as React.CSSProperties,
 };
@@ -24,7 +24,7 @@ function Label({ children }: { children: React.ReactNode }) {
         fontFamily: "monospace",
         textTransform: "uppercase" as const,
         letterSpacing: "0.1em",
-        color: "#A0968C",
+        color: "var(--ink-400)",
       }}
     >
       {children}
@@ -144,9 +144,9 @@ export function ResolutionPicker() {
                 onClick={() => handleCategoryChange(c.id)}
                 className="rounded-xl py-2 text-center text-xs transition-all font-medium"
                 style={{
-                  border: isActive ? "1.5px solid #C9552F" : "1.5px solid #EDE8E0",
-                  background: isActive ? "rgba(201,85,47,0.07)" : "#FFFFFF",
-                  color: isActive ? "#C9552F" : "#5B584F",
+                  border: isActive ? "1.5px solid var(--accent-500)" : "1.5px solid var(--paper-200)",
+                  background: isActive ? "rgba(201,85,47,0.07)" : "var(--paper-0)",
+                  color: isActive ? "var(--accent-500)" : "var(--ink-700)",
                   fontSize: 11,
                 }}
               >
@@ -254,9 +254,9 @@ export function ResolutionPicker() {
                 style={{
                   fontSize: 10,
                   padding: "3px 8px",
-                  border: "1.5px solid #EDE8E0",
-                  background: "#FAF8F4",
-                  color: "#2B2A26",
+                  border: "1.5px solid var(--paper-200)",
+                  background: "var(--paper-50)",
+                  color: "var(--ink-900)",
                   width: 90,
                 }}
               />
@@ -308,7 +308,7 @@ export function ResolutionPicker() {
             <Label>Orientation</Label>
             <div
               className="flex rounded-xl p-1"
-              style={{ background: "#F5F1EB", border: "1.5px solid #EDE8E0" }}
+              style={{ background: "var(--paper-50)", border: "1.5px solid var(--paper-200)" }}
             >
               {(["portrait", "landscape"] as const).map((o) => (
                 <button
@@ -332,8 +332,8 @@ export function ResolutionPicker() {
                   style={{
                     fontSize: 11,
                     fontWeight: orientation === o ? 600 : 400,
-                    background: orientation === o ? "#FFFFFF" : "transparent",
-                    color: orientation === o ? "#2B2A26" : "#8A8579",
+                    background: orientation === o ? "var(--paper-0)" : "transparent",
+                    color: orientation === o ? "var(--ink-900)" : "var(--ink-500)",
                     boxShadow: orientation === o ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                   }}
                 >
@@ -375,12 +375,12 @@ export function ResolutionPicker() {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer select-none" style={{ fontSize: 11, color: "#5B584F" }}>
+          <label className="flex items-center gap-2 cursor-pointer select-none" style={{ fontSize: 11, color: "var(--ink-700)" }}>
             <input
               type="checkbox"
               checked={aspectLock}
               onChange={(e) => setAspectLock(e.target.checked)}
-              style={{ accentColor: "#C9552F" }}
+              style={{ accentColor: "var(--accent-500)" }}
             />
             Lock aspect ratio
           </label>
@@ -398,17 +398,17 @@ export function ResolutionPicker() {
                   style={{
                     fontSize: 9,
                     padding: "3px 8px",
-                    border: "1.5px solid #EDE8E0",
-                    background: "#FAF8F4",
-                    color: "#5B584F",
+                    border: "1.5px solid var(--paper-200)",
+                    background: "var(--paper-50)",
+                    color: "var(--ink-700)",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "#C9552F";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#C9552F";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent-500)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--accent-500)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#5B584F";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--paper-100)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--ink-700)";
                   }}
                 >
                   {a.label}
@@ -422,12 +422,12 @@ export function ResolutionPicker() {
       {/* Resolution readout */}
       <div
         className="flex items-center justify-between rounded-xl px-3 py-2"
-        style={{ background: "#F5F1EB", border: "1px solid #EDE8E0" }}
+        style={{ background: "var(--paper-50)", border: "1px solid var(--paper-200)" }}
       >
-        <span style={{ fontSize: 9, fontFamily: "monospace", color: "#A0968C", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        <span style={{ fontSize: 9, fontFamily: "monospace", color: "var(--ink-400)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           Active
         </span>
-        <span style={{ fontSize: 11, fontFamily: "monospace", fontWeight: 600, color: "#C9552F" }}>
+        <span style={{ fontSize: 11, fontFamily: "monospace", fontWeight: 600, color: "var(--accent-500)" }}>
           {customWidth} × {customHeight}
         </span>
       </div>

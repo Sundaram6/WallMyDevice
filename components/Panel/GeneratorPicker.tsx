@@ -19,77 +19,38 @@ export function GeneratorPicker() {
             type="button"
             onClick={() => setGenerator(g.id)}
             aria-pressed={isActive}
-            className="relative p-3 text-left rounded-xl transition-all focus-visible:outline-none"
-            style={{
-              border: isActive ? "1.5px solid #C9552F" : "1.5px solid #EDE8E0",
-              background: isActive ? "rgba(201,85,47,0.06)" : "#FFFFFF",
-              boxShadow: isActive ? "0 0 0 3px rgba(201,85,47,0.08)" : "none",
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(201,85,47,0.4)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#FAF8F4";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "#EDE8E0";
-                (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF";
-              }
-            }}
+            className={`relative p-3 text-left rounded-md transition-all duration-[--dur-fast] focus-visible:outline-none ${
+              isActive
+                ? "bg-paper-0 border-2 border-accent-500 shadow-2"
+                : "bg-paper-50 border border-paper-200 hover:bg-paper-0 hover:border-paper-300 hover:shadow-1"
+            }`}
           >
             {/* Active dot indicator */}
             {isActive && (
               <span
-                className="absolute top-2.5 right-2.5 rounded-full"
-                style={{ width: 6, height: 6, background: "#C9552F" }}
+                className="absolute top-2.5 right-2.5 rounded-full bg-accent-500 w-2 h-2"
               />
             )}
 
             {/* Generator name */}
             <div
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: isActive ? "#C9552F" : "#2B2A26",
-                marginBottom: 3,
-                paddingRight: isActive ? 12 : 0,
-              }}
+              className={`font-serif text-xs font-semibold mb-1 ${
+                isActive ? "text-accent-500" : "text-ink-900"
+              }`}
             >
               {g.label}
             </div>
 
             {/* Description */}
             {g.description && (
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "#8A8579",
-                  lineHeight: 1.4,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
+              <div className="font-sans text-[10px] text-ink-500 leading-relaxed line-clamp-2">
                 {g.description}
               </div>
             )}
 
             {/* SVG badge */}
             {g.supportsSvgExport && (
-              <span
-                className="mt-1.5 inline-block"
-                style={{
-                  fontSize: 8,
-                  fontFamily: "monospace",
-                  color: "#16a34a",
-                  background: "rgba(22,163,74,0.08)",
-                  border: "1px solid rgba(22,163,74,0.2)",
-                  borderRadius: 4,
-                  padding: "1px 4px",
-                }}
-              >
+              <span className="mt-1.5 inline-block font-mono text-[9px] text-success-500 bg-success-500/10 border border-success-500/20 rounded px-1.5 py-0.5">
                 SVG
               </span>
             )}
@@ -100,7 +61,7 @@ export function GeneratorPicker() {
       {generators.length === 0 && (
         <div
           className="col-span-2 py-8 text-center"
-          style={{ fontSize: 11, fontFamily: "monospace", color: "#8A8579" }}
+          style={{ fontSize: 11, fontFamily: "monospace", color: "var(--ink-500)" }}
         >
           No generators registered.
         </div>

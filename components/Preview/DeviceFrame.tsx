@@ -33,7 +33,16 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children, m
 
   if (effectiveFrame === "none") {
     return (
-      <div data-frame={effectiveFrame} className="flex items-center justify-center">
+      <div data-frame={effectiveFrame} className="relative group flex items-center justify-center">
+        {/* Volumetric Underglow driven by --glow-color */}
+        <div 
+          className="absolute -inset-6 blur-2xl opacity-75 group-hover:opacity-100 transition-all duration-[--dur-slow] pointer-events-none" 
+          style={{ 
+            borderRadius: metrics ? metrics.cornerRadiusLayout + 12 : 16,
+            backgroundColor: "var(--glow-color, rgba(217, 84, 31, 0.3))",
+            boxShadow: "var(--shadow-glow)",
+          }}
+        />
         <div
           className="relative overflow-hidden rounded-md bg-zinc-900 shadow-2xl ring-1 ring-white/10"
           style={{ borderRadius: metrics ? metrics.cornerRadiusLayout : undefined }}
@@ -96,7 +105,16 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children, m
   }
 
   return (
-    <div data-frame={effectiveFrame} className="flex items-center justify-center">
+    <div data-frame={effectiveFrame} className="relative group flex items-center justify-center">
+      {/* Volumetric Underglow driven by --glow-color */}
+      <div 
+        className="absolute -inset-6 blur-2xl opacity-75 group-hover:opacity-100 transition-all duration-[--dur-slow] pointer-events-none" 
+        style={{ 
+          borderRadius: metrics ? metrics.cornerRadiusLayout + 20 : 32,
+          backgroundColor: "var(--glow-color, rgba(217, 84, 31, 0.3))",
+          boxShadow: "var(--shadow-glow)",
+        }}
+      />
       <FrameShell frame={effectiveFrame} metrics={metrics}>
         <div
           className="relative overflow-hidden bg-black shadow-2xl"
@@ -118,15 +136,16 @@ export function DeviceFrame({ frame, aspect, deviceType, phoneModel, children, m
 function FrameShell({ frame, children, metrics }: { frame: FrameStyle; children: ReactNode; metrics?: any }) {
   const isMonitor = frame === "desktop-monitor" || frame === "ultrawide";
   const bezel = isMonitor
-    ? "bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl"
-    : "bg-gradient-to-b from-[#383A40] to-[#141518] ring-1 ring-white/10 shadow-2xl";
+    ? "bg-gradient-to-b from-[#2B2823] to-[#12110F] ring-1 ring-white/15 transition-shadow duration-[--dur-slow]"
+    : "bg-gradient-to-b from-[#2B2823] to-[#12110F] ring-1 ring-white/15 transition-shadow duration-[--dur-slow]";
   
   return (
     <div 
       className={bezel}
       style={{
         padding: metrics ? metrics.frameThicknessLayout : (isMonitor ? 12 : 24),
-        borderRadius: metrics ? metrics.cornerRadiusLayout + metrics.frameThicknessLayout : (isMonitor ? 12 : 40)
+        borderRadius: metrics ? metrics.cornerRadiusLayout + metrics.frameThicknessLayout : (isMonitor ? 12 : 40),
+        boxShadow: "var(--shadow-glow), 0 25px 50px -12px rgba(0, 0, 0, 0.7)",
       }}
     >
       {children}
