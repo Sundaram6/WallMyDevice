@@ -8,7 +8,7 @@ import { loadLocalState, saveLocalState, type LocalState } from "@/lib/storage/l
 import { ARCHIVE_PRESETS } from "@/lib/presets/archive-presets";
 import { CURRENT_VERSION } from "@/lib/changelog/data";
 import type { AccessibilityMode } from "@/components/Preview/AccessibilityPreviewBar";
-import { parseShareParams, buildShareQueryString } from "@/lib/share/shareUrl";
+import { parseShareParams, buildShareQueryString, copyStudioLink } from "@/lib/share/shareUrl";
 import { deviceEngine } from "@/lib/engine/DeviceEngine";
 
 function autoDetectDeviceAndModel() {

@@ -8,11 +8,15 @@ if (!fs.existsSync(QA_DIR)) fs.mkdirSync(QA_DIR, { recursive: true });
 test.use({ viewport: { width: 1440, height: 900 } });
 
 test.describe('Growth & Sharing E2E Verification', () => {
-  test('1. Zero-flash URL load hydrates exact state from query params', async ({ page }) => {
+  test('1. Zero-flash URL load hydrates exact state without error boundary crash', async ({ page }) => {
     const targetUrl = 'http://localhost:3000/studio?g=starfield-nebula&s=testseed99&p=000000-1e1b4b-db2777&d=phone';
     
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(800);
+
+    // Verify Error Boundary did NOT catch any runtime error
+    const errorBoundary = page.locator('text=Something went wrong');
+    await expect(errorBoundary).not.toBeVisible();
 
     const state = await page.evaluate(() => {
       const store = (window as any).__WMD_STORE__ || (window as any).useEditorStore;
@@ -30,12 +34,15 @@ test.describe('Growth & Sharing E2E Verification', () => {
     expect(state.palette).toEqual(['#000000', '#1e1b4b', '#db2777']);
     expect(state.deviceType).toBe('phone');
 
+    // Take clean screenshot of loaded Studio page
     await page.screenshot({ path: path.join(QA_DIR, 'real_phase14_url_load.png') });
   });
 
   test('2. Studio param changes automatically sync to URL via history.replaceState', async ({ page }) => {
     await page.goto('http://localhost:3000/studio', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
+
+    await expect(page.locator('text=Something went wrong')).not.toBeVisible();
 
     // Change generator via store action
     await page.evaluate(() => {
@@ -68,6 +75,8 @@ test.describe('Growth & Sharing E2E Verification', () => {
     await page.goto('http://localhost:3000/studio?g=metaballs&s=initialseed', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
 
+    await expect(page.locator('text=Something went wrong')).not.toBeVisible();
+
     const href = await page.evaluate(() => window.location.href);
     expect(href).toContain('g=metaballs');
 
@@ -88,36 +97,24 @@ test.describe('Growth & Sharing E2E Verification', () => {
     await page.waitForTimeout(300);
   });
 
-  test('5. Copy Link copies URL with query params and dispatches toast event', async ({ page }) => {
+  test('5. Copy Link button invokes real copyStudioLink handler and displays active Toast notification', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
     await page.goto('http://localhost:3000/studio?g=waveform&s=k3p9x2a7', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(800);
 
-    const shareUrl = await page.evaluate(() => {
-      const store = (window as any).__WMD_STORE__ || (window as any).useEditorStore;
-      const s = store ? store.getState() : null;
-      if (!s) return null;
-      const params = new URLSearchParams({
-        g: s.generatorId,
-        s: s.seed,
-        p: (s.palette || []).map((hex: string) => hex.replace(/^#/, '')).join('-'),
-        d: s.deviceType,
-      });
-      return `${window.location.origin}/studio?${params.toString()}`;
-    });
+    await expect(page.locator('text=Something went wrong')).not.toBeVisible();
 
-    expect(shareUrl).toContain('g=waveform');
-    expect(shareUrl).toContain('s=k3p9x2a7');
+    // Click the actual Share button in TopToolbar
+    const shareBtn = page.locator('button').filter({ hasText: 'Share' }).first();
+    await expect(shareBtn).toBeVisible({ timeout: 5000 });
+    await shareBtn.click();
 
-    const toastDispatched = await page.evaluate(() => {
-      let received = false;
-      window.addEventListener('wmd-toast', (e: any) => {
-        if (e.detail?.message?.includes('copied')) received = true;
-      });
-      window.dispatchEvent(new CustomEvent('wmd-toast', { detail: { message: '✦ Wallpaper link copied to clipboard!' } }));
-      return received;
-    });
+    // Verify Toast notification appears
+    const toast = page.locator('#studio-toast');
+    await expect(toast).toBeVisible({ timeout: 5000 });
+    await expect(toast).toContainText(/wallpaper link copied/i);
 
-    expect(toastDispatched).toBe(true);
+    // Capture clean screenshot with Toast notification visible
     await page.screenshot({ path: path.join(QA_DIR, 'real_phase14_toast_copylink.png') });
   });
 });

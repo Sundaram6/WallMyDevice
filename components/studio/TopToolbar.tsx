@@ -2,6 +2,7 @@
 
 import { useEditorStore } from "@/store/useEditorStore";
 import { editorCore } from "@/lib/engine/EditorCore";
+import { copyStudioLink } from "@/lib/share/shareUrl";
 
 export function TopToolbar() {
   const surpriseMe = useEditorStore((s) => s.surpriseMe);
@@ -72,11 +73,7 @@ export function TopToolbar() {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => {
-            import("@/lib/share/shareUrl").then((mod) => {
-              mod.copyStudioLink(useEditorStore.getState());
-            });
-          }}
+          onClick={() => copyStudioLink(useEditorStore.getState())}
           title="Copy Shareable Link"
           className="flex items-center gap-1.5 rounded-lg bg-paper-100 hover:bg-paper-200 border border-paper-300 px-3 py-1.5 text-xs font-medium text-ink-900 transition-all duration-[--dur-fast] active:scale-95 shadow-1 cursor-pointer"
         >
