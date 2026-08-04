@@ -17,97 +17,128 @@ export function ContextualToolbar() {
   return (
     <div
       data-testid="stage-toolbar"
-      className="w-full shrink-0 z-30 border-b border-paper-300 bg-paper-100/90 backdrop-blur-md px-3 py-1.5 flex items-center justify-between gap-2 text-xs select-none text-ink-900 overflow-x-auto whitespace-nowrap"
-      style={{ scrollbarWidth: "none" }}
+      className="w-full shrink-0 z-30 border-b border-paper-300 bg-paper-100/90 backdrop-blur-md px-2 sm:px-3 py-1.5 flex items-center justify-between gap-1.5 sm:gap-2 text-xs select-none text-ink-900"
     >
-      {/* ── Left Cluster: History & Reset ───────────────────────────────── */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      {/* ── (a) Zone A: Left Fixed History & Reset (Never Scrolls, Always Visible) ── */}
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 z-10 bg-paper-100/90 pr-1">
         <button
           type="button"
           onClick={undo}
           title="Undo (⌘Z)"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
+          aria-label="Undo"
+          className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
         >
-          <span>↩ Back</span>
+          <span>↩</span>
+          <span className="hidden sm:inline">Back</span>
         </button>
+
         <button
           type="button"
           onClick={redo}
           title="Redo (⌘⇧Z)"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
+          aria-label="Redo"
+          className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
         >
-          <span>↪ Forward</span>
+          <span>↪</span>
+          <span className="hidden sm:inline">Forward</span>
         </button>
+
         <button
           type="button"
           onClick={reset}
           title="Reset Defaults"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium hover:bg-red-500/10 text-red-500 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
+          aria-label="Reset Defaults"
+          className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-red-500/10 text-red-500 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
         >
-          <span>🔄 Reset</span>
+          <span>🔄</span>
+          <span className="hidden sm:inline">Reset</span>
         </button>
       </div>
 
-      {/* ── Middle Cluster: Generator Controls & Randomizers ─────────────── */}
-      <div className="flex items-center gap-1.5 shrink-0">
-        <button
-          type="button"
-          onClick={() => {
-            editorCore.selection.deselect();
-            randomizeSeed();
-          }}
-          title="Randomize Seed"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
-        >
-          <span>🎲 Seed</span>
-        </button>
+      {/* ── (b) Zone B: Center Scrollable Container with Edge-Fade Gradient Masks ── */}
+      <div className="relative flex-1 min-w-0 overflow-hidden flex items-center mx-1">
+        {/* Left Edge Fade Mask */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-3.5 z-10 bg-gradient-to-r from-paper-100 to-transparent opacity-90" />
 
-        <button
-          type="button"
-          onClick={randomizePalette}
-          title="Randomize Colors"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
+        {/* Scrollable Action Container */}
+        <div
+          className="w-full flex items-center gap-1 sm:gap-1.5 overflow-x-auto whitespace-nowrap px-1.5 py-0.5"
+          style={{ scrollbarWidth: "none" }}
         >
-          <span>🎨 Colors</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              editorCore.selection.deselect();
+              randomizeSeed();
+            }}
+            title="Randomize Seed"
+            aria-label="Randomize Seed"
+            className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
+          >
+            <span>🎲</span>
+            <span className="hidden sm:inline">Seed</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={remix}
-          title="Remix Style (Keep Generator, Shuffle Seed & Colors)"
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 font-medium bg-paper-200/80 hover:bg-paper-300 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 text-accent-500 cursor-pointer"
-        >
-          <span>🔀 Remix</span>
-        </button>
+          <button
+            type="button"
+            onClick={randomizePalette}
+            title="Randomize Colors"
+            aria-label="Randomize Colors"
+            className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
+          >
+            <span>🎨</span>
+            <span className="hidden sm:inline">Colors</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={surpriseMe}
-          title="Full Reroll (Random Generator + Seed + Colors)"
-          className="flex items-center gap-1 rounded-lg bg-accent-500/10 hover:bg-accent-500/20 text-accent-500 border border-accent-500/30 px-3 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
-        >
-          <span>✦ Surprise</span>
-        </button>
+          <button
+            type="button"
+            onClick={remix}
+            title="Remix Style (Keep Generator, Shuffle Seed & Colors)"
+            aria-label="Remix Style"
+            className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-200/80 hover:bg-paper-300 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 text-accent-500 cursor-pointer shrink-0"
+          >
+            <span>🔀</span>
+            <span className="hidden sm:inline">Remix</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => copyStudioLink(useEditorStore.getState())}
-          title="Copy Shareable Link"
-          className="flex items-center gap-1 rounded-lg border border-paper-300 bg-paper-50 hover:bg-paper-200 px-2.5 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
-        >
-          <span>🔗 Link</span>
-        </button>
+          <button
+            type="button"
+            onClick={surpriseMe}
+            title="Full Reroll (Random Generator + Seed + Colors)"
+            aria-label="Full Reroll"
+            className="flex items-center gap-1 rounded-lg bg-accent-500/10 hover:bg-accent-500/20 text-accent-500 border border-accent-500/30 px-2.5 sm:px-3 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
+          >
+            <span>✦</span>
+            <span className="hidden sm:inline">Surprise</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => copyStudioLink(useEditorStore.getState())}
+            title="Copy Shareable Link"
+            aria-label="Copy Shareable Link"
+            className="flex items-center gap-1 rounded-lg border border-paper-300 bg-paper-50 hover:bg-paper-200 px-2 sm:px-2.5 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer shrink-0"
+          >
+            <span>🔗</span>
+            <span className="hidden sm:inline">Link</span>
+          </button>
+        </div>
+
+        {/* Right Edge Fade Mask */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-3.5 z-10 bg-gradient-to-l from-paper-100 to-transparent opacity-90" />
       </div>
 
-      {/* ── Right Cluster: Primary Export Action ─────────────────────────── */}
-      <div className="flex items-center gap-2 shrink-0">
+      {/* ── (c) Zone C: Right Fixed Export Action (Never Scrolls, Always Visible) ── */}
+      <div className="flex items-center gap-1.5 shrink-0 z-10 bg-paper-100/90 pl-1">
         <button
           type="button"
           onClick={() => triggerSingleExport()}
           title="Download / Export Wallpaper"
-          className="flex items-center gap-1.5 rounded-lg bg-accent-500 hover:bg-accent-600 text-white px-3.5 py-1.5 font-medium shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
+          aria-label="Download / Export Wallpaper"
+          className="flex items-center gap-1 sm:gap-1.5 rounded-lg bg-accent-500 hover:bg-accent-600 text-white px-2.5 sm:px-3.5 py-1.5 font-medium shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
         >
-          <span>⚡ Export</span>
+          <span>⚡</span>
+          <span className="hidden sm:inline">Export</span>
         </button>
       </div>
     </div>

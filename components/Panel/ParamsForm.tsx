@@ -1,10 +1,17 @@
+import { useEffect, useState } from "react";
 import { getGenerator } from "@/lib/generators";
 import { useEditorStore } from "@/store/useEditorStore";
 import { Slider } from "@/components/ui/Slider";
 import { Toggle } from "@/components/ui/Toggle";
 
 export function ParamsForm() {
-  const generatorId = useEditorStore(s => s.generatorId);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const storeGeneratorId = useEditorStore(s => s.generatorId);
+  const generatorId = mounted ? storeGeneratorId : "waveform";
   const params = useEditorStore(s => s.params[generatorId]) as Record<string, unknown> | undefined;
   const updateParam = useEditorStore(s => s.updateParam);
   const generator = getGenerator(generatorId);

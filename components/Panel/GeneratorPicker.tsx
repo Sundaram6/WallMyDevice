@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ensureRegistered, listGenerators } from "@/lib/generators";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useGeneratorThumbnails } from "@/lib/render/useGeneratorThumbnails";
@@ -8,12 +8,18 @@ import { useGeneratorThumbnails } from "@/lib/render/useGeneratorThumbnails";
 export function GeneratorPicker() {
   ensureRegistered();
   const generators = listGenerators();
-  const active = useEditorStore((s) => s.generatorId);
+  const storeActive = useEditorStore((s) => s.generatorId);
   const setGenerator = useEditorStore((s) => s.setGenerator);
   const mode = useEditorStore((s) => s.mode);
   const systemColorScheme = useEditorStore((s) => s.systemColorScheme);
-
   const remix = useEditorStore((s) => s.remix);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const active = mounted ? storeActive : "waveform";
 
   // Resolve the effective display theme for thumbnail selection
   const effectiveTheme: "light" | "dark" =
@@ -21,9 +27,6 @@ export function GeneratorPicker() {
 
   const generatorIds = useMemo(() => generators.map((g) => g.id), [generators]);
   const thumbnails = useGeneratorThumbnails(generatorIds);
-
-  // Preload alternate theme thumbnails when theme changes
-  useEffect(() => {}, [effectiveTheme]);
 
   if (generators.length === 0) {
     return (
@@ -66,6 +69,7 @@ export function GeneratorPicker() {
             onClick={() => setGenerator(g.id)}
             aria-pressed={isActive}
             aria-label={`Select ${g.label} generator`}
+            suppressHydrationWarning
             className="relative overflow-hidden rounded-lg transition-all duration-[--dur-fast] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-1 group"
             style={{
               height: 96,
