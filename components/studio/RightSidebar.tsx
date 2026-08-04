@@ -17,7 +17,7 @@ export function RightSidebar() {
 
   return (
     <aside
-      className="hidden md:flex h-full w-[350px] shrink-0 flex-col overflow-hidden text-xs z-10 shadow-1 border-l border-paper-200"
+      className="hidden lg:flex h-full w-[350px] shrink-0 flex-col overflow-hidden text-xs z-10 shadow-1 border-l border-paper-200"
       style={{
         background: "var(--paper-100)",
         color: "var(--ink-900)",

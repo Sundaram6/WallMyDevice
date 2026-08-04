@@ -11,7 +11,7 @@ import { deviceEngine } from "@/lib/engine/DeviceEngine";
 export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewportDims, setViewportDims] = useState({ width: 800, height: 600 });
-  const [showTools, setShowTools] = useState(true);
+  const [showTools] = useState(true);
 
   const {
     deviceType,
@@ -40,7 +40,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   }, []);
 
   // 1. Resolve Device Metadata (Single Source of Truth)
-  // Attempt to match the legacy phoneModel string (e.g. "iphone-16-pro") to the new catalog id (e.g. "apple-iphone-16-pro")
   const catalogList = deviceEngine.listDevices();
   let matchedDevice = catalogList.find(d => 
     (phoneModel && d.id.includes(phoneModel)) || 
@@ -63,13 +62,10 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   const layoutHeight = metrics.layoutHeightPx;
 
   // 3. Compute Presentation Scale Factor to fit the viewport
-  // Add padding so it doesn't touch the edges
-  const paddingPx = isInline ? 24 : 48;
+  const paddingPx = isInline ? 16 : 32;
   const availW = Math.max(100, viewportDims.width - paddingPx * 2);
   const availH = Math.max(100, viewportDims.height - paddingPx * 2);
 
-  // We need to fit the *entire frame* into availW/H.
-  // The layout width/height is just the screen size. We must account for bezels.
   const totalLayoutW = layoutWidth + (metrics.bezelWidthLayout * 2) + (metrics.frameThicknessLayout * 2);
   const totalLayoutH = layoutHeight + (metrics.bezelWidthLayout * 2) + (metrics.frameThicknessLayout * 2);
 
@@ -78,7 +74,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
     scaleFactor = availH / totalLayoutH;
   }
 
-  // Clamp max scale so it doesn't blow up on massive monitors
   scaleFactor = Math.min(scaleFactor, 2.0);
 
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
@@ -90,7 +85,6 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
     const cy = rect.top + rect.height / 2;
     const dx = (e.clientX - cx) / (rect.width / 2);
     const dy = (e.clientY - cy) / (rect.height / 2);
-    // Subtle 3D tilt max 4 degrees
     setTilt({ rx: -dy * 4, ry: dx * 4 });
   };
 
@@ -99,54 +93,60 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   };
 
   return (
-    <main
-      ref={containerRef}
+    <div
       data-theme="stage"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative flex flex-1 w-full h-full items-center justify-center overflow-hidden select-none"
+      className="flex flex-col flex-1 w-full h-full min-h-0 overflow-hidden select-none"
       style={{
         backgroundColor: "var(--stage-950)",
-        backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
       }}
     >
-      {/* Contextual Floating Quick Toolbar */}
+      {/* Consolidated Stage Header Toolbar anchored above the stage canvas */}
       {!isInline && showTools && <ContextualToolbar />}
 
-      {/* Centered Non-Scrolling Preview Target Container */}
-      {/* Presentation Scale & 3D Parallax Tilt applied via CSS Transform */}
-      <div 
-        className="relative z-10 flex items-center justify-center origin-center transition-transform duration-[--dur-normal] ease-[--ease-out]"
+      {/* Centered Non-Scrolling Preview Stage Container */}
+      <main
+        ref={containerRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden"
         style={{
-          transform: `scale(${scaleFactor}) perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+          backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
         }}
       >
-        <DeviceFrame
-          aspect={aspect}
-          deviceType={deviceType}
-          phoneModel={phoneModel}
-          metrics={metrics}
+        {/* Presentation Scale & 3D Parallax Tilt applied via CSS Transform */}
+        <div 
+          className="relative z-10 flex items-center justify-center origin-center transition-transform duration-[--dur-normal] ease-[--ease-out]"
+          style={{
+            transform: `scale(${scaleFactor}) perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+          }}
         >
-          <div 
-            className="relative" 
-            style={{ 
-              width: layoutWidth, 
-              height: layoutHeight 
-            }}
+          <DeviceFrame
+            aspect={aspect}
+            deviceType={deviceType}
+            phoneModel={phoneModel}
+            metrics={metrics}
           >
-            <PreviewCanvas
-              aspect={aspect}
-              maxWidth={layoutWidth}
-              maxHeight={layoutHeight}
-            />
-            <EditingOverlay
-              width={layoutWidth}
-              height={layoutHeight}
-            />
-          </div>
-        </DeviceFrame>
-      </div>
-    </main>
+            <div 
+              className="relative" 
+              style={{ 
+                width: layoutWidth, 
+                height: layoutHeight 
+              }}
+            >
+              <PreviewCanvas
+                aspect={aspect}
+                maxWidth={layoutWidth}
+                maxHeight={layoutHeight}
+              />
+              <EditingOverlay
+                width={layoutWidth}
+                height={layoutHeight}
+              />
+            </div>
+          </DeviceFrame>
+        </div>
+      </main>
+    </div>
   );
 }
