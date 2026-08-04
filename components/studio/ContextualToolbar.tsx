@@ -4,6 +4,17 @@ import { useEditorStore } from "@/store/useEditorStore";
 import { editorCore } from "@/lib/engine/EditorCore";
 import { copyStudioLink } from "@/lib/share/shareUrl";
 import { triggerSingleExport } from "@/lib/export/actions";
+import {
+  Undo2,
+  Redo2,
+  RotateCcw,
+  Dices,
+  Palette,
+  Shuffle,
+  Sparkles,
+  Link2,
+  Download,
+} from "lucide-react";
 
 export function ContextualToolbar() {
   const undo = useEditorStore((s) => s.undo);
@@ -28,7 +39,7 @@ export function ContextualToolbar() {
           aria-label="Undo"
           className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
         >
-          <span>↩</span>
+          <Undo2 size={15} strokeWidth={2} className="shrink-0" />
           <span className="hidden sm:inline">Back</span>
         </button>
 
@@ -39,7 +50,7 @@ export function ContextualToolbar() {
           aria-label="Redo"
           className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
         >
-          <span>↪</span>
+          <Redo2 size={15} strokeWidth={2} className="shrink-0" />
           <span className="hidden sm:inline">Forward</span>
         </button>
 
@@ -50,7 +61,7 @@ export function ContextualToolbar() {
           aria-label="Reset Defaults"
           className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-red-500/10 text-red-500 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
         >
-          <span>🔄</span>
+          <RotateCcw size={15} strokeWidth={2} className="shrink-0" />
           <span className="hidden sm:inline">Reset</span>
         </button>
       </div>
@@ -75,7 +86,7 @@ export function ContextualToolbar() {
             aria-label="Randomize Seed"
             className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
           >
-            <span>🎲</span>
+            <Dices size={15} strokeWidth={2} className="shrink-0" />
             <span className="hidden sm:inline">Seed</span>
           </button>
 
@@ -86,7 +97,7 @@ export function ContextualToolbar() {
             aria-label="Randomize Colors"
             className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-50 hover:bg-paper-200 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
           >
-            <span>🎨</span>
+            <Palette size={15} strokeWidth={2} className="shrink-0" />
             <span className="hidden sm:inline">Colors</span>
           </button>
 
@@ -97,7 +108,7 @@ export function ContextualToolbar() {
             aria-label="Remix Style"
             className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium bg-paper-200/80 hover:bg-paper-300 border border-paper-300 transition-all duration-[--dur-fast] active:scale-95 text-accent-500 cursor-pointer shrink-0"
           >
-            <span>🔀</span>
+            <Shuffle size={15} strokeWidth={2} className="shrink-0" />
             <span className="hidden sm:inline">Remix</span>
           </button>
 
@@ -108,7 +119,7 @@ export function ContextualToolbar() {
             aria-label="Full Reroll"
             className="flex items-center gap-1 rounded-lg bg-accent-500/10 hover:bg-accent-500/20 text-accent-500 border border-accent-500/30 px-2.5 sm:px-3 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 cursor-pointer shrink-0"
           >
-            <span>✦</span>
+            <Sparkles size={15} strokeWidth={2} className="shrink-0" />
             <span className="hidden sm:inline">Surprise</span>
           </button>
 
@@ -119,7 +130,7 @@ export function ContextualToolbar() {
             aria-label="Copy Shareable Link"
             className="flex items-center gap-1 rounded-lg border border-paper-300 bg-paper-50 hover:bg-paper-200 px-2 sm:px-2.5 py-1.5 font-medium transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer shrink-0"
           >
-            <span>🔗</span>
+            <Link2 size={15} strokeWidth={2} className="shrink-0" />
             <span className="hidden sm:inline">Link</span>
           </button>
         </div>
@@ -137,7 +148,7 @@ export function ContextualToolbar() {
           aria-label="Download / Export Wallpaper"
           className="flex items-center gap-1 sm:gap-1.5 rounded-lg bg-accent-500 hover:bg-accent-600 text-white px-2.5 sm:px-3.5 py-1.5 font-medium shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
         >
-          <span>⚡</span>
+          <Download size={15} strokeWidth={2} className="shrink-0" />
           <span className="hidden sm:inline">Export</span>
         </button>
       </div>
