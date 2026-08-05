@@ -22,18 +22,25 @@ export function ScrollReveal({
     const node = ref.current;
     if (!node) return;
 
+    // Fallback timer ensures elements always become visible even if IntersectionObserver is delayed
+    const timer = setTimeout(() => setIsVisible(true), 500);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
           observer.unobserve(node);
+          clearTimeout(timer);
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.01, rootMargin: "100px 0px 100px 0px" }
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   const getInitialTransform = () => {

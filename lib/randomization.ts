@@ -51,3 +51,18 @@ export function getRemixCombo(currentGenId: string): WallpaperCombo {
     params: getDefaultParams(currentGenId),
   };
 }
+
+export function applyComboToStore(combo: WallpaperCombo): void {
+  if (typeof window === "undefined") return;
+  const store = (window as any).useEditorStore?.getState?.() || (window as any).__WMD_STORE__?.getState?.();
+  if (!store) return;
+
+  store.setGenerator(combo.generatorId);
+  store.setSeed(combo.seed);
+  store.setPalette([...combo.palette]);
+  if (combo.params) {
+    Object.entries(combo.params).forEach(([key, val]) => {
+      store.updateParam(combo.generatorId, key, val);
+    });
+  }
+}

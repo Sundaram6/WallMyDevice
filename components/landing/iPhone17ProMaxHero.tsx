@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
 import type { SwatchRecipe } from "@/lib/presets/archive-presets";
 import { getGenerator } from "@/lib/generators/registry";
-import type { WallpaperCombo } from "@/lib/randomization";
+import { applyComboToStore, type WallpaperCombo } from "@/lib/randomization";
 import { Sparkles, Shuffle, ArrowRight } from "lucide-react";
 
 type Props = {
@@ -157,6 +157,7 @@ export function IPhone17ProMaxHero({
 
               <Link
                 href={studioUrl as any}
+                onClick={() => applyComboToStore(combo)}
                 data-testid="hero-phone-open-studio-link"
                 className="flex items-center gap-1 text-white/90 hover:text-white text-[10.5px] font-medium px-2 py-1 transition-colors"
               >
