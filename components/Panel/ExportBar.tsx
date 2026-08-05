@@ -63,7 +63,7 @@ export function ExportBar({ compact = false }: { compact?: boolean }) {
         const blob = new Blob([svg], { type: "image/svg+xml" });
         downloadBlob(blob, buildFilename(built.generatorId, built.seed, { width: w, height: h }, "svg"));
       } else {
-        const blob = await exportImage(built.input, { width: w, height: h }, exportFormat);
+        const blob = await exportImage(built.input, { width: w, height: h }, exportFormat as any);
         downloadBlob(blob, buildFilename(built.generatorId, built.seed, { width: w, height: h }, exportFormat));
       }
     } catch (e) {

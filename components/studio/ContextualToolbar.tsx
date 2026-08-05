@@ -17,9 +17,12 @@ import {
 } from "lucide-react";
 
 export function ContextualToolbar() {
+  const historyVersion = useEditorStore((s) => s.historyVersion);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
   const reset = useEditorStore((s) => s.reset);
+  const canUndo = editorCore.history.canUndo();
+  const canRedo = editorCore.history.canRedo();
   const surpriseMe = useEditorStore((s) => s.surpriseMe);
   const remix = useEditorStore((s) => s.remix);
   const randomizeSeed = useEditorStore((s) => s.randomizeSeed);
@@ -35,22 +38,32 @@ export function ContextualToolbar() {
         <button
           type="button"
           onClick={undo}
+          disabled={!canUndo}
           title="Undo (⌘Z)"
           aria-label="Undo"
-          className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
+          className={`flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] ${
+            canUndo
+              ? "hover:bg-paper-200 text-ink-900 cursor-pointer active:scale-95"
+              : "opacity-40 text-ink-400 cursor-not-allowed pointer-events-none"
+          }`}
         >
-          <Undo2 size={15} strokeWidth={2} className="shrink-0 text-ink-900" />
+          <Undo2 size={15} strokeWidth={2} className={`shrink-0 ${canUndo ? "text-ink-900" : "text-ink-400"}`} />
           <span className="hidden sm:inline">Back</span>
         </button>
 
         <button
           type="button"
           onClick={redo}
+          disabled={!canRedo}
           title="Redo (⌘⇧Z)"
           aria-label="Redo"
-          className="flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium hover:bg-paper-200 border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] active:scale-95 text-ink-900 cursor-pointer"
+          className={`flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1.5 font-medium border border-paper-300 bg-paper-50 transition-all duration-[--dur-fast] ${
+            canRedo
+              ? "hover:bg-paper-200 text-ink-900 cursor-pointer active:scale-95"
+              : "opacity-40 text-ink-400 cursor-not-allowed pointer-events-none"
+          }`}
         >
-          <Redo2 size={15} strokeWidth={2} className="shrink-0 text-ink-900" />
+          <Redo2 size={15} strokeWidth={2} className={`shrink-0 ${canRedo ? "text-ink-900" : "text-ink-400"}`} />
           <span className="hidden sm:inline">Forward</span>
         </button>
 

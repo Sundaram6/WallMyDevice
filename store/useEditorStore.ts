@@ -8,10 +8,18 @@ import { getRandomCombo, getRemixCombo, getRandomPalette, getRandomSeed } from "
 
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
-export type ExportFormat = "png" | "jpg" | "webp" | "svg";
+export type ExportFormat = "png" | "svg" | "jpg" | "webp";
+
+export type PhoneSelection = {
+  brand?: string;
+  model?: string;
+  display?: string;
+  orientation?: "portrait" | "landscape";
+};
 
 export type EditorState = {
   generatorId: string;
+  // Map generatorId -> params object
   params: Record<string, unknown>;
 
   palette: string[];
@@ -23,27 +31,35 @@ export type EditorState = {
   grainIntensity: number;
   blurIntensity: number;
 
-  // legacy resolutionId + custom size are kept for backward compatibility
+  // resolution / aspect
   resolutionId: string;
   customWidth: number;
   customHeight: number;
   aspectLock: boolean;
 
-  // Device/Phone picker state
+  // device / phone customization
   deviceType: "desktop" | "laptop" | "tablet" | "phone" | "custom";
   phoneBrand?: string;
   phoneModel?: string;
-  phoneDisplay?: string; // display id within the phone model
+  phoneDisplay?: string;
   orientation: "portrait" | "landscape";
-  // holds last phone selection when switching to custom/other types
-  lastPhoneSelection?: { brand?: string; model?: string; display?: string; orientation?: "portrait" | "landscape" };
+  lastPhoneSelection?: PhoneSelection;
 
+  // overlays
   overlayClock: boolean;
   overlayDate: boolean;
   overlayText: boolean;
   overlayTextValue: string;
   overlayFont: string;
   overlaySize: number;
+
+  exportFormat: ExportFormat;
+
+  sheetCollapsed: boolean;
+  setSheetCollapsed: (collapsed: boolean) => void;
+
+  setGenerator: (id: string) => void;
+  updateParam: (id: string, key: string, value: unknown) => void;
 
   paletteLocked: boolean;
   seedLocked: boolean;
@@ -53,20 +69,14 @@ export type EditorState = {
   surpriseMe: () => void;
   remix: () => void;
 
-  exportFormat: ExportFormat;
-
-  sheetCollapsed: boolean;
-  setSheetCollapsed: (collapsed: boolean) => void;
-
-  setGenerator: (id: string) => void;
-  updateParam: (id: string, key: string, value: unknown) => void;
   setPalette: (palette: string[]) => void;
   randomizeSeed: () => void;
   setSeed: (seed: string) => void;
   setMode: (mode: Mode) => void;
   setSystemColorScheme: (scheme: SystemColorScheme) => void;
+
   setResolution: (id: string, width: number, height: number) => void;
-  setCustomSize: (w: number, h: number) => void;
+  setCustomSize: (width: number, height: number) => void;
   setAspectLock: (locked: boolean) => void;
   setGrain: (enabled: boolean, intensity: number) => void;
   setBlur: (v: number) => void;
@@ -81,6 +91,9 @@ export type EditorState = {
   setPhoneSelection: (brand?: string, model?: string, display?: string) => void;
   setOrientation: (o: EditorState["orientation"]) => void;
 
+  historyVersion: number;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   reset: () => void;
   undo: () => void;
   redo: () => void;
@@ -96,6 +109,10 @@ initializeBuiltInGenerators();
 
 const initialShareParams = typeof window !== "undefined" ? parseShareParams(window.location.search) : {};
 const initialGenId = initialShareParams.g || "waveform";
+
+function recordSnapshot(state: EditorState, label: string) {
+  editorCore.history.pushSnapshot(label, state);
+}
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   generatorId: initialGenId,
@@ -135,31 +152,55 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   sheetCollapsed: true,
   setSheetCollapsed: (collapsed) => set({ sheetCollapsed: collapsed }),
 
+  historyVersion: 0,
+
   setGenerator: (id) => {
-    const params = get().params;
+    const currentState = get();
+    if (currentState.generatorId === id) return;
+    recordSnapshot(currentState, `Set Generator: ${id}`);
+
+    const params = currentState.params;
     if (!params[id]) {
-      set({ generatorId: id, params: { ...params, [id]: getDefaultParams(id) } });
+      set({
+        generatorId: id,
+        params: { ...params, [id]: getDefaultParams(id) },
+        historyVersion: get().historyVersion + 1,
+      });
     } else {
-      set({ generatorId: id });
+      set({ generatorId: id, historyVersion: get().historyVersion + 1 });
     }
   },
 
   updateParam: (id, key, value) => {
-    const current = (get().params[id] ?? {}) as Record<string, unknown>;
-    set({ params: { ...get().params, [id]: { ...current, [key]: value } } });
+    const currentState = get();
+    const currentParams = (currentState.params[id] ?? {}) as Record<string, unknown>;
+    if (currentParams[key] === value) return;
+
+    recordSnapshot(currentState, `Update ${key}`);
+    set({
+      params: { ...currentState.params, [id]: { ...currentParams, [key]: value } },
+      historyVersion: get().historyVersion + 1,
+    });
   },
 
   paletteLocked: false,
   seedLocked: false,
   togglePaletteLock: () => set((s) => ({ paletteLocked: !s.paletteLocked })),
   toggleSeedLock: () => set((s) => ({ seedLocked: !s.seedLocked })),
+
   randomizePalette: () => {
-    set({ palette: getRandomPalette() });
+    const currentState = get();
+    recordSnapshot(currentState, "Randomize Palette");
+    set({ palette: getRandomPalette(), historyVersion: get().historyVersion + 1 });
   },
+
   surpriseMe: () => {
     const state = get();
+    recordSnapshot(state, "Surprise Me");
     const combo = getRandomCombo(state.generatorId);
-    const updates: Partial<EditorState> = {};
+    const updates: Partial<EditorState> = {
+      historyVersion: get().historyVersion + 1,
+    };
 
     if (combo.generatorId !== state.generatorId) {
       updates.generatorId = combo.generatorId;
@@ -173,14 +214,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!state.paletteLocked) {
       updates.palette = combo.palette;
     }
-    if (Object.keys(updates).length > 0) {
-      set(updates);
-    }
+    set(updates);
   },
+
   remix: () => {
     const state = get();
+    recordSnapshot(state, "Remix");
     const combo = getRemixCombo(state.generatorId);
-    const updates: Partial<EditorState> = {};
+    const updates: Partial<EditorState> = {
+      historyVersion: get().historyVersion + 1,
+    };
 
     if (!state.seedLocked) {
       updates.seed = combo.seed;
@@ -188,72 +231,106 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (!state.paletteLocked) {
       updates.palette = combo.palette;
     }
-    if (Object.keys(updates).length > 0) {
-      set(updates);
-    }
+    set(updates);
   },
 
-  setPalette: (palette) => set({ palette }),
-  randomizeSeed: () => set({ seed: getRandomSeed() }),
+  setPalette: (palette) => {
+    const currentState = get();
+    recordSnapshot(currentState, "Set Palette");
+    set({ palette, historyVersion: get().historyVersion + 1 });
+  },
+
+  randomizeSeed: () => {
+    const currentState = get();
+    recordSnapshot(currentState, "Randomize Seed");
+    set({ seed: getRandomSeed(), historyVersion: get().historyVersion + 1 });
+  },
+
   setSeed: (seed) => {
     if (!SEED_RE.test(seed)) return;
-    set({ seed });
+    const currentState = get();
+    if (currentState.seed === seed) return;
+    recordSnapshot(currentState, "Set Seed");
+    set({ seed, historyVersion: get().historyVersion + 1 });
   },
-  setMode: (mode) => set({ mode }),
+
+  setMode: (mode) => {
+    const currentState = get();
+    if (currentState.mode === mode) return;
+    recordSnapshot(currentState, `Set Mode: ${mode}`);
+    set({ mode, historyVersion: get().historyVersion + 1 });
+  },
+
   setSystemColorScheme: (scheme) => set({ systemColorScheme: scheme }),
 
-  setResolution: (id, width, height) => set({ resolutionId: id, customWidth: width, customHeight: height }),
-  setCustomSize: (w, h) => set({ customWidth: w, customHeight: h }),
+  setResolution: (id, width, height) => {
+    const currentState = get();
+    recordSnapshot(currentState, "Set Resolution");
+    set({ resolutionId: id, customWidth: width, customHeight: height, historyVersion: get().historyVersion + 1 });
+  },
+
+  setCustomSize: (w, h) => {
+    const currentState = get();
+    recordSnapshot(currentState, "Set Custom Size");
+    set({ customWidth: w, customHeight: h, historyVersion: get().historyVersion + 1 });
+  },
+
   setAspectLock: (locked) => set({ aspectLock: locked }),
 
   setGrain: (enabled, intensity) => {
-    editorCore.history.pushSnapshot("Set Grain", get());
-    set({ grainEnabled: enabled, grainIntensity: intensity });
+    const currentState = get();
+    recordSnapshot(currentState, "Set Grain");
+    set({ grainEnabled: enabled, grainIntensity: intensity, historyVersion: get().historyVersion + 1 });
   },
+
   setBlur: (v) => {
-    editorCore.history.pushSnapshot("Set Blur", get());
-    set({ blurIntensity: v });
+    const currentState = get();
+    recordSnapshot(currentState, "Set Blur");
+    set({ blurIntensity: v, historyVersion: get().historyVersion + 1 });
   },
 
   setOverlay: (key, value) => {
-    editorCore.history.pushSnapshot("Set Overlay", get());
-    set({ [`overlay${capitalize(key)}`]: value } as Partial<EditorState>);
+    const currentState = get();
+    recordSnapshot(currentState, "Set Overlay");
+    set({ [`overlay${capitalize(key)}`]: value, historyVersion: get().historyVersion + 1 } as Partial<EditorState>);
   },
+
   setOverlayText: (text) => set({ overlayTextValue: text }),
   setOverlayFont: (font) => set({ overlayFont: font }),
   setOverlaySize: (size) => set({ overlaySize: size }),
 
   setExportFormat: (f) => set({ exportFormat: f }),
 
-  // device/phone setters
   setDeviceType: (t) => {
-    editorCore.history.pushSnapshot("Set Device Type", get());
     const prev = get();
+    recordSnapshot(prev, "Set Device Type");
     if (t === "phone") {
-      // restore last phone selection if present
       if (prev.lastPhoneSelection && prev.lastPhoneSelection.model) {
-        set({ deviceType: "phone", phoneBrand: prev.lastPhoneSelection.brand, phoneModel: prev.lastPhoneSelection.model, phoneDisplay: prev.lastPhoneSelection.display ?? undefined, orientation: prev.lastPhoneSelection.orientation ?? "portrait" });
+        set({ deviceType: "phone", phoneBrand: prev.lastPhoneSelection.brand, phoneModel: prev.lastPhoneSelection.model, phoneDisplay: prev.lastPhoneSelection.display ?? undefined, orientation: prev.lastPhoneSelection.orientation ?? "portrait", historyVersion: get().historyVersion + 1 });
       } else {
-        set({ deviceType: "phone" });
+        set({ deviceType: "phone", historyVersion: get().historyVersion + 1 });
       }
     } else {
-      // save last phone selection then switch
       const last = { brand: prev.phoneBrand, model: prev.phoneModel, display: prev.phoneDisplay, orientation: prev.orientation };
-      set({ deviceType: t, lastPhoneSelection: last });
+      set({ deviceType: t, lastPhoneSelection: last, historyVersion: get().historyVersion + 1 });
     }
   },
+
   setPhoneSelection: (brand, model, display) => {
-    editorCore.history.pushSnapshot("Set Phone", get());
-    set({ phoneBrand: brand, phoneModel: model, phoneDisplay: display });
+    const currentState = get();
+    recordSnapshot(currentState, "Set Phone");
+    set({ phoneBrand: brand, phoneModel: model, phoneDisplay: display, historyVersion: get().historyVersion + 1 });
   },
+
   setOrientation: (o) => {
-    editorCore.history.pushSnapshot("Set Orientation", get());
-    set({ orientation: o });
+    const currentState = get();
+    recordSnapshot(currentState, "Set Orientation");
+    set({ orientation: o, historyVersion: get().historyVersion + 1 });
   },
 
   reset: () => {
     const state = get();
-    editorCore.history.pushSnapshot("Reset Defaults", state);
+    recordSnapshot(state, "Reset Defaults");
     const gId = state.generatorId;
     const defaultParams = getDefaultParams(gId);
     set({
@@ -266,14 +343,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       overlayClock: false,
       overlayDate: false,
       overlayText: false,
+      historyVersion: get().historyVersion + 1,
     });
   },
+
+  canUndo: () => editorCore.history.canUndo(),
+  canRedo: () => editorCore.history.canRedo(),
 
   undo: () => {
     const currentState = get();
     const prev = editorCore.history.undo(currentState);
     if (prev) {
-      set(prev);
+      set({ ...prev, historyVersion: get().historyVersion + 1 });
     }
   },
 
@@ -281,7 +362,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const currentState = get();
     const next = editorCore.history.redo(currentState);
     if (next) {
-      set(next);
+      set({ ...next, historyVersion: get().historyVersion + 1 });
     }
   },
 

@@ -28,6 +28,20 @@ export function KeyboardShortcuts() {
         if (idx < gens.length) s.setGenerator(gens[idx].id);
         return;
       }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          s.redo();
+        } else {
+          s.undo();
+        }
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && (e.key === "y" || e.key === "Y")) {
+        e.preventDefault();
+        s.redo();
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault();
         if (e.shiftKey) {
