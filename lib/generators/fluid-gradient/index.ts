@@ -3,6 +3,7 @@ import { Renderer, Program, Mesh, Triangle, Vec3 } from "ogl";
 import { createRng, deriveSeed } from "../../prng";
 import type { Generator, RenderTarget, GlobalContext } from "../types";
 import { VERT, FRAG } from "./shader.glsl";
+import { getPaletteByLuminance } from "../../palettes/contrast";
 
 const Schema = z.object({
   blobCount: z.number().min(1).max(8),
@@ -146,20 +147,23 @@ export const fluidGradient: Generator<Params> = {
       const { width: W, height: H } = target;
       ctx.clearRect(0, 0, W, H);
 
-      const bg = palette[0] ?? "#000000";
+      const { darkest, sorted, darkestLuminance } = getPaletteByLuminance(palette);
+      const bg = darkestLuminance <= 0.45 ? darkest : "#0f172a";
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      const colors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+      const colors = sorted.filter((c) => c !== bg);
+      const colorsToUse = colors.length > 0 ? colors : sorted;
       const minDim = Math.min(W, H);
       const rng = createRng(seed);
 
       ctx.save();
-      ctx.globalCompositeOperation = "screen";
+      ctx.globalCompositeOperation = darkestLuminance <= 0.45 ? "screen" : "source-over";
+      ctx.globalAlpha = 0.75;
 
       const blobCount = Math.max(1, params.blobCount ?? 3);
       for (let i = 0; i < blobCount; i++) {
-        const color = colors[i % colors.length];
+        const color = colorsToUse[i % colorsToUse.length];
         const cx = (0.15 + rng() * 0.7) * W;
         const cy = (0.15 + rng() * 0.7) * H;
         const radius = minDim * (0.35 + rng() * 0.45) * Math.max(0.5, params.distortion ?? 1);

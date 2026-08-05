@@ -1,9 +1,10 @@
 import { z } from "zod";
 import type { Generator } from "../types";
+import { getPaletteByLuminance } from "../../palettes/contrast";
 
 const Schema = z.object({
-  blobCount: z.number().min(3).max(20),
-  threshold: z.number().min(0.2).max(1.5),
+  blobCount: z.number().min(3).max(12),
+  threshold: z.number().min(0.5).max(2.5),
   blobSize: z.number().min(0.3).max(2),
 });
 
@@ -13,20 +14,20 @@ export const metaballs: Generator<Params> = {
   id: "metaballs",
   label: "Metaballs",
   category: "Organic",
-  description: "Soft fluid metaball blobs merging via implicit threshold",
+  description: "Lava lamp fluid lava metaball shapes",
   kind: "canvas2d",
   supportsSvgExport: false,
   schema: {
     zod: Schema,
     defaults: {
-      blobCount: 8,
-      threshold: 0.7,
-      blobSize: 1,
+      blobCount: 6,
+      threshold: 1.2,
+      blobSize: 1.0,
     },
   },
   paramControls: [
-    { key: "blobCount", label: "Blob Count", type: "slider", min: 3, max: 20, step: 1 },
-    { key: "threshold", label: "Merge Threshold", type: "slider", min: 0.2, max: 1.5, step: 0.1 },
+    { key: "blobCount", label: "Metaball Count", type: "slider", min: 3, max: 12, step: 1 },
+    { key: "threshold", label: "Fusion Radius", type: "slider", min: 0.5, max: 2.5, step: 0.1 },
     { key: "blobSize", label: "Blob Size Scale", type: "slider", min: 0.3, max: 2, step: 0.1 },
   ],
   render(target, params, _seed, palette, rng, _context) {
@@ -34,11 +35,13 @@ export const metaballs: Generator<Params> = {
     const { ctx, width, height } = target;
     ctx.clearRect(0, 0, width, height);
 
-    const bg = palette[0] || "#080711";
+    const { darkest, sorted, darkestLuminance } = getPaletteByLuminance(palette);
+    const bg = darkestLuminance <= 0.45 ? darkest : "#080711";
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 
-    const blobColors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+    const blobColors = sorted.filter((c) => c !== bg);
+    const colorsToUse = blobColors.length > 0 ? blobColors : sorted;
     const minDim = Math.min(width, height);
 
     const blobs: Array<{ x: number; y: number; radius: number; color: string }> = [];
@@ -47,12 +50,13 @@ export const metaballs: Generator<Params> = {
         x: rng() * width,
         y: rng() * height,
         radius: minDim * 0.15 * (0.5 + rng() * 0.5) * params.blobSize,
-        color: blobColors[i % blobColors.length],
+        color: colorsToUse[i % colorsToUse.length],
       });
     }
 
     ctx.save();
-    ctx.globalCompositeOperation = "screen";
+    ctx.globalCompositeOperation = darkestLuminance <= 0.45 ? "screen" : "source-over";
+    ctx.globalAlpha = 0.75;
 
     blobs.forEach((b) => {
       const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius * params.threshold);

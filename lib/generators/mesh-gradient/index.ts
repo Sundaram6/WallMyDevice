@@ -1,8 +1,9 @@
 import { z } from "zod";
 import type { Generator } from "../types";
+import { getPaletteByLuminance } from "../../palettes/contrast";
 
 const Schema = z.object({
-  pointsCount: z.number().min(3).max(12),
+  pointsCount: z.number().min(2).max(10),
   blurRadius: z.number().min(0).max(1),
   pointSize: z.number().min(0.2).max(2),
 });
@@ -13,20 +14,20 @@ export const meshGradient: Generator<Params> = {
   id: "mesh-gradient",
   label: "Mesh Gradient",
   category: "Gradient & Color",
-  description: "Multi-point smooth gradient mesh with soft blending",
+  description: "Soft multi-point mesh color blend",
   kind: "canvas2d",
   supportsSvgExport: false,
   schema: {
     zod: Schema,
     defaults: {
-      pointsCount: 6,
-      blurRadius: 0.6,
-      pointSize: 0.9,
+      pointsCount: 4,
+      blurRadius: 0.5,
+      pointSize: 1.0,
     },
   },
   paramControls: [
-    { key: "pointsCount", label: "Control Points", type: "slider", min: 3, max: 12, step: 1 },
-    { key: "blurRadius", label: "Blend Blur", type: "slider", min: 0, max: 1, step: 0.05 },
+    { key: "pointsCount", label: "Color Points", type: "slider", min: 2, max: 10, step: 1 },
+    { key: "blurRadius", label: "Mesh Smoothness", type: "slider", min: 0, max: 1, step: 0.05 },
     { key: "pointSize", label: "Point Spread", type: "slider", min: 0.2, max: 2, step: 0.1 },
   ],
   render(target, params, _seed, palette, rng, _context) {
@@ -34,26 +35,28 @@ export const meshGradient: Generator<Params> = {
     const { ctx, width, height } = target;
     ctx.clearRect(0, 0, width, height);
 
-    const baseColor = palette[0] || "#0f172a";
+    const { darkest, sorted, darkestLuminance } = getPaletteByLuminance(palette);
+    const baseColor = darkestLuminance <= 0.45 ? darkest : "#0f172a";
     ctx.fillStyle = baseColor;
     ctx.fillRect(0, 0, width, height);
 
-    if (palette.length < 2) return;
-
-    // Generate random control point positions based on seed rng
-    const points: Array<{ x: number; y: number; color: string; radius: number }> = [];
+    const pointColors = sorted.filter((c) => c !== baseColor);
+    const colorsToUse = pointColors.length > 0 ? pointColors : sorted;
     const minDim = Math.min(width, height);
 
+    const points: Array<{ x: number; y: number; color: string; radius: number }> = [];
+
     for (let i = 0; i < params.pointsCount; i++) {
-      const color = palette[i % palette.length];
+      const color = colorsToUse[i % colorsToUse.length];
       const x = rng() * width;
       const y = rng() * height;
-      const radius = (minDim * (0.3 + rng() * 0.5) * params.pointSize);
+      const radius = minDim * (0.3 + rng() * 0.5) * params.pointSize;
       points.push({ x, y, color, radius });
     }
 
     ctx.save();
-    ctx.globalCompositeOperation = "screen";
+    ctx.globalCompositeOperation = darkestLuminance <= 0.45 ? "screen" : "source-over";
+    ctx.globalAlpha = 0.75;
 
     points.forEach((pt) => {
       const grad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, pt.radius);

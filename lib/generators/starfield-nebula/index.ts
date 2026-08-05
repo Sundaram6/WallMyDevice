@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Generator } from "../types";
+import { getPaletteByLuminance } from "../../palettes/contrast";
 
 const Schema = z.object({
   starDensity: z.number().min(100).max(1500),
@@ -34,15 +35,26 @@ export const starfieldNebula: Generator<Params> = {
     const { ctx, width, height } = target;
     ctx.clearRect(0, 0, width, height);
 
-    const spaceBg = palette[0] || "#03001E";
+    // Intelligently select space background from darkest palette color or deep space base
+    const { darkest, sorted, darkestLuminance } = getPaletteByLuminance(palette);
+    const spaceBg = darkestLuminance <= 0.45 ? darkest : "#060913";
+
     ctx.fillStyle = spaceBg;
     ctx.fillRect(0, 0, width, height);
 
-    const nebulaColors = palette.slice(1).length > 0 ? palette.slice(1) : palette;
+    // Use vibrant accent colors for nebula clouds
+    const nebulaColors = sorted.filter((c) => c !== spaceBg);
+    const cloudColors = nebulaColors.length > 0 ? nebulaColors : sorted;
 
-    // Render soft nebula clouds
+    // Render soft nebula clouds with controlled blend opacity to prevent solid white blowout
     ctx.save();
-    ctx.globalCompositeOperation = "screen";
+    if (darkestLuminance <= 0.45) {
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.65;
+    } else {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 0.45;
+    }
 
     const cloudCount = 4;
     const minDim = Math.min(width, height);
@@ -50,8 +62,8 @@ export const starfieldNebula: Generator<Params> = {
     for (let c = 0; c < cloudCount; c++) {
       const cx = rng() * width;
       const cy = rng() * height;
-      const radius = minDim * (0.4 + rng() * 0.4);
-      const color = nebulaColors[c % nebulaColors.length];
+      const radius = minDim * (0.35 + rng() * 0.45);
+      const color = cloudColors[c % cloudColors.length];
 
       const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * params.nebulaGlow);
       grad.addColorStop(0, color);
@@ -66,15 +78,18 @@ export const starfieldNebula: Generator<Params> = {
 
     ctx.restore();
 
-    // Render stars
+    // Render stars with high contrast against the background
     const baseSize = Math.max(1, minDim / 400);
+    const isDarkBg = darkestLuminance <= 0.6;
+    const starFillStyle = isDarkBg ? "rgba(255, 255, 255, " : "rgba(15, 23, 42, ";
+
     for (let s = 0; s < params.starDensity; s++) {
       const sx = rng() * width;
       const sy = rng() * height;
       const size = baseSize * (0.5 + rng() * 2) * params.twinkleFactor;
-      const alpha = 0.3 + rng() * 0.7;
+      const alpha = 0.35 + rng() * 0.65;
 
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+      ctx.fillStyle = `${starFillStyle}${alpha})`;
       ctx.beginPath();
       ctx.arc(sx, sy, size, 0, Math.PI * 2);
       ctx.fill();
