@@ -56,5 +56,10 @@
     "typescript": "^5.5.4",
     "vitest": "^3.2.7",
     "vitest-canvas-mock": "^1.1.4"
+  },
+  "overrides": {
+    "next-auth": {
+      "next": "$next"
+    }
   }
 }
