@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "generate-thumbnails": "npx tsx scripts/generate-thumbnails.ts"
+    "generate-thumbnails": "npx tsx scripts/generate-thumbnails.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",

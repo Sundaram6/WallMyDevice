@@ -17,7 +17,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    const parsed = saved.map((item) => ({
+    const parsed = (saved as Array<any>).map((item: any) => ({
       id: item.id,
       userId: item.userId,
       title: item.title,
