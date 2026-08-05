@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { useSafeSession } from "@/lib/auth-client";
 import { MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Heart, LogOut, Bookmark, User as UserIcon } from "lucide-react";
 
 type Props = {
   onOpenStudioClick?: () => void;
@@ -13,7 +17,12 @@ type Props = {
 export function LandingNav({ onOpenStudioClick }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { data: session } = useSafeSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +31,19 @@ export function LandingNav({ onOpenStudioClick }: Props) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const userDisplayName = session?.user?.name || session?.user?.email?.split("@")[0] || "Artist";
+  const userInitials = userDisplayName.slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -38,7 +60,7 @@ export function LandingNav({ onOpenStudioClick }: Props) {
           <span className="text-accent-500 font-serif italic text-lg transition-transform group-hover:rotate-12 duration-[--dur-fast]">✦</span>
         </Link>
 
-        {/* Desktop Nav Links with Hover & Active Underline Animations */}
+        {/* Desktop Nav Links */}
         <nav aria-label="Landing Navigation" className="hidden md:flex items-center gap-7 text-xs text-ink-500">
           <button
             type="button"
@@ -81,15 +103,15 @@ export function LandingNav({ onOpenStudioClick }: Props) {
             />
           </Link>
           <Link
-            href="/inspiration"
+            href="/saved"
             className={`relative py-1 transition-colors duration-[--dur-fast] group ${
-              pathname.startsWith("/inspiration") ? "text-ink-900 font-semibold" : "hover:text-ink-900"
+              pathname.startsWith("/saved") || pathname.startsWith("/favorites") ? "text-ink-900 font-semibold" : "hover:text-ink-900"
             }`}
           >
-            Inspiration
+            Saved
             <span
               className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-accent-500 transition-transform origin-left duration-[--dur-fast] ${
-                pathname.startsWith("/inspiration") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                pathname.startsWith("/saved") || pathname.startsWith("/favorites") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
               }`}
             />
           </Link>
@@ -108,21 +130,64 @@ export function LandingNav({ onOpenStudioClick }: Props) {
           </Link>
         </nav>
 
-        {/* Actions with ThemeToggle and Premium Shimmer CTA */}
+        {/* Actions with ThemeToggle and User Menu / Sign In CTA */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
 
-          <button
-            type="button"
-            onClick={onOpenStudioClick}
-            className="relative overflow-hidden hidden sm:inline-flex rounded-full bg-ink-900 px-5 py-2 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-all duration-[--dur-fast] group"
-          >
-            <span className="relative z-10 flex items-center gap-1">
-              Open Studio <span className="text-accent-500 group-hover:text-paper-0 transition-colors duration-[--dur-fast]">✦</span>
-            </span>
-            {/* Shimmer Light Glint Layer */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-          </button>
+          {session?.user ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                data-testid="user-menu-button"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 rounded-full border border-paper-300 bg-paper-100 p-1 pr-3 text-xs font-medium text-ink-900 hover:bg-paper-200 transition-all cursor-pointer"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-ink-900 text-[11px] font-mono text-white">
+                  {userInitials}
+                </div>
+                <span className="hidden sm:inline max-w-[100px] truncate">{userDisplayName}</span>
+              </button>
+
+              {userMenuOpen && (
+                <div data-testid="user-menu-dropdown" className="absolute right-0 top-11 w-56 rounded-2xl border border-paper-300 bg-paper-50 p-2 shadow-2 z-50 text-xs text-ink-900">
+                  <div className="px-3 py-2 border-b border-paper-200">
+                    <p className="font-medium truncate text-ink-900">{userDisplayName}</p>
+                    <p className="text-[10px] text-ink-500 truncate">{session.user.email}</p>
+                  </div>
+                  <Link
+                    href="/saved"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-ink-700 hover:bg-paper-200 hover:text-ink-900 rounded-xl transition-colors"
+                  >
+                    <Bookmark size={14} className="text-accent-500" />
+                    <span>Saved Wallpapers</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut size={14} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              data-testid="sign-in-button"
+              onClick={() => setAuthModalOpen(true)}
+              className="relative overflow-hidden hidden sm:inline-flex rounded-full bg-ink-900 px-5 py-2 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-all duration-[--dur-fast] group cursor-pointer"
+            >
+              <span className="relative z-10 flex items-center gap-1">
+                Sign In <span className="text-accent-500 group-hover:text-paper-0 transition-colors duration-[--dur-fast]">✦</span>
+              </span>
+            </button>
+          )}
 
           {/* Mobile Hamburger Menu Button */}
           <button
@@ -138,6 +203,12 @@ export function LandingNav({ onOpenStudioClick }: Props) {
         </div>
       </header>
 
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+
       {/* Mobile Navigation Drawer */}
       <MobileNavDrawer
         isOpen={mobileMenuOpen}
@@ -146,7 +217,7 @@ export function LandingNav({ onOpenStudioClick }: Props) {
           { label: "Studio ✦", onClick: onOpenStudioClick, highlight: true },
           { label: "Archive", href: "/archive" },
           { label: "Collections", href: "/collections" },
-          { label: "Inspiration", href: "/inspiration" },
+          { label: "Saved Wallpapers", href: "/saved" },
           { label: "About", href: "/about" },
         ]}
       />

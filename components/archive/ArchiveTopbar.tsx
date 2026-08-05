@@ -3,7 +3,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { useSafeSession } from "@/lib/auth-client";
 import { MobileNavDrawer } from "@/components/ui/MobileNavDrawer";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { Bookmark, LogOut } from "lucide-react";
 
 type Props = {
   activeRoute?: "home" | "archive" | "studio" | "collections" | "inspiration" | "about";
@@ -27,9 +31,11 @@ export function ArchiveTopbar({
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { data: session } = useSafeSession();
 
   const isArchiveActive = activeRoute === "archive" || (pathname === "/archive") || (currentTab === "archive" && pathname === "/");
   const isStudioActive = activeRoute === "studio" || (pathname === "/studio") || (currentTab === "studio" && pathname === "/");
@@ -54,6 +60,9 @@ export function ArchiveTopbar({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const userDisplayName = session?.user?.name || session?.user?.email?.split("@")[0] || "Guest";
+  const userInitials = userDisplayName.slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -106,12 +115,12 @@ export function ArchiveTopbar({
             Collections
           </Link>
           <Link
-            href="/inspiration"
+            href="/saved"
             className={`min-h-[44px] px-2.5 transition-colors duration-[--dur-fast] flex items-center ${
-              pathname === "/inspiration" ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
+              pathname === "/saved" || pathname === "/favorites" ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
             }`}
           >
-            Inspiration
+            Saved
           </Link>
           <Link
             href="/about"
@@ -136,25 +145,9 @@ export function ArchiveTopbar({
             />
           </div>
 
-          <button
-            type="button"
-            onClick={() => setSearchOverlayOpen(true)}
-            aria-label="Open Search"
-            className="flex sm:hidden h-11 w-11 items-center justify-center rounded-lg text-ink-500 hover:text-ink-900 hover:bg-paper-200 transition-colors duration-[--dur-fast] focus:outline-none focus:ring-2 focus:ring-accent-500"
-          >
-            🔍
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpenFavoritesModal) {
-                onOpenFavoritesModal();
-              } else {
-                window.location.href = "/profile";
-              }
-            }}
-            aria-label={`Favourites (${favoriteCount} saved)`}
+          <Link
+            href="/saved"
+            aria-label={`Saved Wallpapers (${favoriteCount} saved)`}
             className="relative flex h-11 w-11 items-center justify-center text-ink-500 hover:text-accent-500 rounded-lg transition-colors duration-[--dur-fast] focus:outline-none focus:ring-2 focus:ring-accent-500"
           >
             ♡
@@ -163,39 +156,69 @@ export function ArchiveTopbar({
                 {favoriteCount}
               </span>
             )}
-          </button>
+          </Link>
 
-          <div className="relative flex items-center" ref={menuRef}>
+          {session?.user ? (
+            <div className="relative flex items-center" ref={menuRef}>
+              <button
+                type="button"
+                data-testid="user-menu-button"
+                onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
+                aria-label="User menu"
+                aria-expanded={avatarMenuOpen}
+                className="flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-accent-500"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink-900 font-mono text-xs text-paper-0 hover:ring-2 hover:ring-accent-500 transition-all duration-[--dur-fast]">
+                  {userInitials}
+                </div>
+              </button>
+
+              {avatarMenuOpen && (
+                <div data-testid="user-menu-dropdown" className="absolute right-0 top-12 w-56 rounded-xl border border-paper-300 bg-paper-50 p-2 shadow-2 z-50 text-xs">
+                  <div className="px-3 py-2 border-b border-paper-200">
+                    <p className="font-medium truncate text-ink-900">{userDisplayName}</p>
+                    <p className="text-[10px] text-ink-500 truncate">{session.user.email}</p>
+                  </div>
+                  <Link
+                    href="/saved"
+                    onClick={() => setAvatarMenuOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-ink-700 hover:bg-paper-200 hover:text-ink-900 rounded-xl transition-colors"
+                  >
+                    <Bookmark size={14} className="text-accent-500" />
+                    <span>Saved Wallpapers</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarMenuOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut size={14} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
-              aria-label="Local Profile user menu"
-              aria-expanded={avatarMenuOpen}
-              className="flex h-11 w-11 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-accent-500"
+              data-testid="sign-in-button"
+              onClick={() => setAuthModalOpen(true)}
+              className="rounded-full bg-ink-900 px-4 py-2 text-xs font-medium text-white hover:bg-accent-500 transition-all cursor-pointer shadow-1"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink-900 font-mono text-xs text-paper-0 hover:ring-2 hover:ring-accent-500 transition-all duration-[--dur-fast]">
-                L
-              </div>
+              Sign In
             </button>
-
-            {avatarMenuOpen && (
-              <div className="absolute right-0 top-12 w-52 rounded-lg border border-paper-300 bg-paper-100 p-2 shadow-2 z-50 text-xs">
-                <div className="px-3 py-2 border-b border-paper-200">
-                  <p className="font-medium text-ink-900">Local Profile</p>
-                  <p className="text-[10px] text-ink-500">Saved on this device</p>
-                </div>
-                <Link
-                  href="/profile"
-                  onClick={() => setAvatarMenuOpen(false)}
-                  className="flex items-center min-h-[44px] px-3 py-2 text-ink-500 hover:bg-paper-200 hover:text-accent-500 rounded transition-colors duration-[--dur-fast]"
-                >
-                  Manage Profile &amp; Favourites →
-                </Link>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </header>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
 
       {/* Shared Mobile Navigation Drawer */}
       <MobileNavDrawer
@@ -215,7 +238,7 @@ export function ArchiveTopbar({
             highlight: isStudioActive,
           },
           { label: "Collections", href: "/collections" },
-          { label: "Inspiration", href: "/inspiration" },
+          { label: "Saved Wallpapers", href: "/saved" },
           { label: "About", href: "/about" },
         ]}
       />

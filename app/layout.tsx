@@ -51,13 +51,17 @@ export const viewport: Viewport = {
   ],
 };
 
+import { SessionProvider } from '@/components/auth/SessionProvider';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-paper-50 text-ink-900 transition-colors duration-[--dur-normal]">
-        <ThemeProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
