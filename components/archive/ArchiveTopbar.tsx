@@ -174,7 +174,7 @@ export function ArchiveTopbar({
               </button>
 
               {avatarMenuOpen && (
-                <div data-testid="user-menu-dropdown" className="absolute right-0 top-12 w-56 rounded-xl border border-paper-300 bg-paper-50 p-2 shadow-2 z-50 text-xs">
+                <div data-testid="user-menu-dropdown" className="absolute right-0 top-10 w-56 rounded-xl border border-paper-300 bg-paper-50 p-2 shadow-2 z-[100] text-xs text-ink-900">
                   <div className="px-3 py-2 border-b border-paper-200">
                     <p className="font-medium truncate text-ink-900">{userDisplayName}</p>
                     <p className="text-[10px] text-ink-500 truncate">{session.user.email}</p>

@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",
+    "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@types/pg": "^8.20.4",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "jszip": "^3.10.1",
@@ -24,6 +26,7 @@
     "next-auth": "^4.24.11",
     "ogl": "^1.0.11",
     "pako": "^2.1.0",
+    "pg": "^8.22.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "^3.23.8",

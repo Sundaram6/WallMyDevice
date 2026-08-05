@@ -12,7 +12,6 @@ async function main() {
   await page.goto("http://localhost:3000/studio");
   await page.waitForTimeout(1000);
 
-  // Click Save button when unauthenticated to trigger AuthModal
   const saveBtn = page.locator('[data-testid="save-wallpaper-button"]');
   await saveBtn.click();
   await page.waitForTimeout(500);
@@ -21,11 +20,10 @@ async function main() {
   await page.screenshot({ path: modalPath, fullPage: false });
   console.log("Captured real_login_modal.png ->", modalPath);
 
-  // Close modal
   await page.keyboard.press("Escape");
 
   // 2. Perform Registration & Sign-in
-  const testEmail = `evidence-${Date.now()}@wallmydevice.app`;
+  const testEmail = "artist-studio@wallmydevice.app";
   await page.goto("http://localhost:3000/signup");
   await page.fill('input[placeholder="Studio Artist"]', "Studio Master");
   await page.fill('input[placeholder="you@example.com"]', testEmail);
@@ -41,22 +39,34 @@ async function main() {
   await page.click('[data-testid="save-wallpaper-button"]');
   await page.waitForTimeout(1000);
 
-  // 4. Capture User Menu Post-Auth
+  // 4. Capture User Menu Post-Auth on /saved page (Clean & Crystal Clear)
+  await page.goto("http://localhost:3000/saved");
+  await page.waitForTimeout(1000);
+
   const userMenuBtn = page.locator('[data-testid="user-menu-button"]');
   await userMenuBtn.click();
-  await page.waitForTimeout(300);
+  await page.waitForSelector('[data-testid="user-menu-dropdown"]', { state: "visible" });
+  await page.waitForTimeout(500);
 
   const userMenuPath = path.join(brainDir, "real_user_menu_post_auth.png");
-  await page.screenshot({ path: userMenuPath, fullPage: false });
+  
+  // Capture header region (x: 750, y: 0, width: 530, height: 260)
+  await page.screenshot({
+    path: userMenuPath,
+    clip: {
+      x: 750,
+      y: 0,
+      width: 530,
+      height: 260,
+    },
+  });
   console.log("Captured real_user_menu_post_auth.png ->", userMenuPath);
 
   // Close menu
   await page.mouse.click(10, 10);
+  await page.waitForTimeout(300);
 
   // 5. Capture Saved Favorites Grid
-  await page.goto("http://localhost:3000/saved");
-  await page.waitForTimeout(1000);
-
   const favoritesGridPath = path.join(brainDir, "real_favorites_grid.png");
   await page.screenshot({ path: favoritesGridPath, fullPage: false });
   console.log("Captured real_favorites_grid.png ->", favoritesGridPath);
