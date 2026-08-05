@@ -118,10 +118,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   generatorId: initialGenId,
   params: { [initialGenId]: getDefaultParams(initialGenId) },
 
-  palette: initialShareParams.p || ["#0f172a", "#f59e0b"],
-  mode: "light",
+  palette: initialShareParams.p || (initialGenId === "typography" ? ["#080711", "#240046", "#FF007F", "#00F0FF", "#FFE600"] : ["#0f172a", "#f59e0b"]),
+  mode: initialGenId === "typography" ? "dark" : "light",
   systemColorScheme: "light",
-  seed: initialShareParams.s || "k3p9x2a7",
+  seed: initialShareParams.s || (initialGenId === "typography" ? "12m8twlk" : "k3p9x2a7"),
 
   grainEnabled: false,
   grainIntensity: 0,
@@ -160,6 +160,18 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     recordSnapshot(currentState, `Set Generator: ${id}`);
 
     const params = currentState.params;
+    if (id === "typography") {
+      set({
+        generatorId: id,
+        seed: "12m8twlk",
+        palette: ["#080711", "#240046", "#FF007F", "#00F0FF", "#FFE600"],
+        mode: "dark",
+        params: { ...params, [id]: { text: "WallMyDevice", font: "JetBrains Mono", size: 0.4, weight: 700, letterSpacing: 0, alignment: "center" } },
+        historyVersion: get().historyVersion + 1,
+      });
+      return;
+    }
+
     if (!params[id]) {
       set({
         generatorId: id,

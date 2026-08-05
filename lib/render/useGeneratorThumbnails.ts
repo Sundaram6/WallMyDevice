@@ -16,8 +16,8 @@ const GENERATOR_PALETTES: Record<string, { dark: string[]; light: string[] }> = 
     light: ["#fefce8", "#f59e0b", "#ef4444", "#3b82f6", "#10b981"],
   },
   typography: {
-    dark: ["#0f172a", "#f8fafc", "#94a3b8", "#64748b"],
-    light: ["#f8fafc", "#0f172a", "#334155", "#64748b"],
+    dark: ["#080711", "#240046", "#FF007F", "#00F0FF", "#FFE600"],
+    light: ["#080711", "#240046", "#FF007F", "#00F0FF", "#FFE600"],
   },
   "fluid-gradient": {
     dark: ["#090d14", "#ff6b6b", "#ffd93d", "#6bcb77", "#4d96ff"],
@@ -86,6 +86,7 @@ const THUMBNAIL_H = 200;
 
 /** Seeds — one per mode, derived from generator id so they're stable and varied */
 function getThumbnailSeed(generatorId: string, mode: "light" | "dark"): string {
+  if (generatorId === "typography") return "12m8twlk";
   return `thumb-${generatorId}-${mode}`;
 }
 

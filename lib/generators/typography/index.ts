@@ -24,7 +24,7 @@ export const typography: Generator<Params> = {
   kind: "canvas2d",
   schema: {
     zod: Schema,
-    defaults: { text: "WallMyDevice", font: "Inter", size: 0.4, weight: 700, letterSpacing: 0, alignment: "center" },
+    defaults: { text: "WallMyDevice", font: "JetBrains Mono", size: 0.4, weight: 700, letterSpacing: 0, alignment: "center" },
   },
   supportsSvgExport: true,
   paramControls: [
