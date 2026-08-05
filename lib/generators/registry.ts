@@ -51,4 +51,9 @@ export function listGenerators(): Readonly<Generator<any>>[] {
   return Array.from(registry.values()).map(v => v.cloned);
 }
 
+export function getDefaultParams(id: string): Record<string, unknown> {
+  const g = getGenerator(id);
+  return g ? (cloneData(g.schema.defaults) as Record<string, unknown>) : {};
+}
+
 export type GeneratorId = string;

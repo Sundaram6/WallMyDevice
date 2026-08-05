@@ -4,10 +4,24 @@ import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { IPhone17ProMaxHero } from "@/components/landing/iPhone17ProMaxHero";
 import { CURATED_COLLECTIONS } from "@/lib/presets/collections";
-import { listGenerators } from "@/lib/generators";
+import { listGenerators, getGenerator, getDefaultParams } from "@/lib/generators";
+import {
+  getRandomCombo,
+  getRemixCombo,
+  type WallpaperCombo,
+} from "@/lib/randomization";
+import { buildShareQueryString } from "@/lib/share/shareUrl";
+import { Sparkles, Shuffle, ArrowRight } from "lucide-react";
 
 type Props = {
   onOpenStudioClick?: () => void;
+};
+
+const DEFAULT_HERO_COMBO: WallpaperCombo = {
+  generatorId: "waveform",
+  seed: "k3p9x2a7",
+  palette: ["#1F3A5F", "#8A9A6E", "#D9541F", "#FAF7F0"],
+  params: getDefaultParams("waveform"),
 };
 
 /** Animated count-up hook using Intersection Observer */
@@ -28,7 +42,6 @@ function useCountUp(target: number, durationMs = 1600, startOnce = true) {
           const tick = (now: number) => {
             const elapsed = now - start;
             const progress = Math.min(elapsed / durationMs, 1);
-            // Ease-out cubic
             const eased = 1 - Math.pow(1 - progress, 3);
             setCount(Math.round(eased * target));
             if (progress < 1) requestAnimationFrame(tick);
@@ -47,6 +60,37 @@ function useCountUp(target: number, durationMs = 1600, startOnce = true) {
 }
 
 export function HeroSection({ onOpenStudioClick }: Props) {
+  const [combo, setCombo] = useState<WallpaperCombo>(DEFAULT_HERO_COMBO);
+  const [prevCombo, setPrevCombo] = useState<WallpaperCombo | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // On mount, pick a random combo for initial fresh display
+    setCombo(getRandomCombo());
+  }, []);
+
+  const handleSurpriseMe = () => {
+    setPrevCombo(combo);
+    setCombo(getRandomCombo(combo.generatorId));
+  };
+
+  const handleRemix = () => {
+    setPrevCombo(combo);
+    setCombo(getRemixCombo(combo.generatorId));
+  };
+
+  const currentGenLabel = getGenerator(combo.generatorId)?.label ?? combo.generatorId;
+
+  // Build share query string for studio CTAs so the user lands in Studio with exact wallpaper state
+  const studioQuery = buildShareQueryString({
+    generatorId: combo.generatorId,
+    seed: combo.seed,
+    palette: combo.palette,
+    deviceType: "phone",
+  });
+  const studioUrl = `/studio?${studioQuery}`;
+
   const generatorsCount = listGenerators().length;
   const collectionsCount = CURATED_COLLECTIONS.length;
 
@@ -62,7 +106,7 @@ export function HeroSection({ onOpenStudioClick }: Props) {
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent-500/10 rounded-full blur-[140px] pointer-events-none animate-float-reverse" />
 
       <div className="relative mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-        {/* Left Column: Copy & CTAs */}
+        {/* Left Column: Copy & Interactive CTAs */}
         <div className="lg:col-span-7 flex flex-col items-start space-y-6">
           <span className="font-mono text-[10px] uppercase tracking-widest text-accent-500 border-b border-accent-500/40 pb-0.5">
             ✦ PRINTABLE WALLPAPER STUDIO
@@ -78,24 +122,59 @@ export function HeroSection({ onOpenStudioClick }: Props) {
             A generative print house. Every wallpaper is a seed, a palette and a curve — customizable in real-time, exported at native resolution, entirely in your browser.
           </p>
 
+          {/* CTAs with Surprise Me & Remix interactions */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onOpenStudioClick}
+            <Link
+              href={studioUrl}
+              data-testid="hero-open-studio-btn"
               className="inline-flex items-center justify-center gap-2 rounded-pill px-6 py-3.5 text-xs font-medium font-sans bg-accent-500 text-paper-0 hover:bg-accent-500/90 shadow-1 hover:shadow-2 transition-all duration-[--dur-fast] active:scale-[0.99]"
             >
-              Open the Studio ✦
+              <span>Open in Studio</span>
+              <ArrowRight size={14} className="shrink-0" />
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleSurpriseMe}
+              data-testid="hero-surprise-me-btn"
+              title="Reroll full generator, seed, and color palette"
+              aria-label="Surprise Me"
+              className="inline-flex items-center justify-center gap-1.5 rounded-pill border border-accent-500/40 bg-accent-500/10 text-accent-500 px-5 py-3.5 text-xs font-medium font-sans hover:bg-accent-500/20 shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
+            >
+              <Sparkles size={14} className="shrink-0" />
+              <span>Surprise Me</span>
             </button>
+
+            <button
+              type="button"
+              onClick={handleRemix}
+              data-testid="hero-remix-btn"
+              title="Remix seed and colors for current style"
+              aria-label="Remix Wallpaper"
+              className="inline-flex items-center justify-center gap-1.5 rounded-pill border border-paper-300 bg-paper-50 px-4 py-3.5 text-xs font-medium font-sans text-ink-900 hover:bg-paper-100 shadow-1 transition-all duration-[--dur-fast] active:scale-95 cursor-pointer"
+            >
+              <Shuffle size={14} className="shrink-0 text-accent-500" />
+              <span>Remix</span>
+            </button>
+
             <Link
               href="/archive"
-              className="inline-flex items-center justify-center gap-2 rounded-pill border border-paper-300 bg-paper-50 px-6 py-3.5 text-xs font-medium font-sans text-ink-900 hover:bg-paper-100 shadow-1 transition-all duration-[--dur-fast]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-pill border border-paper-300 bg-paper-50 px-5 py-3.5 text-xs font-medium font-sans text-ink-700 hover:text-ink-900 hover:bg-paper-100 shadow-1 transition-all duration-[--dur-fast]"
             >
-              Browse Archive →
+              <span>Archive</span>
             </Link>
           </div>
 
+          {/* Active Preview Metadata Tag */}
+          <div className="flex items-center gap-2 pt-1 font-mono text-[11px] text-ink-500" data-testid="hero-combo-info">
+            <span className="w-2 h-2 rounded-full bg-accent-500 shrink-0" />
+            <span>Style: <strong className="font-semibold text-ink-900">{currentGenLabel}</strong></span>
+            <span>·</span>
+            <span>Seed: <code className="font-mono text-ink-700">{combo.seed.slice(0, 8)}</code></span>
+          </div>
+
           {/* Stats Bar with Count-Up Animation */}
-          <div className="pt-8 border-t border-paper-300 w-full grid grid-cols-3 gap-4 max-w-md text-left">
+          <div className="pt-6 border-t border-paper-300 w-full grid grid-cols-3 gap-4 max-w-md text-left">
             <div ref={generators.ref}>
               <div className="font-serif text-2xl font-medium text-ink-900 tabular-nums">
                 {generators.count}
@@ -117,9 +196,15 @@ export function HeroSection({ onOpenStudioClick }: Props) {
           </div>
         </div>
 
-        {/* Right Column: Hyper-Realistic iPhone 17 Pro Max Hero */}
+        {/* Right Column: Hyper-Realistic iPhone 17 Pro Max Live Hero */}
         <div className="lg:col-span-5 flex justify-center lg:justify-end">
-          <IPhone17ProMaxHero />
+          <IPhone17ProMaxHero
+            combo={combo}
+            prevCombo={prevCombo}
+            onSurpriseMe={handleSurpriseMe}
+            onRemix={handleRemix}
+            studioUrl={studioUrl}
+          />
         </div>
       </div>
     </section>

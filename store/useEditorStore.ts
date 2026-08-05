@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import { getGenerator, listGenerators } from "../lib/generators/registry";
+import { getGenerator, listGenerators, getDefaultParams } from "../lib/generators/registry";
 import { hashSeed } from "../lib/prng";
 import { ARCHIVE_PRESETS } from "../lib/presets/archive-presets";
 import { editorCore } from "../lib/engine/EditorCore";
 import { parseShareParams, syncStateToUrl } from "../lib/share/shareUrl";
+import { getRandomCombo, getRemixCombo, getRandomPalette, getRandomSeed } from "../lib/randomization";
 
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
@@ -153,36 +154,24 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   togglePaletteLock: () => set((s) => ({ paletteLocked: !s.paletteLocked })),
   toggleSeedLock: () => set((s) => ({ seedLocked: !s.seedLocked })),
   randomizePalette: () => {
-    const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
-    if (randomPreset) {
-      set({ palette: [...randomPreset.palette] });
-    }
+    set({ palette: getRandomPalette() });
   },
   surpriseMe: () => {
     const state = get();
-    const allGenerators = listGenerators();
-    const randomGen = allGenerators.length > 0
-      ? allGenerators[Math.floor(Math.random() * allGenerators.length)]
-      : null;
-    const targetGenId = randomGen ? randomGen.id : state.generatorId;
-
+    const combo = getRandomCombo(state.generatorId);
     const updates: Partial<EditorState> = {};
-    if (targetGenId !== state.generatorId) {
-      updates.generatorId = targetGenId;
-      const params = state.params;
-      if (!params[targetGenId]) {
-        updates.params = { ...params, [targetGenId]: getDefaultParams(targetGenId) };
+
+    if (combo.generatorId !== state.generatorId) {
+      updates.generatorId = combo.generatorId;
+      if (!state.params[combo.generatorId]) {
+        updates.params = { ...state.params, [combo.generatorId]: combo.params };
       }
     }
-
     if (!state.seedLocked) {
-      updates.seed = hashSeed(String(Math.random() * 1e9));
+      updates.seed = combo.seed;
     }
     if (!state.paletteLocked) {
-      const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
-      if (randomPreset) {
-        updates.palette = [...randomPreset.palette];
-      }
+      updates.palette = combo.palette;
     }
     if (Object.keys(updates).length > 0) {
       set(updates);
@@ -190,15 +179,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   remix: () => {
     const state = get();
+    const combo = getRemixCombo(state.generatorId);
     const updates: Partial<EditorState> = {};
+
     if (!state.seedLocked) {
-      updates.seed = hashSeed(String(Math.random() * 1e9));
+      updates.seed = combo.seed;
     }
     if (!state.paletteLocked) {
-      const randomPreset = ARCHIVE_PRESETS[Math.floor(Math.random() * ARCHIVE_PRESETS.length)];
-      if (randomPreset) {
-        updates.palette = [...randomPreset.palette];
-      }
+      updates.palette = combo.palette;
     }
     if (Object.keys(updates).length > 0) {
       set(updates);
@@ -206,7 +194,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   setPalette: (palette) => set({ palette }),
-  randomizeSeed: () => set({ seed: hashSeed(String(Math.random() * 1e9)) }),
+  randomizeSeed: () => set({ seed: getRandomSeed() }),
   setSeed: (seed) => {
     if (!SEED_RE.test(seed)) return;
     set({ seed });
@@ -307,11 +295,6 @@ if (typeof window !== "undefined") {
     syncStateToUrl(state);
   });
   syncStateToUrl(useEditorStore.getState());
-}
-
-function getDefaultParams(id: string): unknown {
-  const g = getGenerator(id);
-  return g ? structuredClone(g.schema.defaults) : {};
 }
 
 function capitalize(s: string): string {
