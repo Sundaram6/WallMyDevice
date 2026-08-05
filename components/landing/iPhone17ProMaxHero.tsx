@@ -16,6 +16,22 @@ type Props = {
   studioUrl: string;
 };
 
+function comboToSwatchRecipe(combo: WallpaperCombo): SwatchRecipe {
+  return {
+    id: `hero-${combo.generatorId}-${combo.seed}`,
+    name: getGenerator(combo.generatorId)?.label ?? combo.generatorId,
+    category: "generative",
+    categoryTag: "generative",
+    volume: "Vol. 1",
+    mode: "auto",
+    generatorId: combo.generatorId,
+    seed: combo.seed,
+    palette: combo.palette,
+    params: combo.params,
+    tags: ["hero"],
+  };
+}
+
 export function IPhone17ProMaxHero({
   combo,
   prevCombo,
@@ -23,31 +39,13 @@ export function IPhone17ProMaxHero({
   onRemix,
   studioUrl,
 }: Props) {
-  const [activeRecipe, setActiveRecipe] = useState<SwatchRecipe>(() => ({
-    id: `hero-${combo.generatorId}-${combo.seed}`,
-    name: getGenerator(combo.generatorId)?.label ?? combo.generatorId,
-    category: "generative",
-    generatorId: combo.generatorId,
-    seed: combo.seed,
-    palette: combo.palette,
-    params: combo.params,
-    tags: ["hero"],
-  }));
+  const [activeRecipe, setActiveRecipe] = useState<SwatchRecipe>(() => comboToSwatchRecipe(combo));
 
   const [fadingRecipe, setFadingRecipe] = useState<SwatchRecipe | null>(null);
   const [isCrossfading, setIsCrossfading] = useState(false);
 
   useEffect(() => {
-    const nextRecipe: SwatchRecipe = {
-      id: `hero-${combo.generatorId}-${combo.seed}`,
-      name: getGenerator(combo.generatorId)?.label ?? combo.generatorId,
-      category: "generative",
-      generatorId: combo.generatorId,
-      seed: combo.seed,
-      palette: combo.palette,
-      params: combo.params,
-      tags: ["hero"],
-    };
+    const nextRecipe = comboToSwatchRecipe(combo);
 
     if (activeRecipe.seed !== nextRecipe.seed || activeRecipe.generatorId !== nextRecipe.generatorId) {
       setFadingRecipe(activeRecipe);
@@ -158,7 +156,7 @@ export function IPhone17ProMaxHero({
               )}
 
               <Link
-                href={studioUrl}
+                href={studioUrl as any}
                 data-testid="hero-phone-open-studio-link"
                 className="flex items-center gap-1 text-white/90 hover:text-white text-[10.5px] font-medium px-2 py-1 transition-colors"
               >

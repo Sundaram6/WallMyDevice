@@ -125,7 +125,7 @@ export function HeroSection({ onOpenStudioClick }: Props) {
           {/* CTAs with Surprise Me & Remix interactions */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
-              href={studioUrl}
+              href={studioUrl as any}
               data-testid="hero-open-studio-btn"
               className="inline-flex items-center justify-center gap-2 rounded-pill px-6 py-3.5 text-xs font-medium font-sans bg-accent-500 text-paper-0 hover:bg-accent-500/90 shadow-1 hover:shadow-2 transition-all duration-[--dur-fast] active:scale-[0.99]"
             >
