@@ -42,9 +42,9 @@ export function CenterWorkspace({ isInline = false }: { isInline?: boolean }) {
   // 1. Resolve Device Metadata (Single Source of Truth)
   const catalogList = deviceEngine.listDevices();
   let matchedDevice = catalogList.find(d => 
-    (phoneModel && d.id.includes(phoneModel)) || 
-    (deviceType === 'desktop' && d.id.includes('desktop')) ||
-    (deviceType === 'tablet' && d.id.includes('ipad'))
+    (deviceType === 'phone' && phoneModel && (d.id.includes(phoneModel) || d.id === phoneModel)) || 
+    (deviceType === 'desktop' && (d.id.includes('desktop') || d.category === 'desktop')) ||
+    (deviceType === 'tablet' && (d.id.includes('ipad') || d.category === 'tablet'))
   );
   
   // Fallbacks
