@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { Generator } from "../types";
 
 const Schema = z.object({
-  grainIntensity: z.number().min(0.05).max(0.5),
+  grainIntensity: z.number().min(0.01).max(0.35),
   gradientAngle: z.number().min(0).max(360),
 });
 
@@ -18,12 +18,12 @@ export const grainTexture: Generator<Params> = {
   schema: {
     zod: Schema,
     defaults: {
-      grainIntensity: 0.18,
+      grainIntensity: 0.06,
       gradientAngle: 45,
     },
   },
   paramControls: [
-    { key: "grainIntensity", label: "Grain Noise Strength", type: "slider", min: 0.05, max: 0.5, step: 0.01 },
+    { key: "grainIntensity", label: "Grain Noise Strength", type: "slider", min: 0.01, max: 0.35, step: 0.01 },
     { key: "gradientAngle", label: "Gradient Angle", type: "slider", min: 0, max: 360, step: 15 },
   ],
   render(target, params, _seed, palette, rng, _context) {
@@ -46,11 +46,12 @@ export const grainTexture: Generator<Params> = {
 
     const imgData = ctx.getImageData(0, 0, width, height);
     const data = imgData.data;
-    const intensity = params.grainIntensity * 255;
-    const refScale = Math.max(width, height) / 500;
+
+    // Calibrated film grain noise multiplier (range 0.01 -> 0.35 maps to smooth micro-grain)
+    const intensity = params.grainIntensity * 45;
+    const refScale = Math.max(width, height) / 1000;
     const step = Math.max(1, Math.floor(refScale));
 
-    // Generate noise values once per block row/col to avoid creating noise per sub-pixel, maintaining grain chunk size
     const cols = Math.ceil(width / step);
     const rows = Math.ceil(height / step);
 

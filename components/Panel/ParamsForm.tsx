@@ -70,6 +70,21 @@ export function ParamsForm() {
             </label>
           );
         }
+        if (c.type === "text" && typeof value === "string") {
+          return (
+            <label key={String(c.key)} className="block">
+              <div className="mb-1 text-xs font-medium text-ink-900">{c.label}</div>
+              <input
+                type="text"
+                value={value}
+                aria-label={c.label}
+                placeholder="Enter custom text..."
+                onChange={(e) => updateParam(generatorId, String(c.key), e.target.value)}
+                className="w-full rounded-lg border border-paper-300 bg-paper-0 px-2.5 py-1.5 text-xs text-ink-900 focus:border-accent-500 focus:outline-none transition-all placeholder:text-ink-400 font-sans"
+              />
+            </label>
+          );
+        }
         return null;
       })}
     </div>

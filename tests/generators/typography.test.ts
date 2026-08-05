@@ -9,6 +9,10 @@ describe("typography generator", () => {
     expect(typography.supportsSvgExport).toBe(true);
   });
 
+  it("has default text set to WallMyDevice", () => {
+    expect(typography.schema.defaults.text).toBe("WallMyDevice");
+  });
+
   it("renders at multiple sizes", () => {
     const params = typography.schema.defaults;
     for (const [w, h] of [[400, 800], [2000, 1000]] as const) {
