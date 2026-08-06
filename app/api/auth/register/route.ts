@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       data: {
         email: cleanEmail,
         password: hashedPassword,
-        name: name ? name.trim() : cleanEmail.split("@")[0],
+        name: name && typeof name === "string" && name.trim() ? name.trim() : cleanEmail.split("@")[0],
       },
     });
 
@@ -43,8 +43,13 @@ export async function POST(req: Request) {
         name: user.name,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration Error:", error);
-    return NextResponse.json({ error: "Failed to create account. Please try again." }, { status: 500 });
+
+    if (error?.code === "P2002" || error?.message?.includes("Unique constraint")) {
+      return NextResponse.json({ error: "An account with this email already exists." }, { status: 400 });
+    }
+
+    return NextResponse.json({ error: error?.message || "Failed to create account. Please try again." }, { status: 500 });
   }
 }
