@@ -1,157 +1,122 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState, useEffect } from "react";
 import { ArchiveTopbar } from "@/components/archive/ArchiveTopbar";
-import { ARCHIVE_PRESETS, type SwatchRecipe } from "@/lib/presets/archive-presets";
-import { useEditorStore } from "@/store/useEditorStore";
+import { ArchiveSidebar } from "@/components/archive/ArchiveSidebar";
+import { SwatchGrid } from "@/components/archive/SwatchGrid";
+import { QuickGeneratePanel } from "@/components/archive/QuickGeneratePanel";
+import { GenerateBottomSheet } from "@/components/archive/GenerateBottomSheet";
+import { FavoritesDrawer } from "@/components/archive/FavoritesDrawer";
+import { ARCHIVE_CATEGORIES } from "@/lib/presets/archive-presets";
+import { initLibrary, subscribeLibrary, toggleFavourite } from "@/lib/storage/library";
 import { useRouter } from "next/navigation";
 
-import { CURATED_COLLECTIONS } from "@/lib/presets/collections";
-import { SwatchThumbnail } from "@/components/archive/SwatchThumbnail";
-
-
-
-// ─── Colour chip row ──────────────────────────────────────────────────────────
-function PaletteStrip({ presets }: { presets: SwatchRecipe[] }) {
-  const palette = presets.flatMap(p => p.palette).slice(0, 8);
-  const unique = [...new Set(palette)].slice(0, 6);
-  return (
-    <div className="mt-3 flex items-center gap-1">
-      {unique.map((c, i) => (
-        <div key={i} style={{ backgroundColor: c }} className="h-4 w-4 rounded-full border border-black/10 shadow-sm" />
-      ))}
-    </div>
-  );
-}
-
 export default function CollectionsPage() {
-  const [tab, setTab] = useState<"archive" | "studio">("archive");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const store = useEditorStore();
   const router = useRouter();
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [isFavoritesDrawerOpen, setIsFavoritesDrawerOpen] = useState(false);
 
-  function loadIntoStudio(swatch: SwatchRecipe) {
-    store.setGenerator(swatch.generatorId);
-    store.setPalette([...swatch.palette]);
-    store.setMode(swatch.mode);
-    store.setSeed(swatch.seed);
-    Object.entries(swatch.params).forEach(([key, val]) => {
-      store.updateParam(swatch.generatorId, key, val);
+  useEffect(() => {
+    const initial = initLibrary();
+    setFavorites(new Set(initial.favourites));
+
+    const unsub = subscribeLibrary((data) => {
+      setFavorites(new Set(data.favourites));
     });
-    router.push("/studio");
-  }
+    return unsub;
+  }, []);
 
-  const filteredCollections = CURATED_COLLECTIONS.filter(c => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return c.title.toLowerCase().includes(q) || c.description.toLowerCase().includes(q);
-  });
+  const handleToggleFavorite = (id: string) => {
+    toggleFavourite(id);
+  };
+
+  const handleOpenStudio = () => {
+    router.push("/studio");
+  };
 
   return (
     <div className="min-h-screen bg-paper-50 text-ink-900 font-sans">
       <ArchiveTopbar
-        activeRoute="archive"
-        currentTab={tab}
-        onTabChange={(t) => {
-          if (t === "studio") router.push("/studio");
-          else setTab(t);
-        }}
+        activeRoute="collections"
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        favoriteCount={0}
+        favoriteCount={favorites.size}
+        onOpenFavoritesModal={() => setIsFavoritesDrawerOpen(true)}
       />
 
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-serif text-3xl font-medium text-ink-900">Curated Collections</h1>
-          <p className="mt-2 text-sm text-ink-700">
-            Browse our hand-picked themed collections and series. Open any collection to view its prints and remix them in the Studio.
-          </p>
+      <FavoritesDrawer
+        isOpen={isFavoritesDrawerOpen}
+        onClose={() => setIsFavoritesDrawerOpen(false)}
+        favorites={favorites}
+        onToggleFavorite={handleToggleFavorite}
+        onOpenStudio={handleOpenStudio}
+      />
+
+      <div className="flex min-h-[calc(100dvh-72px)]">
+        <div className="hidden md:block">
+          <ArchiveSidebar
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            onOpenStudio={handleOpenStudio}
+          />
         </div>
 
-        {/* Collection grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCollections.map((col) => {
-            const items = col.itemIds
-              .map(id => ARCHIVE_PRESETS.find(p => p.id === id))
-              .filter((p): p is SwatchRecipe => !!p);
-            const coverSwatch = ARCHIVE_PRESETS.find(p => p.id === col.coverRecipeId) || items[0] || ARCHIVE_PRESETS[0];
-            const isOpen = expanded === col.id;
-
-            return (
-              <article key={col.id} className="rounded-2xl border border-paper-200 bg-paper-100 shadow-sm overflow-hidden flex flex-col">
-                {/* Real Rendered Cover */}
-                <div
-                  className="relative h-44 w-full bg-paper-100 overflow-hidden cursor-pointer"
-                  onClick={() => setExpanded(isOpen ? null : col.id)}
+        <main className="flex-1 min-w-0">
+          <div className="md:hidden relative border-b border-paper-300 bg-paper-100">
+            <div className="flex gap-2 overflow-x-auto p-3 no-scrollbar scroll-smooth">
+              {ARCHIVE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`flex items-center min-h-[44px] rounded-full px-4 text-xs capitalize whitespace-nowrap border shrink-0 transition duration-[--dur-fast] ${
+                    activeCategory === cat.id
+                      ? "bg-ink-900 text-paper-0 border-ink-900 shadow-1 font-semibold"
+                      : "border-paper-300 text-ink-500 bg-paper-50 hover:text-ink-900"
+                  }`}
                 >
-                  <SwatchThumbnail swatch={coverSwatch} width={300} height={200} />
-                  <span className="absolute top-3 right-3 rounded-full bg-black/50 backdrop-blur-xs px-2.5 py-0.5 text-[10px] text-white font-mono z-10">
-                    {items.length} prints
-                  </span>
-                </div>
-
-                {/* Info */}
-                <div className="p-4">
-                  <h2
-                    className="font-serif text-lg font-medium text-ink-900 cursor-pointer hover:text-accent-500"
-                    onClick={() => setExpanded(isOpen ? null : col.id)}
-                  >
-                    {col.title}
-                  </h2>
-                  <p className="mt-1 text-xs text-ink-700 leading-relaxed line-clamp-2">{col.description}</p>
-                  <PaletteStrip presets={items} />
-
-                  <button
-                    type="button"
-                    onClick={() => setExpanded(isOpen ? null : col.id)}
-                    className="mt-3 text-xs font-medium text-accent-500 hover:underline"
-                  >
-                    {isOpen ? "Hide prints ↑" : `Browse ${items.length} prints →`}
-                  </button>
-                </div>
-
-                {/* Expanded item list */}
-                {isOpen && (
-                  <div className="border-t border-paper-200 divide-y divide-[var(--paper-100)] bg-paper-50">
-                    {items.map((swatch) => (
-                      <button
-                        key={swatch.id}
-                        type="button"
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-paper-200 transition-colors duration-[--dur-fast] group"
-                        onClick={() => loadIntoStudio(swatch)}
-                      >
-                        {/* Mini palette */}
-                        <div className="flex gap-0.5 shrink-0">
-                          {swatch.palette.slice(0, 3).map((c, i) => (
-                            <div key={i} style={{ backgroundColor: c }} className="h-5 w-5 rounded border border-black/10" />
-                          ))}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-medium text-ink-900 group-hover:text-accent-500 truncate">
-                            {swatch.name}
-                          </div>
-                          <div className="text-[10px] text-ink-500">{swatch.category}</div>
-                        </div>
-                        <span className="ml-auto text-[10px] text-accent-500 opacity-0 group-hover:opacity-100">Open →</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
-
-        {filteredCollections.length === 0 && (
-          <div className="py-20 text-center text-sm text-ink-500">
-            No themes match your search.
+                  <span>{cat.label}</span>
+                  <span className="ml-1.5 font-mono text-[10px] opacity-75">({cat.count})</span>
+                </button>
+              ))}
+            </div>
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-paper-100 to-transparent" />
           </div>
-        )}
-      </main>
+
+          <SwatchGrid
+            activeCategory={activeCategory}
+            searchQuery={searchQuery}
+            onOpenStudio={handleOpenStudio}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        </main>
+
+        <div className="hidden xl:block">
+          <QuickGeneratePanel onOpenStudio={handleOpenStudio} />
+        </div>
+      </div>
+
+      <div className="xl:hidden">
+        <button
+          type="button"
+          onClick={() => setIsMobileSheetOpen(true)}
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-ink-900 px-6 py-3 text-xs font-medium text-paper-0 shadow-2 hover:bg-accent-500 transition-colors duration-[--dur-fast]"
+        >
+          ✦ Generate Wallpaper
+        </button>
+        <GenerateBottomSheet
+          isOpen={isMobileSheetOpen}
+          onClose={() => setIsMobileSheetOpen(false)}
+          onOpenStudio={() => {
+            setIsMobileSheetOpen(false);
+            handleOpenStudio();
+          }}
+        />
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ const QA_DIR = path.join(__dirname, "..", "..", "qa");
 test.describe("Studio Entry Points State Injection", () => {
   // 1. Archive
   test("Archive card -> Open in Studio", async ({ page }) => {
-    await page.goto("/archive");
+    await page.goto("/collections");
     const archiveItem = page.locator("article.group.relative").first();
     await archiveItem.hover();
     // In archive, the button says "Remix"
@@ -23,7 +23,7 @@ test.describe("Studio Entry Points State Injection", () => {
 
   // 2. Collections
   test("Collections card -> Open in Studio", async ({ page }) => {
-    await page.goto("/collections");
+    await page.goto("/archive");
     const collectionsItem = page.locator("article").first();
     // Expand the collection
     await collectionsItem.locator("h2").click();
