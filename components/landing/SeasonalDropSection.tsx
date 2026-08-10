@@ -8,19 +8,26 @@ import { useEditorStore } from "@/store/useEditorStore";
 // Current Seasonal Drop presets (latest curation)
 const DROP_PRESETS: SwatchRecipe[] = ARCHIVE_PRESETS.filter((p) => p.isNew).slice(0, 4);
 
+// Fixed target deadline constant for the seasonal drop
+const SEASONAL_DROP_DEADLINE_MS = new Date("2026-09-01T00:00:00Z").getTime();
+
+function getRemainingTime() {
+  const diff = Math.max(0, SEASONAL_DROP_DEADLINE_MS - Date.now());
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  return { days, hours, minutes, seconds };
+}
+
 export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => void }) {
   const store = useEditorStore();
-  const [timeLeft, setTimeLeft] = useState({ days: 4, hours: 18, minutes: 32, seconds: 15 });
+  const [timeLeft, setTimeLeft] = useState(getRemainingTime);
 
   useEffect(() => {
+    setTimeLeft(getRemainingTime());
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return prev;
-      });
+      setTimeLeft(getRemainingTime());
     }, 1000);
     return () => clearInterval(timer);
   }, []);

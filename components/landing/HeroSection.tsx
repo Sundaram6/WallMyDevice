@@ -27,7 +27,7 @@ const DEFAULT_HERO_COMBO: WallpaperCombo = {
 
 /** Animated count-up hook using Intersection Observer */
 function useCountUp(target: number, durationMs = 1600, startOnce = true) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(target);
   const hasAnimated = useRef(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -50,7 +50,7 @@ function useCountUp(target: number, durationMs = 1600, startOnce = true) {
           requestAnimationFrame(tick);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1 }
     );
 
     observer.observe(node);

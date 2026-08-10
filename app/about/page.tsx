@@ -140,8 +140,7 @@ export default function AboutPage() {
               />
             </div>
 
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-[10px] text-ink-500">{feedbackText.length}/1000</span>
+            <div className="mt-2 flex items-center justify-end">
               <button
                 type="button"
                 disabled={!feedbackText.trim()}
