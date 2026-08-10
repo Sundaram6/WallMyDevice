@@ -227,25 +227,21 @@ export function ArchiveTopbar({
         onClose={() => setDrawerOpen(false)}
         links={[
           {
-            label: "Archive",
-            href: "/archive",
-            onClick: () => onTabChange?.("archive"),
-            highlight: isArchiveActive,
             label: "Studio ✦",
             href: "/studio",
             onClick: () => onTabChange?.("studio"),
             highlight: isStudioActive,
           },
           {
-            label: "Collections",
-            href: "/collections",
-            onClick: () => onTabChange?.("archive"),
-            highlight: isCollectionsActive,
-          },
-          {
             label: "Archive",
             href: "/archive",
+            onClick: () => onTabChange?.("archive"),
             highlight: isArchiveActive,
+          },
+          {
+            label: "Collections",
+            href: "/collections",
+            highlight: isCollectionsActive,
           },
           { label: "Saved Wallpapers", href: "/saved" },
           { label: "About", href: "/about" },
