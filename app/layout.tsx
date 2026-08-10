@@ -28,18 +28,27 @@ const description = 'Generate custom wallpapers for any device — waveform, geo
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title,
+  title: {
+    template: '%s | WallMyDevice',
+    default: 'WallMyDevice — Custom Wallpaper Generator',
+  },
   description,
   openGraph: {
-    title,
+    title: {
+      template: '%s | WallMyDevice',
+      default: 'WallMyDevice — Custom Wallpaper Generator',
+    },
     description,
     url: siteUrl,
-    siteName: title,
+    siteName: 'WallMyDevice',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title,
+    title: {
+      template: '%s | WallMyDevice',
+      default: 'WallMyDevice — Custom Wallpaper Generator',
+    },
     description,
   },
 };

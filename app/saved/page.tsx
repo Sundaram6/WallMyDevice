@@ -88,8 +88,7 @@ export default function SavedWallpapersPage() {
       });
     }
 
-    const paletteParam = r.palette.map((c) => c.replace("#", "")).join("-");
-    router.push(`/studio?g=${r.generatorId}&s=${r.seed}&p=${paletteParam}&d=${item.deviceType || "desktop"}`);
+    router.push("/studio");
   }
 
   function handleExport(item: SavedItem) {

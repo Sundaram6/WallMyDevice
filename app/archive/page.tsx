@@ -40,7 +40,7 @@ export default function ArchivePage() {
   return (
     <div className="min-h-screen bg-paper-50 text-ink-900 font-sans">
       <ArchiveTopbar
-        activeRoute="archive"
+        activeRoute="collections"
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         favoriteCount={favorites.size}

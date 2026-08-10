@@ -79,8 +79,8 @@ export default function HomePage() {
             <h4 className="font-mono text-[10px] uppercase tracking-widest text-ink-900 font-semibold">STUDIO</h4>
             <ul className="space-y-2 text-ink-500">
               <li><button type="button" onClick={scrollToStudio} className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Generator Studio ✦</button></li>
-              <li><Link href="/archive" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Print Archive</Link></li>
-              <li><Link href="/collections" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Curated Collections</Link></li>
+              <li><Link href="/collections" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Print Archive</Link></li>
+              <li><Link href="/archive" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Curated Collections</Link></li>
               <li><Link href="/inspiration" className="hover:text-ink-900 transition-colors duration-[--dur-fast]">Design Inspiration</Link></li>
             </ul>
           </div>

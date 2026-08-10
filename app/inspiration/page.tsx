@@ -22,7 +22,7 @@ function InspirationCard({ swatch, label }: { swatch: SwatchRecipe; label?: stri
     Object.entries(swatch.params).forEach(([key, val]) => {
       store.updateParam(swatch.generatorId, key, val);
     });
-    router.push("/");
+    router.push("/studio");
   }
 
   return (
@@ -133,7 +133,7 @@ function GeneratorSpotlight({
               store.setMode(s.mode);
               store.setSeed(s.seed);
               Object.entries(s.params).forEach(([key, val]) => store.updateParam(s.generatorId, key, val));
-              router.push("/");
+              router.push("/studio");
             }}
           >
             <div
@@ -215,7 +215,7 @@ export default function InspirationPage() {
                       Object.entries(featured.params).forEach(([key, val]) => {
                         store.updateParam(featured.generatorId, key, val);
                       });
-                      router.push("/");
+                      router.push("/studio");
                     }}
                     className="rounded-xl bg-ink-900 px-4 py-2.5 text-xs font-medium text-white shadow-xs transition-colors duration-[--dur-fast] hover:bg-accent-500"
                   >

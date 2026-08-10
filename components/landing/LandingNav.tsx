@@ -77,19 +77,6 @@ export function LandingNav({ onOpenStudioClick }: Props) {
             />
           </button>
           <Link
-            href="/archive"
-            className={`relative py-1 transition-colors duration-[--dur-fast] group ${
-              pathname.startsWith("/archive") ? "text-ink-900 font-semibold" : "hover:text-ink-900"
-            }`}
-          >
-            Archive
-            <span
-              className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-accent-500 transition-transform origin-left duration-[--dur-fast] ${
-                pathname.startsWith("/archive") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-              }`}
-            />
-          </Link>
-          <Link
             href="/collections"
             className={`relative py-1 transition-colors duration-[--dur-fast] group ${
               pathname.startsWith("/collections") ? "text-ink-900 font-semibold" : "hover:text-ink-900"
@@ -99,6 +86,19 @@ export function LandingNav({ onOpenStudioClick }: Props) {
             <span
               className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-accent-500 transition-transform origin-left duration-[--dur-fast] ${
                 pathname.startsWith("/collections") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+              }`}
+            />
+          </Link>
+          <Link
+            href="/archive"
+            className={`relative py-1 transition-colors duration-[--dur-fast] group ${
+              pathname.startsWith("/archive") ? "text-ink-900 font-semibold" : "hover:text-ink-900"
+            }`}
+          >
+            Archive
+            <span
+              className={`absolute bottom-0 left-0 w-full h-[1.5px] bg-accent-500 transition-transform origin-left duration-[--dur-fast] ${
+                pathname.startsWith("/archive") ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
               }`}
             />
           </Link>
@@ -215,8 +215,8 @@ export function LandingNav({ onOpenStudioClick }: Props) {
         onClose={() => setMobileMenuOpen(false)}
         links={[
           { label: "Studio ✦", onClick: onOpenStudioClick, highlight: true },
-          { label: "Archive", href: "/archive" },
           { label: "Collections", href: "/collections" },
+          { label: "Archive", href: "/archive" },
           { label: "Saved Wallpapers", href: "/saved" },
           { label: "About", href: "/about" },
         ]}

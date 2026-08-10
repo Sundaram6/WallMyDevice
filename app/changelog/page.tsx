@@ -14,7 +14,7 @@ export default function ChangelogPage() {
       <ArchiveTopbar
         currentTab={tab}
         onTabChange={(t) => {
-          if (t === "studio") window.location.href = "/#studio";
+          if (t === "studio") window.location.href = "/studio";
           else setTab(t);
         }}
         searchQuery={searchQuery}

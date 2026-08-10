@@ -181,10 +181,10 @@ export function CollectionGrid({ onSelectRecipe }: Props) {
         {/* View All CTA */}
         <div className="mt-14 text-center">
           <Link
-            href="/archive"
+            href="/collections"
             className="inline-flex items-center gap-2 rounded-full bg-ink-900 px-8 py-4 text-xs font-medium text-paper-0 shadow-1 hover:bg-accent-500 transition-all duration-[--dur-fast] transform hover:-translate-y-0.5"
           >
-            <span>Explore All {ARCHIVE_PRESETS.length} Prints in Archive</span>
+            <span>Explore All {ARCHIVE_PRESETS.length} Prints in Collections</span>
             <span>→</span>
           </Link>
         </div>

@@ -160,10 +160,10 @@ export function HeroSection({ onOpenStudioClick }: Props) {
             </button>
 
             <Link
-              href="/archive"
+              href="/collections"
               className="inline-flex items-center justify-center gap-1.5 rounded-pill border border-paper-300 bg-paper-50 px-5 py-3.5 text-xs font-medium font-sans text-ink-700 hover:text-ink-900 hover:bg-paper-100 shadow-1 transition-all duration-[--dur-fast]"
             >
-              <span>Archive</span>
+              <span>Collections</span>
             </Link>
           </div>
 

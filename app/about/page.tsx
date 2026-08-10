@@ -30,7 +30,7 @@ export default function AboutPage() {
         currentTab={tab}
         onTabChange={(t) => {
           if (t === "studio") {
-            window.location.href = "/#studio";
+            window.location.href = "/studio";
           } else {
             setTab(t);
           }

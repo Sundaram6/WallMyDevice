@@ -25,7 +25,6 @@ function PaletteStrip({ presets }: { presets: SwatchRecipe[] }) {
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 export default function CollectionsPage() {
   const [tab, setTab] = useState<"archive" | "studio">("archive");
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,7 +52,7 @@ export default function CollectionsPage() {
   return (
     <div className="min-h-screen bg-paper-50 text-ink-900 font-sans">
       <ArchiveTopbar
-        activeRoute="collections"
+        activeRoute="archive"
         currentTab={tab}
         onTabChange={(t) => {
           if (t === "studio") router.push("/studio");
@@ -69,7 +68,7 @@ export default function CollectionsPage() {
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-medium text-ink-900">Curated Collections</h1>
           <p className="mt-2 text-sm text-ink-700">
-            Themed series that group archive recipes by mood, colour story, or visual language. Pick a collection and open any wallpaper in Studio.
+            Browse our hand-picked themed collections and series. Open any collection to view its prints and remix them in the Studio.
           </p>
         </div>
 
@@ -149,7 +148,7 @@ export default function CollectionsPage() {
 
         {filteredCollections.length === 0 && (
           <div className="py-20 text-center text-sm text-ink-500">
-            No collections match your search.
+            No themes match your search.
           </div>
         )}
       </main>

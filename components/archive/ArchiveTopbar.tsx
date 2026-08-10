@@ -37,7 +37,8 @@ export function ArchiveTopbar({
   const pathname = usePathname();
   const { data: session } = useSafeSession();
 
-  const isArchiveActive = activeRoute === "archive" || (pathname === "/archive") || (currentTab === "archive" && pathname === "/");
+  const isArchiveActive = activeRoute === "archive" || (pathname === "/archive");
+  const isCollectionsActive = activeRoute === "collections" || (pathname === "/collections") || (currentTab === "archive" && pathname === "/");
   const isStudioActive = activeRoute === "studio" || (pathname === "/studio") || (currentTab === "studio" && pathname === "/");
 
   useEffect(() => {
@@ -89,13 +90,13 @@ export function ArchiveTopbar({
 
         <nav aria-label="Main Navigation" className="hidden md:flex gap-2 lg:gap-4 text-xs md:text-sm text-ink-500">
           <Link
-            href="/archive"
+            href="/collections"
             onClick={() => onTabChange && onTabChange("archive")}
             className={`min-h-[44px] px-2.5 transition-colors duration-[--dur-fast] flex items-center ${
-              isArchiveActive ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
+              isCollectionsActive ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
             }`}
           >
-            Archive
+            Collections
           </Link>
           <Link
             href="/studio"
@@ -107,12 +108,12 @@ export function ArchiveTopbar({
             Studio
           </Link>
           <Link
-            href="/collections"
+            href="/archive"
             className={`min-h-[44px] px-2.5 transition-colors duration-[--dur-fast] flex items-center ${
-              pathname === "/collections" ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
+              isArchiveActive ? "font-semibold text-ink-900 border-b-2 border-accent-500" : "hover:text-ink-900"
             }`}
           >
-            Collections
+            Archive
           </Link>
           <Link
             href="/saved"
@@ -230,14 +231,22 @@ export function ArchiveTopbar({
             href: "/archive",
             onClick: () => onTabChange?.("archive"),
             highlight: isArchiveActive,
-          },
-          {
             label: "Studio ✦",
             href: "/studio",
             onClick: () => onTabChange?.("studio"),
             highlight: isStudioActive,
           },
-          { label: "Collections", href: "/collections" },
+          {
+            label: "Collections",
+            href: "/collections",
+            onClick: () => onTabChange?.("archive"),
+            highlight: isCollectionsActive,
+          },
+          {
+            label: "Archive",
+            href: "/archive",
+            highlight: isArchiveActive,
+          },
           { label: "Saved Wallpapers", href: "/saved" },
           { label: "About", href: "/about" },
         ]}

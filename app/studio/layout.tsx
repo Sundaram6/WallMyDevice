@@ -5,10 +5,14 @@ const description =
   "Design, customize, and generate high-resolution wallpapers for iPhone, Android, iPad, and Desktop with real-time procedural generators.";
 
 export const metadata: Metadata = {
-  title,
+  title: {
+    absolute: title,
+  },
   description,
   openGraph: {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     images: [
       {
