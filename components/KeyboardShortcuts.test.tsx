@@ -28,7 +28,7 @@ describe("KeyboardShortcuts", () => {
       overlayFont: "Inter",
       overlaySize: 1,
       exportFormat: "png",
-      sheetCollapsed: true,
+      sheetSnap: "peek",
     });
   });
 
@@ -120,22 +120,22 @@ describe("KeyboardShortcuts", () => {
   });
 
   it("Escape closes open mobile sheet", () => {
-    useEditorStore.setState({ sheetCollapsed: false });
+    useEditorStore.setState({ sheetSnap: "control" });
     render(<KeyboardShortcuts />);
     fireEvent.keyDown(document.body, { key: "Escape" });
-    expect(useEditorStore.getState().sheetCollapsed).toBe(true);
+    expect(useEditorStore.getState().sheetSnap).toBe("peek");
   });
 
   it("Escape does nothing when sheet is already closed", () => {
-    useEditorStore.setState({ sheetCollapsed: true, seed: "testseed" });
+    useEditorStore.setState({ sheetSnap: "peek", seed: "testseed" });
     render(<KeyboardShortcuts />);
     fireEvent.keyDown(document.body, { key: "Escape" });
-    expect(useEditorStore.getState().sheetCollapsed).toBe(true);
+    expect(useEditorStore.getState().sheetSnap).toBe("peek");
     expect(useEditorStore.getState().seed).toBe("testseed");
   });
 
   it("Escape preserves current recipe", () => {
-    useEditorStore.setState({ sheetCollapsed: false, seed: "keepme", generatorId: "waveform" });
+    useEditorStore.setState({ sheetSnap: "full", seed: "keepme", generatorId: "waveform" });
     render(<KeyboardShortcuts />);
     fireEvent.keyDown(document.body, { key: "Escape" });
     expect(useEditorStore.getState().seed).toBe("keepme");

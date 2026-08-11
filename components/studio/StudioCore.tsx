@@ -16,8 +16,8 @@ import { Toast } from "@/components/ui/Toast";
 
 export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) {
   const {
-    sheetCollapsed,
-    setSheetCollapsed,
+    sheetSnap,
+    setSheetSnap,
     whatsNewBanner,
     setWhatsNewBanner,
     deviceNotice,
@@ -93,9 +93,8 @@ export function StudioCore({ layout = "full" }: { layout?: "inline" | "full" }) 
         {!isInline && (
           <div className="md:hidden">
             <BottomSheet
-              title="Studio Controls"
-              collapsed={sheetCollapsed}
-              onSnap={setSheetCollapsed}
+              snap={sheetSnap}
+              onSnap={setSheetSnap}
             >
               <ControlPanel variant="sheet" />
             </BottomSheet>

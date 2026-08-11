@@ -17,8 +17,8 @@ export function KeyboardShortcuts() {
         return;
       }
       if (e.key === "Escape") {
-        if (!s.sheetCollapsed) {
-          useEditorStore.getState().setSheetCollapsed(true);
+        if (s.sheetSnap !== "peek") {
+          useEditorStore.getState().setSheetSnap("peek");
         }
         return;
       }

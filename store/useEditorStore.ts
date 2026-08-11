@@ -9,6 +9,7 @@ import { getRandomCombo, getRemixCombo, getRandomPalette, getRandomSeed } from "
 export type Mode = "light" | "dark" | "auto";
 export type SystemColorScheme = "light" | "dark";
 export type ExportFormat = "png" | "svg" | "jpg" | "webp";
+export type SheetSnap = "peek" | "control" | "full";
 
 export type PhoneSelection = {
   brand?: string;
@@ -55,8 +56,8 @@ export type EditorState = {
 
   exportFormat: ExportFormat;
 
-  sheetCollapsed: boolean;
-  setSheetCollapsed: (collapsed: boolean) => void;
+  sheetSnap: SheetSnap;
+  setSheetSnap: (snap: SheetSnap) => void;
 
   setGenerator: (id: string) => void;
   updateParam: (id: string, key: string, value: unknown) => void;
@@ -149,8 +150,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   exportFormat: "png",
 
-  sheetCollapsed: true,
-  setSheetCollapsed: (collapsed) => set({ sheetCollapsed: collapsed }),
+  sheetSnap: "peek",
+  setSheetSnap: (snap) => set({ sheetSnap: snap }),
 
   historyVersion: 0,
 

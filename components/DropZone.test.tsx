@@ -48,7 +48,7 @@ describe("DropZone", () => {
       overlayFont: "Inter",
       overlaySize: 1,
       exportFormat: "png",
-      sheetCollapsed: true,
+      sheetSnap: "peek",
     });
   });
 

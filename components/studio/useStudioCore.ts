@@ -169,8 +169,8 @@ export function useStudioCore() {
   const deviceType = useEditorStore((s) => s.deviceType);
   const phoneModel = useEditorStore((s) => s.phoneModel);
 
-  const sheetCollapsed = useEditorStore((s) => s.sheetCollapsed);
-  const setSheetCollapsed = useEditorStore((s) => s.setSheetCollapsed);
+  const sheetSnap = useEditorStore((s) => s.sheetSnap);
+  const setSheetSnap = useEditorStore((s) => s.setSheetSnap);
 
   const aspect = customWidth && customHeight ? customWidth / customHeight : 16 / 9;
 
@@ -335,8 +335,8 @@ export function useStudioCore() {
     deviceType,
     phoneModel,
     aspect,
-    sheetCollapsed,
-    setSheetCollapsed,
+    sheetSnap,
+    setSheetSnap,
     accMode,
     setAccMode,
     showContrastGrid,
