@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render } from "@testing-library/react";
-import { PreviewCanvas } from "./PreviewCanvas";
+import { PreviewCanvas, getPreviewTierDimensions } from "./PreviewCanvas";
 import { useEditorStore } from "@/store/useEditorStore";
 import { ensureRegistered } from "../../lib/generators";
 import { waveform } from "@/lib/generators/waveform";
 
-describe("PreviewCanvas", () => {
+describe("PreviewCanvas Resolution Tiers", () => {
   beforeEach(() => {
     ensureRegistered();
     useEditorStore.setState({
@@ -28,19 +28,35 @@ describe("PreviewCanvas", () => {
       overlayFont: "Inter",
       overlaySize: 1,
       exportFormat: "png",
+      isInteracting: false,
     });
   });
 
-  it("renders a canvas inside the device frame", () => {
-    const { container } = render(<PreviewCanvas frame="desktop-monitor" aspect={16 / 9} maxWidth={800} maxHeight={450} />);
-    const canvas = container.querySelector("canvas");
-    expect(canvas).toBeTruthy();
+  it("calculates dragging tier dimensions (380px long edge)", () => {
+    const res = getPreviewTierDimensions(16 / 9, 1100, 900, true, false);
+    expect(res.tier).toBe("dragging");
+    expect(res.width).toBe(380);
+    expect(res.height).toBe(214);
   });
 
-  it("the canvas pixel size matches the requested display size", () => {
+  it("calculates idle-mobile tier dimensions (640px long edge)", () => {
+    const res = getPreviewTierDimensions(9 / 16, 700, 600, false, true);
+    expect(res.tier).toBe("idle-mobile");
+    expect(res.height).toBe(600); // capped by maxHeight 600
+    expect(res.width).toBe(338);
+  });
+
+  it("calculates idle-desktop tier dimensions (1200px long edge)", () => {
+    const res = getPreviewTierDimensions(16 / 9, 1100, 900, false, false);
+    expect(res.tier).toBe("idle-desktop");
+    expect(res.width).toBe(1100);
+    expect(res.height).toBe(619);
+  });
+
+  it("renders canvas element with data-render-tier attribute", () => {
     const { container } = render(<PreviewCanvas frame="desktop-monitor" aspect={16 / 9} maxWidth={800} maxHeight={450} />);
     const canvas = container.querySelector("canvas") as HTMLCanvasElement;
-    expect(canvas.width).toBe(800);
-    expect(canvas.height).toBe(450);
+    expect(canvas).toBeTruthy();
+    expect(canvas.getAttribute("data-render-tier")).toBe("idle-desktop");
   });
 });

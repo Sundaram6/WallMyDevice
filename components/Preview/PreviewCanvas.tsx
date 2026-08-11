@@ -10,6 +10,43 @@ import { buildRendererError, type GenerationError } from "@/lib/render/generatio
 import type { FrameStyle } from "@/lib/devices/presets";
 import type { WebGLTarget } from "@/lib/generators/types";
 
+export type PreviewTier = "dragging" | "idle-mobile" | "idle-desktop";
+
+export function getPreviewTierDimensions(
+  aspect: number,
+  maxWidth: number,
+  maxHeight: number,
+  isInteracting: boolean,
+  isMobileViewport: boolean
+): { width: number; height: number; tier: PreviewTier } {
+  let targetLongEdge = 1200; // idle-desktop
+  let tier: PreviewTier = "idle-desktop";
+
+  if (isInteracting) {
+    targetLongEdge = 380;
+    tier = "dragging";
+  } else if (isMobileViewport) {
+    targetLongEdge = 640;
+    tier = "idle-mobile";
+  }
+
+  let width: number;
+  let height: number;
+
+  if (aspect >= 1) {
+    width = Math.min(maxWidth, targetLongEdge);
+    height = Math.round(width / aspect);
+  } else {
+    height = Math.min(maxHeight, targetLongEdge);
+    width = Math.round(height * aspect);
+  }
+
+  width = Math.max(16, width);
+  height = Math.max(16, height);
+
+  return { width, height, tier };
+}
+
 type Props = {
   frame?: FrameStyle;
   aspect: number;
@@ -21,9 +58,11 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [renderError, setRenderError] = useState<GenerationError | null>(null);
   const [isRendering, setIsRendering] = useState(false);
+  const [activeTier, setActiveTier] = useState<PreviewTier>("idle-desktop");
 
   const generatorId = useEditorStore((s) => s.generatorId);
   const setGenerator = useEditorStore((s) => s.setGenerator);
+  const isInteracting = useEditorStore((s) => s.isInteracting);
 
   const offscreenGlRef = useRef<{
     canvas: HTMLCanvasElement | OffscreenCanvas;
@@ -51,8 +90,17 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
     const canvas = canvasRef.current;
     if (!canvas) return;
     const s = useEditorStore.getState();
-    const w = maxWidth;
-    const h = maxHeight;
+
+    const isMobileViewport = window.innerWidth < 768;
+    const { width: w, height: h, tier } = getPreviewTierDimensions(
+      aspect,
+      maxWidth,
+      maxHeight,
+      s.isInteracting,
+      isMobileViewport
+    );
+
+    setActiveTier(tier);
 
     const input = buildRenderInput(s, { width: w, height: h });
     const generator = getGenerator(s.generatorId);
@@ -178,7 +226,6 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
             }
           }
 
-          // Sort by highest saturation and non-black brightness (>0.08)
           const sorted = samples
             .filter(s => s.lum > 0.08)
             .sort((a, b) => (b.sat * 0.75 + b.lum * 0.25) - (a.sat * 0.75 + a.lum * 0.25));
@@ -201,7 +248,6 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
             }
           }
 
-          // Boost luminance & saturation if extracted color is too dark to register on dark backdrop
           const max = Math.max(red, green, blue);
           const min = Math.min(red, green, blue);
           let lum = (max + min) / 510;
@@ -255,11 +301,11 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
     };
   }, [renderIfReady]);
 
-  const w = maxWidth;
-  const h = maxHeight;
+  const containerW = maxWidth;
+  const containerH = maxHeight;
 
   return (
-    <div className="relative flex items-center justify-center overflow-hidden" style={{ width: w, height: h }}>
+    <div className="relative flex items-center justify-center overflow-hidden" style={{ width: containerW, height: containerH }}>
       {renderError ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-paper-100 border border-paper-300 rounded-lg shadow-1 z-20">
           <div className="text-2xl mb-2">⚠️</div>
@@ -287,9 +333,9 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
 
       <canvas
         ref={canvasRef}
-        width={w}
-        height={h}
-        className={`h-full w-full object-contain transition-opacity duration-[--dur-canvas] ease-[--ease-out] ${renderError ? "opacity-0 hidden" : "opacity-100 block"}`}
+        data-testid="preview-canvas"
+        data-render-tier={activeTier}
+        className={`h-full w-full object-contain transition-opacity duration-200 ease-out ${renderError ? "opacity-0 hidden" : "opacity-100 block"}`}
       />
 
       {isRendering && !renderError && (

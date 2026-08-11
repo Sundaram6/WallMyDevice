@@ -1,3 +1,6 @@
+import { useCallback } from "react";
+import { useEditorStore } from "@/store/useEditorStore";
+
 type Props = {
   value: number;
   min: number;
@@ -20,6 +23,22 @@ export function Slider({
   showValue = false,
 }: Props) {
   const percent = Math.min(100, Math.max(0, ((value - min) / (max - min || 1)) * 100));
+  const setInteracting = useEditorStore((s) => s.setInteracting);
+
+  const handleInteractionStart = useCallback(() => {
+    setInteracting(true);
+    const handleInteractionEnd = () => {
+      setInteracting(false);
+      window.removeEventListener("pointerup", handleInteractionEnd);
+      window.removeEventListener("pointercancel", handleInteractionEnd);
+      window.removeEventListener("mouseup", handleInteractionEnd);
+      window.removeEventListener("touchend", handleInteractionEnd);
+    };
+    window.addEventListener("pointerup", handleInteractionEnd);
+    window.addEventListener("pointercancel", handleInteractionEnd);
+    window.addEventListener("mouseup", handleInteractionEnd);
+    window.addEventListener("touchend", handleInteractionEnd);
+  }, [setInteracting]);
 
   return (
     <div className="flex flex-col gap-1.5 w-full">
@@ -37,6 +56,8 @@ export function Slider({
           step={step}
           value={value}
           aria-label={ariaLabel || label}
+          onPointerDown={handleInteractionStart}
+          onTouchStart={handleInteractionStart}
           onChange={(e) => onChange(Number(e.target.value))}
           style={{
             background: `linear-gradient(to right, var(--accent-500) 0%, var(--accent-500) ${percent}%, var(--paper-200) ${percent}%, var(--paper-200) 100%)`,

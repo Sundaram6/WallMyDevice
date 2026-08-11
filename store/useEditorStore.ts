@@ -59,6 +59,9 @@ export type EditorState = {
   sheetSnap: SheetSnap;
   setSheetSnap: (snap: SheetSnap) => void;
 
+  isInteracting: boolean;
+  setInteracting: (isInteracting: boolean) => void;
+
   setGenerator: (id: string) => void;
   updateParam: (id: string, key: string, value: unknown) => void;
 
@@ -152,6 +155,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   sheetSnap: "peek",
   setSheetSnap: (snap) => set({ sheetSnap: snap }),
+
+  isInteracting: false,
+  setInteracting: (isInteracting) => set({ isInteracting }),
 
   historyVersion: 0,
 
