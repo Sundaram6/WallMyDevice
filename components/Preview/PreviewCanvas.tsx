@@ -335,7 +335,10 @@ export function PreviewCanvas({ frame = "iphone", aspect, maxWidth, maxHeight }:
         ref={canvasRef}
         data-testid="preview-canvas"
         data-render-tier={activeTier}
-        className={`h-full w-full object-contain transition-opacity duration-200 ease-out ${renderError ? "opacity-0 hidden" : "opacity-100 block"}`}
+        className={`h-full w-full object-contain transition-all duration-200 ease-out ${renderError ? "opacity-0 hidden" : "opacity-100 block"}`}
+        style={{
+          filter: activeTier === "dragging" ? "contrast(1.01) brightness(1.01)" : "none",
+        }}
       />
 
       {isRendering && !renderError && (
