@@ -22,9 +22,11 @@ function getRemainingTime() {
 
 export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => void }) {
   const store = useEditorStore();
-  const [timeLeft, setTimeLeft] = useState(getRemainingTime);
+  const [mounted, setMounted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
+    setMounted(true);
     setTimeLeft(getRemainingTime());
     const timer = setInterval(() => {
       setTimeLeft(getRemainingTime());
@@ -62,24 +64,32 @@ export function SeasonalDropSection({ onOpenStudio }: { onOpenStudio?: () => voi
           </div>
 
           {/* Countdown Clock */}
-          <div className="flex items-center gap-3 bg-paper-50 p-4 rounded-2xl border border-paper-300 shadow-inner">
+          <div className="flex items-center gap-3 bg-paper-50 p-4 rounded-2xl border border-paper-300 shadow-inner" suppressHydrationWarning>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.days).padStart(2, "0")}</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900" suppressHydrationWarning>
+                {mounted ? String(timeLeft.days).padStart(2, "0") : "--"}
+              </div>
               <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">DAYS</div>
             </div>
             <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.hours).padStart(2, "0")}</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900" suppressHydrationWarning>
+                {mounted ? String(timeLeft.hours).padStart(2, "0") : "--"}
+              </div>
               <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">HRS</div>
             </div>
             <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900">{String(timeLeft.minutes).padStart(2, "0")}</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-ink-900" suppressHydrationWarning>
+                {mounted ? String(timeLeft.minutes).padStart(2, "0") : "--"}
+              </div>
               <div className="font-mono text-[9px] uppercase tracking-wider text-ink-500">MINS</div>
             </div>
             <span className="text-ink-500 text-lg font-mono">:</span>
             <div className="text-center px-2">
-              <div className="font-mono text-xl sm:text-2xl font-bold text-accent-500">{String(timeLeft.seconds).padStart(2, "0")}</div>
+              <div className="font-mono text-xl sm:text-2xl font-bold text-accent-500" suppressHydrationWarning>
+                {mounted ? String(timeLeft.seconds).padStart(2, "0") : "--"}
+              </div>
               <div className="font-mono text-[9px] uppercase tracking-wider text-accent-500 font-semibold">SECS</div>
             </div>
           </div>

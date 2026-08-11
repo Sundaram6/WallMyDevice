@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0] - 2026-08-11
+
+### Added
+- **Mobile Bottom Sheet 3.0**: 3-state draggable sheet (Peek ~72px, Control ~40dvh, Full ~86dvh) with real-time pointer capture and least-squares velocity snapping.
+- **Mobile Visual Generator Picker**: 2-column scrollable grid of visual cards with full-bleed thumbnail backgrounds, scrim overlays, active state border indicators, and unblocked native touch-scrolling.
+- **Preview / Export Resolution Split**: Tiered canvas rendering engine (`dragging` @ 380px, `idle-mobile` @ 640px, `idle-desktop` @ 1200px, `export` native) with 100% resolution-independence verified across all 18 generators.
+- **Smooth Resolution Tier Transitions**: 200ms ease-out GPU compositor CSS transitions for zero visual pop on slider release.
+
+### Fixed
+- **React Hydration Mismatch Fix**: Resolved SSR vs Client timestamp discrepancy in `SeasonalDropSection` countdown timer using stable initial mount state.
+- **Touch-conflict disambiguation**: Pointer capture on sheet handle prevents scroll conflict between generator grid and sheet dragging.
+
 ## [2.1.0] - 2026-08-04
 
 ### Added

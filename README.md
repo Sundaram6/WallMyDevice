@@ -7,6 +7,9 @@ WallMyDevice is a client-side wallpaper generator that lets you create unique, h
 ## Features
 
 - **18 Procedural Wallpaper Generators**: Aurora Flow, Bauhaus Blocks, Duotone Burst, Flow Field, Fluid Gradient, Geometric, Grain Texture, Halftone Dots, Low-Poly Terrain, Marble Fluid, Mesh Gradient, Metaballs, Starfield Nebula, Topographic Lines, Typography, Voronoi Mosaic, Wave Interference, Waveform
+- **Mobile Bottom Sheet 3.0**: Real-time 3-state draggable sheet (Peek ~72px, Control ~40dvh, Full ~86dvh) with pointer capture and least-squares velocity snapping
+- **Mobile Visual Generator Picker**: 2-column scrollable grid of visual cards with full-bleed thumbnail backgrounds and scrim gradient overlays
+- **Preview / Export Resolution Split**: Tiered canvas rendering engine (`dragging` @ 380px, `idle-mobile` @ 640px, `idle-desktop` @ 1200px, `export` native) with resolution-independence verified across all 18 generators
 - **125 Archive Presets & 17 Curated Categories**: Rich, non-repetitive print swatch archive with real canvas swatches and modal preview cards
 - **Photorealistic Device Frames**: iPhone 16 Pro, Samsung Galaxy S25 Ultra, iPad Pro 13", 4K Desktop, Ultrawide, and Custom aspect bounds
 - **Dynamic Volumetric Underglow**: Adaptive 5×5 grid color-sampled backlight halo around device mockups for every generator
@@ -107,7 +110,7 @@ npm run start
 
 ## Deployment
 
-Deployment status: v0.1.0 Released at https://wallmydevice.vercel.app
+Deployment status: v2.2.0 Released at https://wallmydevice.vercel.app
 
 WallMyDevice is configured for Vercel deployment:
 

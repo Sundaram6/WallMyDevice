@@ -10,6 +10,25 @@ export type ChangelogRelease = {
 
 export const CHANGELOG_HISTORY: ChangelogRelease[] = [
   {
+    version: "v2.2.0",
+    releaseDate: "2026-08-11",
+    title: "Mobile Sheet 3.0, Visual Generator Picker, Resolution Split & Hydration Fix",
+    summary: "Draggable 3-state mobile bottom sheet, 2-column visual generator picker grid, tiered preview vs export resolution split, and React hydration fix.",
+    changes: [
+      "Mobile Bottom Sheet 3.0: 3-state draggable sheet (Peek ~72px, Control ~40dvh, Full ~86dvh) with real-time pointer capture and velocity-based snapping",
+      "Mobile Visual Generator Picker: 2-column scrollable visual grid with portrait card thumbnails, scrim overlays, active state border indicators, and unblocked touch-scrolling",
+      "Preview / Export Resolution Split: Tiered canvas rendering (dragging @ 380px, idle-mobile @ 640px, idle-desktop @ 1200px) with 100% resolution-independence across all 18 generators",
+      "Smooth Resolution Tier Transitions: 200ms ease-out GPU compositor CSS transitions for zero visual pop on slider release",
+    ],
+    fixes: [
+      "React Hydration Mismatch Fix: Resolved SSR vs Client timestamp discrepancy in SeasonalDropSection countdown timer using stable initial mount state",
+      "Touch-conflict disambiguation: Pointer capture on sheet handle prevents scroll conflict between generator grid and sheet dragging",
+    ],
+    limitations: [
+      "Shader generators degrade to 2D canvas fallback when WebGL context is unavailable",
+    ],
+  },
+  {
     version: "v2.1.0",
     releaseDate: "2026-08-04",
     title: "Growth & Sharing: URL State Sync, Edge OG Cards, Remix & Surprise Me",
