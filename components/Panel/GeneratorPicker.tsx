@@ -55,7 +55,7 @@ export function GeneratorPicker() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2" data-testid="generator-grid">
       {generators.map((g) => {
         const isActive = active === g.id;
         const thumbs = thumbnails[g.id];
@@ -65,6 +65,7 @@ export function GeneratorPicker() {
           <button
             key={g.id}
             id={`gen-picker-${g.id}`}
+            data-testid={`gen-card-${g.id}`}
             type="button"
             onClick={() => setGenerator(g.id)}
             aria-pressed={isActive}
@@ -72,7 +73,8 @@ export function GeneratorPicker() {
             suppressHydrationWarning
             className="relative overflow-hidden rounded-lg transition-all duration-[--dur-fast] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-1 group"
             style={{
-              height: 96,
+              height: 144,
+              minHeight: 44,
               border: isActive
                 ? "2px solid var(--accent-500)"
                 : "1.5px solid transparent",

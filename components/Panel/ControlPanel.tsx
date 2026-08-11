@@ -305,7 +305,7 @@ function MobilePanel() {
       </div>
 
       {tab === "style" && (
-        <div className="space-y-5">
+        <div className="space-y-5" data-testid="mobile-style-tab">
           <GeneratorPicker />
           <PalettePicker />
           <ModeToggle />
