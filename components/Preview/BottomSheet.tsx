@@ -119,7 +119,7 @@ export function BottomSheet({ snap, onSnap, children }: Props) {
     if (sheetRef.current) {
       // Re-enable spring transition for programmatic changes.
       sheetRef.current.style.transition =
-        "height 0.45s cubic-bezier(0.34,1.56,0.64,1)";
+        "height 0.4s cubic-bezier(0.32,0.72,0,1)";
       sheetRef.current.style.height = `${target}px`;
     }
   }, [snap, setHeight]);
@@ -176,7 +176,7 @@ export function BottomSheet({ snap, onSnap, children }: Props) {
 
     // Re-enable spring transition for the snap animation.
     sheetRef.current.style.transition =
-      "height 0.45s cubic-bezier(0.34,1.56,0.64,1)";
+      "height 0.4s cubic-bezier(0.32,0.72,0,1)";
     setHeight(snapToPx(nextSnap, vh));
 
     // Remove will-change once the transition settles.
@@ -193,11 +193,17 @@ export function BottomSheet({ snap, onSnap, children }: Props) {
   }, [onSnap, setHeight]);
 
   const onPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    // Tap (no real drag) on peek → advance to control.
-    if (!didDrag.current && snapRef.current === "peek") {
+    // Tap (no real drag) on handle → cycle snap states: peek → control → full → control
+    if (!didDrag.current) {
       if (handleRef.current) handleRef.current.releasePointerCapture(e.pointerId);
       dragging.current = false;
-      onSnap("control");
+      if (snapRef.current === "peek") {
+        onSnap("control");
+      } else if (snapRef.current === "control") {
+        onSnap("full");
+      } else {
+        onSnap("control");
+      }
       return;
     }
     finalizeDrag(e);
@@ -220,8 +226,8 @@ export function BottomSheet({ snap, onSnap, children }: Props) {
       className="absolute inset-x-0 bottom-0 z-30 rounded-t-2xl border-t border-paper-300 bg-paper-100 text-ink-900 shadow-2 flex flex-col"
       style={{
         height: `${PEEK_PX}px`,
-        // Spring transition initial state; overridden during drag.
-        transition: "height 0.45s cubic-bezier(0.34,1.56,0.64,1)",
+        // Smooth iOS spring transition initial state; overridden during drag.
+        transition: "height 0.4s cubic-bezier(0.32,0.72,0,1)",
         // Safe-area inset — respects notch/home-indicator devices.
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
